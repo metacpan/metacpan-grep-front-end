@@ -1,0 +1,14 @@
+<% IF last_searches && last_searches.size %>
+<div class="hidden-phone">
+<li class="nav-header">Your recent searches</li>
+<li>
+  <div>
+    <ul>
+      <% FOREACH search in last_searches %>
+      <li><a href="/search?q=<% search | html_entity %>"><% search | html %></a>
+      <% END %>
+    </ul>
+  </div>
+</li>
+</div>
+<% END %>

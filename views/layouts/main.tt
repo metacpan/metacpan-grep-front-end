@@ -1,0 +1,27 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<% IF search; THEN %>
+		<title><% search | html %> results from the CPAN </title>
+<% ELSE %>		
+		<title>Let's grep the CPAN together: search a pattern among all perl distributions</title>
+<% END %>
+		<link rel="alternate" type="application/rss+xml" title="RSS" href="/feed/recent" />
+		<link href="/_assets/510a05c940bec575d4a5edfd45e2668f.css" rel="stylesheet" type="text/css">
+		<link rel="search" href="/static/opensearch.xml" type="application/opensearchdescription+xml" title="MetaCPAN">
+		<link rel="shortcut icon" href="/static/icons/favicon.ico">
+		<link rel="apple-touch-icon" sizes="152x152" href="/static/icons/apple-touch-icon.png">
+		<script src="/_assets/8ee3b0e7a6641aed845899d0645808f6.js" type="text/javascript"></script>
+	</head>
+	<body>
+		<% INCLUDE main/_header.tt %>
+		<div class="container-fluid">
+			<div class="row">
+				<div class="main-content col-md-12">
+					<% content %>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

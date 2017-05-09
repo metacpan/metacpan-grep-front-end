@@ -1,0 +1,72 @@
+# This is the main configuration file of your Dancer2 app
+# env-related settings should go to environments/$env.yml
+# all the settings in this file will be loaded at Dancer's startup.
+
+# Your application's name
+appname: "grepcpan"
+
+# The default layout to use for your application (located in
+# views/layouts/main.tt)
+layout: "main"
+
+# when the charset is set to UTF-8 Dancer2 will handle for you
+# all the magic of encoding and decoding. You should not care
+# about unicode within your app when this setting is set (recommended).
+charset: "UTF-8"
+
+# template engine
+# simple: default and very basic template engine
+# template_toolkit: TT
+
+#template: "simple"
+
+template: "template_toolkit"
+engines:
+  template:
+    template_toolkit:
+      start_tag: '<%'
+      end_tag:   '%>'
+
+# session engine
+#
+# Simple: in-memory session store - Dancer2::Session::Simple
+# YAML: session stored in YAML files - Dancer2::Session::YAML
+#
+# Check out metacpan for other session storage options:
+# https://metacpan.org/search?q=Dancer2%3A%3ASession&search_type=modules
+#
+# Default value for 'cookie_name' is 'dancer.session'. If you run multiple
+# Dancer apps on the same host then you will need to make sure 'cookie_name'
+# is different for each app.
+#
+#engines:
+#  session:
+#    Simple:
+#      cookie_name: testapp.session
+#
+#engines:
+#  session:
+#    YAML:
+#      cookie_name: eshop.session
+#      is_secure: 1
+#      is_http_only: 1
+
+grepcpan:
+   demo: 0
+   cookie:
+      history_name: 'lastsearch'
+      history_size: 20 
+   #gitrepo: '/home/grepcpan/minicpan_grep.git'
+   gitrepo: '/home/grepcpan/metacpan-cpan-extracted'
+   binaries:
+      git: '/usr/local/cpanel/3rdparty/bin/git'
+   cache: 
+      directory: '/home/grepcpan/.grepcpan/cache'
+      version: '1.0'
+   limit:
+      files_per_search:     300
+      distros_per_page:      30
+      search_context:   	  5
+      search_context_distro: 10
+      search_context_file:   60
+

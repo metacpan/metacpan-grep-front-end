@@ -1,0 +1,21 @@
+<nav class="navbar navbar-default" role="navigation">
+  <div class="container-fluid">
+    <ul class="nav navbar-nav">
+      <li class="active">
+        <a href="/"><i class="fa fa-search"></i>&nbsp;grep<img src="/static/icons/metacpan-icon.png" />cpan</a>
+      </li>
+      <li class="">
+        <a href="http://metacpan.org">&nbsp;meta<img src="/static/icons/metacpan-icon.png" />cpan</a>
+      </li>
+      <li class="hidden-xs">
+        <a href="/about"><i class="fa fa-info"></i>&nbsp;About</a>
+      </li>
+      <li class="hidden-xs">
+        <a href="/faq"><i class="fa fa-question"></i>&nbsp;FAQ</a>
+      </li>
+      <li class="hidden-xs">
+        <a href="https://github.com/metacpan/metacpan-grep-front-end" title="Front End"><i class="fa fa-github-alt"></i>&nbsp;GitHub Repo</a>
+      </li> 
+    </ul>
+  </div>
+</nav>

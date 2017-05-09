@@ -1,0 +1,35 @@
+<% FOREACH item IN query.results %>
+<!-- beginning of module -->
+
+  <div class="module-result">
+  <big><strong>
+   <a href="/search/<% item.distro | html_entity %>/?q=<% search | html_entity %>"><% item.distro %></a>
+  </strong></big>
+  <div class="logged_out" style="display: inline;">
+  <a href="/search/<% item.distro | html_entity %>/?q=<% search | html_entity %>" class="favorite highlight">
+  <span><%= item.files.size %></span> <%= item.files.size <= 1 ? 'match' : 'results' %></a>
+  </div>
+    
+  <br>
+
+  <p class="description">
+
+  <% FOREACH match IN item.matches %>
+  <p class="description">
+    <a class="author" href="/search/<% item.distro | html_entity %>/?f=<% match.file | html_entity %>&amp;q=<% search | html_entity %>" title="grep on this file"><% match.file %></a>     
+    <% FOREACH bl IN match.blocks %>
+    <pre class="line-numbers" data-start="<% bl.start_at %>" data-line="<% bl.matchlines.join(',') %>"><code class="language-perl"><%= bl.code | html_entity -%></code></pre>
+    <% END %>
+  </p>        
+  <% END %>
+
+    <a href="/search/<% item.distro | html_entity %>/?q=<% search | html_entity %>"><i class="fa fa-list"></i>&nbsp;view all matches for this distribution</a><br>
+    <a href="https://metacpan.org/search?q=<% item.distro | html_entity %>"><i class="fa fa-search"></i>&nbsp;<i>search on metacpan</i></a>  
+
+  <span class="relatize"><% item.version %></span>
+<br>
+
+  </div>
+<br>
+
+<% END # foreach query.results %>

@@ -1,0 +1,27 @@
+<% IF !nopagination %>
+<!-- start of pagination -->
+<div class="text-center">
+  <ul class="pagination">
+    <% SET pagefrom = ( page div 10 ) * 10 || 1;  %>
+    <% SET pageto = query.results.size ? pagefrom + 10 : pagefrom  %>
+    <li class="<% page < 10 ? 'disabled' : '' %>">
+      <a href="/search?p=<% pagefrom - 10 %>&amp;q=<% search | html_entity %>">«</a>
+    </li>
+    <% IF query.results.size %>
+    <% FOREACH p in [ pagefrom..pageto] %>
+    <% IF p == page %>
+    <li class="active">
+    <% ELSE %>
+    <li>
+    <% END %>
+      <a href="/search?p=<% p %>&amp;q=<% search | html_entity %>"><% p %></a>
+    </li>
+    <% END %>
+    <li>
+      <a href="/search?p=<% pagefrom + 10 %>&amp;q=<% search | html_entity %>">»</a>
+    </li>
+    <% END # end check query.results.size %>
+  </ul>
+</div>
+<!-- end of pagination -->
+<% END %>

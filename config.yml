@@ -56,9 +56,6 @@ grepcpan:
    cookie:
       history_name: 'lastsearch'
       history_size: 20 
-   cache: 
-      directory: '/home/grepcpan/.grepcpan/cache'
-      version: '1.01'
    limit:
       files_per_search:     300
       distros_per_page:      30

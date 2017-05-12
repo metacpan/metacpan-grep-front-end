@@ -3,6 +3,7 @@ requires "Proc::ProcessTable" => 0;
 requires "Digest::MD5" => 0;
 requires "YAML::Sycks" => 0;
 requires "Simple::Accessor" => "1.02";
+requires "Time::HiRes" => 0;
 requires "Test::Harness" => 0;
 requires "Dancer2"  => "0";
 requires "Template" => 0;

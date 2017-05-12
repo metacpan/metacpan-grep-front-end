@@ -4,6 +4,8 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <% IF search; THEN %>
 		<title><% search | html %> results from the CPAN </title>
+<% ELSIF title %>		
+		<title><% title %> - Let's grep the CPAN together</title>
 <% ELSE %>		
 		<title>Let's grep the CPAN together: search a pattern among all perl distributions</title>
 <% END %>

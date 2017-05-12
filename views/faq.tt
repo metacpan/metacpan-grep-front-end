@@ -1,0 +1,37 @@
+<div class="content about anchors">
+<h1 id="aboutmetacpan"><a href="#faq" class="anchor"><span class="fa fa-bookmark black"></span></a>Frequently Asked Questions about grep.cpan</h1>
+
+
+<p>
+	<b>Why grepcpan is slow ?</b>
+	<br>
+	short answer: this is a *young* experimental project using a 17Gb git repository with about a 1.5Gb index... this is pushing git to the limit...
+	<br>
+	<i>read the <a href="/source-code">source code description page</a> to have a better idea of the internal implementation.</i>
+</p>
+
+<p>
+	<b>Can I user Regular Expression in my query ?</b>
+	<br>
+	yes you can ! we are using a 'git grep -P', which mean you can use the power of perl Regular Expression in your queries.
+</p>
+
+<p>
+	<b>What about UniCode characters ?</b>
+	<br>
+	no, you cannot use directly unicode as part of your query but you can use <b>code points</b>.
+	<br>
+	<i>more details from <a href="https://perldoc.perl.org/perlunicode.html">perlunicode manual</a></i>
+</p>
+
+
+<p>
+	<b>Any other questions ?</b>
+	<br>
+	join us on IRC @irc.perl.org channel #metacpan
+	<br>
+	<i>new to IRC ? go to <a href="http://www.irc.perl.org">www.irc.perl.org</a></i>
+</p>
+
+
+</div>

@@ -56,13 +56,9 @@ grepcpan:
    cookie:
       history_name: 'lastsearch'
       history_size: 20 
-   #gitrepo: '/home/grepcpan/minicpan_grep.git'
-   gitrepo: '/home/grepcpan/metacpan-cpan-extracted'
-   binaries:
-      git: '/usr/local/cpanel/3rdparty/bin/git'
    cache: 
       directory: '/home/grepcpan/.grepcpan/cache'
-      version: '1.0'
+      version: '1.01'
    limit:
       files_per_search:     300
       distros_per_page:      30

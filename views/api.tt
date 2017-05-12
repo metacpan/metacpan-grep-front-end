@@ -1,0 +1,37 @@
+<div class="content about anchors">
+<h1 id="aboutmetacpan"><a href="#aboutmetacpan" class="anchor"><span class="fa fa-bookmark black"></span></a>API 101</h1>
+
+<p>
+The API is currently in its first version and very naive / limited, but it exists... 
+the API is not versionned yet, but if a number should be picked '0.0' will be the best match, this gives you an idea of how far you can go with it.
+</p>
+
+<h2>Basic concepts</h2>
+<p>
+The API is built around these simple concepts:
+<ul>
+	<li>simple http GET queries</li>
+	<li>the output format is JSON</li>
+	<li>just add the '/api' prefix to any of your search, and you should be to go !</li>
+	
+</ul>	
+
+</p>
+
+<h2>Search among all CPAN distributions</h2>
+
+<pre>
+</pre>
+
+<h2>Search in a specific CPAN distribution</h2>
+
+<pre>
+</pre>
+
+<h2>Thumb Rules</h2>
+
+<p>Use it, but do not abuse it for now, or at your own risks :-) Try to be a good citizen.
+This is not designed on the same architecture than fastapi.metacpan.org... 
+</p>
+
+</div>

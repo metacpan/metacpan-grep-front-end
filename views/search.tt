@@ -1,12 +1,10 @@
-<% USE Dumper %>
-<% #Dumper.dump_html(query) %>
-<!--
-'is_incomplete' => '1',
-'match' => {
-'distros' => '84',
-'files' => '500'
-},
--->
+<%  IF query.time_elapsed %>
+<%
+  SET gram_sec = 'second';# : 'second';
+  SET gram_sec = 'seconds' IF query.time_elapsed >= 2;
+  SET html_time_elapsed = "<i>( run in ${query.time_elapsed} $gram_sec )</i>"
+%>
+<% END  %>
 <div class="container-fluid">
   
   
@@ -59,6 +57,7 @@
         <% ELSE %>
           found <b><% query.match.distros %></b> distributuons and <b><% query.match.files %></b> files matching your query !
         <% END %>
+        <% html_time_elapsed %>
         </div>
         <br><br>
         <% END %>
@@ -66,6 +65,7 @@
         <% INCLUDE 'show-search.tt' %>
         <% IF query.results.size || page > 1 %>
         <% INCLUDE main/_pagination.tt %>
+        <div class="center"><% html_time_elapsed %></div>
         <% END %>
       </div>
     </div>

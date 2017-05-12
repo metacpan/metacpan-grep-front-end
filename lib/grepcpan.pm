@@ -16,8 +16,23 @@ my $COOKIE_LAST_SEARCH = $GrepCpanConfig->{'cookie'}->{'history_name'}
 ###
 
 get '/'      => \&home;
-get '/about' => \&home;
-get '/faq'   => \&home;
+
+get '/about' => sub {
+    return template 'about' => { 'title' => 'About grep::metacpan', menu => 'about' };
+};
+
+get '/faq' => sub {
+    return template 'faq' => { 'title' => 'FAQs for grep::metacpan', menu => 'faq' };
+};
+
+get '/api' => sub {
+    return template 'api' => { 'title' => 'APIs how to use grep::metacpan APIs', menu => 'api' };
+};
+
+get '/source-code' => sub {
+    return template 'source-code' => { 'title' => 'Source code of grep::metacpan, list of git reposities', menu => 'gh' };
+};
+
 
 get '/search' => sub {
 
@@ -26,7 +41,6 @@ get '/search' => sub {
     my $query = $grep->do_search( $q, $page - 1 );    # list of match
 
     return template 'search' => {
-        'title'       => 'grepcpan',
         search        => $q,
         query         => $query,
         page          => $page,
@@ -47,7 +61,6 @@ get '/search/:distro/' => sub {
     my $show_sumup   = defined $distro && length $distro ? 0 : 1;
 
     return template 'search' => {
-        'title'       => 'grepcpan',
         search        => $q,
         search_distro => $distro,
         query         => $query,
@@ -147,6 +160,7 @@ use Simple::Accessor
 use POSIX ":sys_wait_h";
 use Proc::ProcessTable ();
 use YAML::Syck         ();
+use Time::HiRes        ();
 use Test::More;
 
 use Digest::MD5 qw( md5_hex );
@@ -245,6 +259,9 @@ sub _get_git_grep_flavor {
 sub do_search {
     my ( $self, $search, $page, $search_distro, $search_file ) = @_;
 
+
+	my $t0 = [Time::HiRes::gettimeofday];
+
     my $gitdir = $self->git()->work_tree;
 
     $search = _sanitize_search($search);
@@ -310,7 +327,7 @@ sub do_search {
         $add_block->();    # push the last block
             #note "#### A file #### $current_file => \n", explain \@diffblocks;
 
-        my ( $where, $distro, $shortpath ) = split( q{/}, $current_file, 3 );
+        my ( $where, $distro, $shortpath ) = massage_filepath( $current_file );
         return unless length $shortpath;
         my $prefix = join '/', $where, $distro;
 
@@ -365,10 +382,13 @@ sub do_search {
     }
     $process_file->();                   # process the last block
 
+	my $elapsed = Time::HiRes::tv_interval ( $t0, [Time::HiRes::gettimeofday]);
+
     return {
         is_incomplete => $cache->{is_incomplete} || 0,
         match         => $cache->{match},
-        results       => \@output
+        results       => \@output,
+        time_elapsed  => $elapsed,
     };
 }
 
@@ -473,8 +493,7 @@ sub get_match_cache {
 
     my $last_distro;
     foreach my $line (@$list_files) {
-        warn $line;
-        my ( $where, $distro, $shortpath ) = split( q{/}, $line, 3 );
+        my ( $where, $distro, $shortpath ) = massage_filepath( $line );
         next unless defined $shortpath;
         $last_distro = $distro;
         my $prefix = join '/', $where, $distro;
@@ -504,6 +523,15 @@ search: a
 =cut
 
     return $cache;
+}
+
+sub massage_filepath {
+	my $line = shift;
+	my ( $where, $letter, $distro, $shortpath ) = split( q{/}, $line, 4 );
+	$where //= '';
+	$letter //= '';
+	$where .= '/' . $letter;
+	return ( $where, $distro, $shortpath );
 }
 
 sub run_cmd_limit {

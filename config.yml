@@ -54,6 +54,7 @@ engines:
 grepcpan:
    demo: 0
    nocache: 0
+   maxworkers: 1000
    timeout:
       # the main process returning the http request to the user ( in seconds )
       user_search: 18

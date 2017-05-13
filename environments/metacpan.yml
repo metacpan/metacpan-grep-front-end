@@ -23,6 +23,7 @@ show_errors: 1
 startup_info: 1
 
 grepcpan:
+   nocache: 1
    gitrepo: '/home/toddr/metacpan-cpan-extracted'
    binaries:
       git: '/home/toddr/git/bin/git'

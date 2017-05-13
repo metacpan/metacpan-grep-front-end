@@ -15,8 +15,9 @@
     <div class="col-md-9">
       <form action="/search" class="search-form form-horizontal">
         <div class="form-group">
-          <div class="input-group">
-            <input type="text" name="q" size="41" id="search-input" class="form-control" value="<% search %>" autocomplete="off">
+          <div class="input-group" style="overflow: hidden; display: table;">
+            <input type="text" name="q" size="41" id="search-input" class="form-control" value="<% search %>" autocomplete="off" style="width:300px; float:left" placeholder="your query with perl RegEx">
+            <input type="text" name="filetype" size="6" id="search-input" class="form-control" value="<% filetype %>" autocomplete="off" style="width:65px; float:left" placeholder="*.pm">
             <span class="input-group-btn">
               <button class="btn search-btn" type="submit">Search</button>
             </span>
@@ -52,11 +53,20 @@
         <div class="module-result">
         <big><strong>Result: </strong></big>
         <div style="display: inline;">
+
+        <% IF query.search_in_progress %>
+          <i class="fa fa-cog fa-spin fa-2x fa-fw margin-bottom"></i>
+          <span class="sr-only">Your query is still running in background...</span>Search in progress...
+          at this time more than <b><% query.match.distros %></b> distributions and <b><% query.match.files %></b> files match your query.
+          <br>Next refresh should show more results.
+        <% ELSE %>
         <% IF query.is_incomplete %>
           found more than <b><% query.match.distros %></b> distributions - <i>search limited to the first <b><% query.match.files %></b> files matching your query</i>
         <% ELSE %>
           found <b><% query.match.distros %></b> distributuons and <b><% query.match.files %></b> files matching your query !
         <% END %>
+        
+        <% END # END of search_in_progress  %>
         <% html_time_elapsed %>
         </div>
         <br><br>

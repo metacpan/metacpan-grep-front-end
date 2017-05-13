@@ -53,11 +53,18 @@ engines:
 
 grepcpan:
    demo: 0
+   nocache: 0
+   timeout:
+      # the main process returning the http request to the user ( in seconds )
+      user_search: 18
+      # the grep process running in background ( in seconds )
+      grep_search:   900
    cookie:
       history_name: 'lastsearch'
       history_size: 20 
    limit:
-      files_per_search:     300
+      files_per_search:      60
+      files_git_run_bg:    2000
       distros_per_page:      30
       search_context:   	  5
       search_context_distro: 10

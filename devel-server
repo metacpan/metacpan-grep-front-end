@@ -1,3 +1,4 @@
 #!/bin/sh
 
+#killall plackup
 plackup -p 5000 -R . bin/app.psgi

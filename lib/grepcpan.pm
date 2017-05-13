@@ -15,47 +15,64 @@ my $COOKIE_LAST_SEARCH = $GrepCpanConfig->{'cookie'}->{'history_name'}
 ### regular routes
 ###
 
-get '/'      => \&home;
+get '/' => \&home;
 
 get '/about' => sub {
-    return template 'about' => { 'title' => 'About grep::metacpan', menu => 'about' };
+    return template 'about' =>
+      { 'title' => 'About grep::metacpan', menu => 'about' };
 };
 
 get '/faq' => sub {
-    return template 'faq' => { 'title' => 'FAQs for grep::metacpan', menu => 'faq' };
+    return template 'faq' =>
+      { 'title' => 'FAQs for grep::metacpan', menu => 'faq' };
 };
 
 get '/api' => sub {
-    return template 'api' => { 'title' => 'APIs how to use grep::metacpan APIs', menu => 'api' };
+    return template 'api' =>
+      { 'title' => 'APIs how to use grep::metacpan APIs', menu => 'api' };
 };
 
 get '/source-code' => sub {
-    return template 'source-code' => { 'title' => 'Source code of grep::metacpan, list of git reposities', menu => 'gh' };
+    return template 'source-code' => {
+        'title' => 'Source code of grep::metacpan, list of git reposities',
+        menu    => 'gh'
+    };
 };
-
 
 get '/search' => sub {
 
-    my $q     = param('q');                           # FIXME clean query
-    my $page  = param('p') || 1;
-    my $query = $grep->do_search( $q, $page - 1 );    # list of match
+    my $q        = param('q');          # FIXME clean query
+    my $filetype = param('filetype');
+    my $page     = param('p') || 1;
+    my $query    = $grep->do_search(
+        search   => $q,
+        page     => $page - 1,
+        filetype => $filetype
+    );
 
     return template 'search' => {
         search        => $q,
         query         => $query,
         page          => $page,
         last_searches => _update_history_cookie($q),
-        show_sumup    => 1
+        show_sumup    => 1,
+        filetype      => $filetype // q{},
     };
 };
 
 get '/search/:distro/' => sub {
-    my $q      = param('q');        # FIXME clean query
-    my $page   = param('p') || 1;
-    my $distro = param('distro');
-    my $file   = param('f');
-    my $query =
-      $grep->do_search( $q, $page - 1, $distro, $file );    # list of match
+    my $q        = param('q');          # FIXME clean query
+    my $filetype = param('filetype');
+    my $page     = param('p') || 1;
+    my $distro   = param('distro');
+    my $file     = param('f');
+    my $query    = $grep->do_search(
+        search        => $q,
+        page          => $page - 1,
+        search_distro => $distro,
+        search_file   => $file,
+        filetype      => $filetype
+    );
 
     my $nopagination = defined $file   && length $file   ? 1 : 0;
     my $show_sumup   = defined $distro && length $distro ? 0 : 1;
@@ -67,28 +84,40 @@ get '/search/:distro/' => sub {
         page          => $page,
         last_searches => _update_history_cookie($q),
         nopagination  => $nopagination,
-        show_sumup    => $show_sumup
+        show_sumup    => $show_sumup,
+        filetype      => $filetype // q{},
     };
 };
 
 ### API routes
 get '/api/search' => sub {
 
-    my $q     = param('q');                           # FIXME clean query
-    my $page  = param('p') || 1;
-    my $query = $grep->do_search( $q, $page - 1 );    # list of match
+    my $q        = param('q');          # FIXME clean query
+    my $page     = param('p') || 1;
+    my $filetype = param('filetype');
+    my $query    = $grep->do_search(
+        search   => $q,
+        page     => $page - 1,
+        filetype => $filetype
+    );
 
     content_type 'application/json';
     return to_json $query;
 };
 
 get '/api/search/:distro/' => sub {
-    my $q      = param('q');                          # FIXME clean query
-    my $page   = param('p') || 1;
-    my $distro = param('distro');
-    my $file   = param('f');
-    my $query =
-      $grep->do_search( $q, $page - 1, $distro, $file );    # list of match
+    my $q        = param('q');          # FIXME clean query
+    my $page     = param('p') || 1;
+    my $distro   = param('distro');
+    my $file     = param('f');
+    my $filetype = param('filetype');
+    my $query    = $grep->do_search(
+        search        => $q,
+        page          => $page - 1,
+        search_distro => $distro,
+        search_file   => $file,
+        filetype      => $filetype
+    );
 
     content_type 'application/json';
     return to_json $query;
@@ -157,13 +186,17 @@ grepcpan@grep.cpan.me [~/minicpan_grep.git]# time git grep -C15 -n xyz HEAD | he
 
 use Simple::Accessor
   qw{ config git cache distros_per_page search_context search_context_file search_context_distro git_binary };
-use POSIX ":sys_wait_h";
+use POSIX qw{:sys_wait_h setsid};
 use Proc::ProcessTable ();
 use YAML::Syck         ();
 use Time::HiRes        ();
+use File::Slurp        ();
+use IO::Handle         ();
 use Test::More;
 
 use Digest::MD5 qw( md5_hex );
+
+use constant END_OF_FILE_MARKER => qq{##______END_OF_FILE_MARKER______##};
 
 use v5.024;
 
@@ -257,10 +290,14 @@ sub _get_git_grep_flavor {
 # idea use git rev-parse HEAD to include it in the cache name
 
 sub do_search {
-    my ( $self, $search, $page, $search_distro, $search_file ) = @_;
+    my ( $self, %opts ) = @_;
 
+    my ( $search, $page, $search_distro, $search_file, $filetype ) = (
+        $opts{search}, $opts{page}, $opts{search_distro}, $opts{search_file},
+        $opts{filetype}
+    );
 
-	my $t0 = [Time::HiRes::gettimeofday];
+    my $t0 = [Time::HiRes::gettimeofday];
 
     my $gitdir = $self->git()->work_tree;
 
@@ -268,7 +305,7 @@ sub do_search {
 
     $page //= 0;
     $page = 0 if $page < 0;
-    my $cache = $self->get_match_cache($search);
+    my $cache = $self->get_match_cache( $search, $search_distro, $filetype );
 
     my $context = $self->search_context();    # default context
     if ( defined $search_file ) {
@@ -280,21 +317,14 @@ sub do_search {
 
     my $files_to_search =
       $self->get_list_of_files_to_search( $cache, $search, $page,
-        $search_distro, $search_file );
+        $search_distro, $search_file, $filetype );
 
     # can also probably simply use Git::Repo there
     my $matches;
 
     if ( scalar @$files_to_search ) {
         my $flavor = _get_git_grep_flavor($search);
-
-# $matches = run_cmd_limit(
-# 	# idea add --fixed-string when it s a regular string
-# 	cmd => qq{git grep -n --heading -C $context $flavor '$search' HEAD -- } . join( ' ', $files_to_search->@* ) , # FIXME protect files to search
-# 	limit => $context * scalar @$files_to_search * 2,
-# 	pre_run => sub { chdir($gitdir) }
-# );
-        my @out = $self->git->run(
+        my @out    = $self->git->run(
             'grep',   '-n',    '--heading', '-C',
             $context, $flavor, $search,     '--',
             $files_to_search->@*
@@ -327,7 +357,7 @@ sub do_search {
         $add_block->();    # push the last block
             #note "#### A file #### $current_file => \n", explain \@diffblocks;
 
-        my ( $where, $distro, $shortpath ) = massage_filepath( $current_file );
+        my ( $where, $distro, $shortpath ) = massage_filepath($current_file);
         return unless length $shortpath;
         my $prefix = join '/', $where, $distro;
 
@@ -366,6 +396,10 @@ sub do_search {
             my $new_line = $1;
             my $prefix   = $2;
             $start_line //= $new_line;
+            if ( length($line) > 250 )
+            {    # max length autorized ( js minified & co )
+                $line = substr( $line, 0, 250 ) . '...';
+            }
             if ( !defined $line_number || $new_line == $line_number + 1 ) {
 
                 # same block
@@ -382,18 +416,20 @@ sub do_search {
     }
     $process_file->();                   # process the last block
 
-	my $elapsed = Time::HiRes::tv_interval ( $t0, [Time::HiRes::gettimeofday]);
+    my $elapsed = Time::HiRes::tv_interval( $t0, [Time::HiRes::gettimeofday] );
 
     return {
-        is_incomplete => $cache->{is_incomplete} || 0,
-        match         => $cache->{match},
-        results       => \@output,
-        time_elapsed  => $elapsed,
+        is_incomplete      => $cache->{is_incomplete}      || 0,
+        search_in_progress => $cache->{search_in_progress} || 0,
+        match              => $cache->{match},
+        results            => \@output,
+        time_elapsed       => $elapsed,
     };
 }
 
 sub get_list_of_files_to_search {
-    my ( $self, $cache, $search, $page, $search_distro, $search_file ) = @_;
+    my ( $self, $cache, $search, $page, $search_distro, $search_file,
+        $filetype ) = @_;
 
 # try to get one file per distro except if we do not have enough distros matching
 # maybe sort the files by distros having the most matches ??
@@ -467,33 +503,74 @@ sub get_list_of_files_to_search {
 }
 
 sub get_match_cache {
-    my ( $self, $search ) = @_;
-
-    my $cache_file =
-      $self->cache() . '/search-ls-' . md5_hex($search) . '.cache';
-
-    return YAML::Syck::LoadFile($cache_file)
-      if -e $cache_file;    # maybe also check the timestamp FIXME
+    my ( $self, $search, $search_distro, $filetype ) = @_;
 
     my $gitdir = $self->git()->work_tree;
     my $limit = $self->config()->{limit}->{files_per_search} or die;
 
-    my $flavor     = _get_git_grep_flavor($search);
-    my $list_files = run_cmd_limit(
-        cmd     => qq{git grep -l $flavor '$search' distros},
-        limit   => $limit,
-        pre_run => sub { chdir($gitdir) }
+    my $flavor = _get_git_grep_flavor($search);
+    my @git_cmd = ( qw{grep -l}, $flavor, $search, q{distros} );
+
+    if ( defined $search_distro && $search_distro =~ qr{^([0-9a-zA-Z])} ) {
+        $git_cmd[-1] =
+          q{distros/} . $1 . '/' . $search_distro;   # FIXME clean search distro
+    }
+
+    # use the full cache when available -- need to filter it later
+    my $cache_file =
+      $self->cache() . '/search-ls-' . md5_hex($search) . '.cache';
+
+#return YAML::Syck::LoadFile($cache_file) if -e $cache_file && !$self->config()->{nocache}; # maybe also check the timestamp FIXME
+
+    if (   defined $filetype
+        && length $filetype
+        && $filetype =~ qr{^[0-9\.\-\*_a-zA-Z]+$} )
+    {
+        push @git_cmd, '--', $filetype;
+    }
+
+    # fallback to a shorter search ( and a different cache )
+    $cache_file =
+        $self->cache()
+      . '/search-ls-'
+      . md5_hex( join( '|', @git_cmd ) )
+      . '.cache';
+    return YAML::Syck::LoadFile($cache_file)
+      if -e $cache_file
+      && !$self->config()->{nocache};    # maybe also check the timestamp FIXME
+
+    my $raw_cache_file = $cache_file . q{.raw};
+
+    my $raw_limit = $self->config()->{limit}->{files_git_run_bg};
+
+    my $list_files = $self->run_git_cmd_limit(
+        cache_file       => $raw_cache_file,
+        cmd              => [@git_cmd],       # git command
+        limit            => $limit,
+        limit_bg_process => $raw_limit,       #files_git_run_bg
+                                              #pre_run => sub { chdir($gitdir) }
     );
 
-    #$list_files = [ map { s{^HEAD:}{}; $_ } @$list_files ];
+    # remove the final marker if there
+    my $search_in_progress = 1;
+    note "LAST LINE .... " . $list_files->[-1];
+    note " check  ? ", $list_files->[-1] eq END_OF_FILE_MARKER() ? 1 : 0;
+    if ( scalar @$list_files && $list_files->[-1] eq END_OF_FILE_MARKER() ) {
+        pop @$list_files;
+        $search_in_progress = 0;
+    }
 
-    my $cache = { distros => {}, search => $search };
+    my $cache = {
+        distros            => {},
+        search             => $search,
+        search_in_progress => $search_in_progress
+    };
     my $match_files = scalar @$list_files;
-    $cache->{is_incomplete} = 1 if $match_files >= $limit;
+    $cache->{is_incomplete} = 1 if $match_files >= $raw_limit;
 
     my $last_distro;
     foreach my $line (@$list_files) {
-        my ( $where, $distro, $shortpath ) = massage_filepath( $line );
+        my ( $where, $distro, $shortpath ) = massage_filepath($line);
         next unless defined $shortpath;
         $last_distro = $distro;
         my $prefix = join '/', $where, $distro;
@@ -510,64 +587,149 @@ sub get_match_cache {
       { files => $match_files, distros => scalar keys $cache->{distros}->%* };
 
     #note explain $cache;
-    YAML::Syck::DumpFile( $cache_file, $cache );
-
-=pod
-
-FIXME need to use for the HEADER
-
-match:
-  distros: 37
-  files: 1000
-search: a
-=cut
+    if ( !$search_in_progress ) {
+        note "Search in progress..... done caching yaml file";
+        YAML::Syck::DumpFile( $cache_file, $cache );
+        unlink($raw_cache_file) if -e $raw_cache_file;
+    }
 
     return $cache;
 }
 
 sub massage_filepath {
-	my $line = shift;
-	my ( $where, $letter, $distro, $shortpath ) = split( q{/}, $line, 4 );
-	$where //= '';
-	$letter //= '';
-	$where .= '/' . $letter;
-	return ( $where, $distro, $shortpath );
+    my $line = shift;
+    my ( $where, $letter, $distro, $shortpath ) = split( q{/}, $line, 4 );
+    $where  //= '';
+    $letter //= '';
+    $where .= '/' . $letter;
+    return ( $where, $distro, $shortpath );
 }
 
-sub run_cmd_limit {
-    my (%opts) = @_;
+sub run_git_cmd_limit {
+    my ( $self, %opts ) = @_;
 
+    my $cache_file = $opts{cache_file};
     my $cmd = $opts{cmd} // die;
-    my $limit = $opts{limit} || 10;
+    ref $cmd eq 'ARRAY' or die "cmd should be an ARRAY ref";
+    my $limit            = $opts{limit}            || 10;
+    my $limit_bg_process = $opts{limit_bg_process} || $limit;
 
     my @lines;
+
+    if ( $cache_file && -e $cache_file && !$self->config()->{nocache} ) {
+
+        # check if the file is empty and has more than X seconds
+
+        while ( waitpid( -1, WNOHANG ) > 0 ) { 1 }; # catch any zombies we could have from previous run
+
+        if ( -z $cache_file ) {                     # the file is empty
+            my ( $mtime, $ctime ) = ( stat($cache_file) )[ 9, 10 ];
+            $mtime //= 0;
+            $ctime //= 0;
+
+            # return an empty cache if the file exists and is empty...
+            return [] if ( time() - $mtime < 60 * 30 );
+
+            # give it a second try after some time...
+        }
+        else {
+            # return the content of our current cache from previous run
+            note "use our cache from previous run";
+            my @from_cache = File::Slurp::read_file($cache_file);
+            chomp @from_cache;
+            return \@from_cache;
+        }
+    }
 
     local $| = 1;
     local $SIG{'USR1'} = sub { exit }; # avoid a race condition and exit cleanly
 
-    my $child_pid = open( my $from_kid, "-|" ) // die "Can't fork: $!";
-    if ($child_pid) {                  # parent process
+    #my $child_pid = open( my $from_kid, "-|" ) // die "Can't fork: $!";
+
+    local $SIG{'CHLD'} = 'DEFAULT';
+
+    my ( $from_kid, $CW ) = ( IO::Handle->new(), IO::Handle->new() );
+    pipe( $from_kid, $CW ) or die "Fail to pipe $!";
+    $CW->autoflush(1);
+
+    my $child_pid = fork();
+    die "Fork failed" unless defined $child_pid;
+
+    local $SIG{'ALRM'} = sub { die "Alarm signal triggered - $$" };
+
+    if ($child_pid) {    # parent process
         my $c = 1;
-        while ( my $line = readline($from_kid) ) {
-            chomp $line;
-            push @lines, $line;
-            last if ++$c > $limit;
-        }
-        kill 'USR1', $child_pid;
-        while ( waitpid( -1, WNOHANG ) > 0 ) { 1 }    # also catch zombies
-    }
-    else {                                            # in kid process
-        my $current_pid = $$;
-        local $SIG{'USR1'} = sub {
-            my $proc_table = Proc::ProcessTable->new();
-            foreach my $proc ( @{ $proc_table->table() } ) {
-                kill( 15, $proc->pid ) if $proc->ppid == $current_pid;
+        alarm( $self->config->{timeout}->{user_search} );
+        eval {
+            while ( my $line = readline($from_kid) ) {
+                chomp $line;
+                push @lines, $line;
+                last if ++$c > $limit;
+                note "GOT: $line ", $line eq END_OF_FILE_MARKER() ? 1 : 0;
+                last if $line eq END_OF_FILE_MARKER();
             }
+            alarm(0);
+            1;
+        } or warn $@;
+        note "Closing...";
+        close($from_kid);
+        note "Parent has read $c lines....";
+        kill 'USR1' => $child_pid;
+        while ( waitpid( -1, WNOHANG ) > 0 ) { 1 }; # catch what we can at this step... the process is running in bg
+        note "after the wait...";
+    }
+    else {
+        # in kid process
+        local $| = 1;
+        my $current_pid       = $$;
+        my $can_write_to_pipe = 1;
+        local $SIG{'USR1'} = sub {                  # not really used anymore
+            warn "SIGUSR1.... start";
+            $can_write_to_pipe = 0;
+            close($CW);
+            open STDIN,  '>', '/dev/null';
+            open STDOUT, '>', '/dev/null';
+            open STDERR, '>', '/dev/null';
+            setsid();
+
             return;
         };
+        local $SIG{'ALRM'} = sub { die };           # probably not required
+        alarm( $self->config->{timeout}->{grep_search} )
+          ;    # limit our search in time...
         $opts{pre_run}->() if ref $opts{pre_run} eq 'CODE';
-        warn "..... Running: " . $cmd;
-        system($cmd );
+
+        note "Running in kid command: " . join( ' ', @$cmd );
+        note "KID is caching to file ", $cache_file;
+
+        my $to_cache;
+
+        if ($cache_file) {
+            $to_cache = IO::Handle->new;
+            open( $to_cache, q{>}, $cache_file )
+              or die "Cannot open cache file: $!";
+            $to_cache->autoflush(1);
+        }
+
+        my $run     = $self->git->command(@$cmd);
+        my $log     = $run->stdout;
+        my $counter = 1;
+
+        while ( readline $log ) {
+            print {$CW} $_
+              if $can_write_to_pipe;    # return the line to our parent
+            if ($cache_file) {
+                print {$to_cache} $_ or die;    # if file is removed
+            }
+            last if ++$counter > $limit_bg_process;
+        }
+        $run->close;
+        print {$to_cache}
+          qq{\n};    # in case of the last line did not had a newline
+        print {$to_cache} END_OF_FILE_MARKER() . qq{\n} if $cache_file;
+        print {$CW} END_OF_FILE_MARKER() . qq{\n}       if $can_write_to_pipe;
+        note "-- Request finished by kid: $counter lines - "
+          . join( ' ', @$cmd );
         exit $?;
     }
 

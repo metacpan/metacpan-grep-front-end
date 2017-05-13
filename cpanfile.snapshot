@@ -173,20 +173,7 @@ DISTRIBUTIONS
       Config::Any::XML undef
       Config::Any::YAML undef
     requirements:
-      Config::General 2.47
       Module::Pluggable::Object 3.6
-  Config-General-2.63
-    pathname: T/TL/TLINDEN/Config-General-2.63.tar.gz
-    provides:
-      Config::General 2.63
-      Config::General::Extended 2.07
-      Config::General::Interpolated 2.15
-    requirements:
-      ExtUtils::MakeMaker 0
-      File::Glob 0
-      File::Spec::Functions 0
-      FileHandle 0
-      IO::File 0
   Cookie-Baker-0.07
     pathname: K/KA/KAZEBURO/Cookie-Baker-0.07.tar.gz
     provides:
@@ -310,6 +297,20 @@ DISTRIBUTIONS
       URI::Escape 0
       YAML 0.86
       parent 0
+  Data-Dump-1.23
+    pathname: G/GA/GAAS/Data-Dump-1.23.tar.gz
+    provides:
+      Data::Dump 1.23
+      Data::Dump::FilterContext undef
+      Data::Dump::Filtered undef
+      Data::Dump::Trace 0.02
+      Data::Dump::Trace::Call 0.02
+      Data::Dump::Trace::Wrapper 0.02
+    requirements:
+      ExtUtils::MakeMaker 0
+      Symbol 0
+      Test 0
+      perl 5.006
   Data-Munge-0.097
     pathname: M/MA/MAUKE/Data-Munge-0.097.tar.gz
     provides:
@@ -702,6 +703,14 @@ DISTRIBUTIONS
       Test::Deep 0
       Test::More 0.88
       perl 5.008001
+  HTTP-Parser-XS-0.17
+    pathname: K/KA/KAZUHO/HTTP-Parser-XS-0.17.tar.gz
+    provides:
+      HTTP::Parser::XS 0.17
+      HTTP::Parser::XS::PP undef
+    requirements:
+      ExtUtils::MakeMaker 6.36
+      Test::More 0.96
   Hash-Merge-Simple-0.051
     pathname: R/RO/ROKR/Hash-Merge-Simple-0.051.tar.gz
     provides:
@@ -739,15 +748,6 @@ DISTRIBUTIONS
       Symbol 0
       strict 0
       warnings 0
-  IO-Tty-1.12
-    pathname: T/TO/TODDR/IO-Tty-1.12.tar.gz
-    provides:
-      IO::Pty 1.12
-      IO::Tty 1.12
-      IO::Tty::Constant undef
-    requirements:
-      ExtUtils::MakeMaker 0
-      Test::More 0
   IPC-Run-0.96
     pathname: T/TO/TODDR/IPC-Run-0.96.tar.gz
     provides:
@@ -760,7 +760,6 @@ DISTRIBUTIONS
       IPC::Run::Win32Pump 0.96
     requirements:
       ExtUtils::MakeMaker 0
-      IO::Pty 1.08
       Test::More 0.47
   Import-Into-1.002005
     pathname: H/HA/HAARG/Import-Into-1.002005.tar.gz
@@ -778,7 +777,6 @@ DISTRIBUTIONS
       JSON::MaybeXS 1.003009
     requirements:
       Carp 0
-      Cpanel::JSON::XS 2.3310
       ExtUtils::CBuilder 0.27
       ExtUtils::MakeMaker 0
       File::Spec 0
@@ -944,6 +942,39 @@ DISTRIBUTIONS
       Sub::Defer 2.003001
       Sub::Quote 2.003001
       perl 5.006
+  Net-Server-2.008
+    pathname: R/RH/RHANDOM/Net-Server-2.008.tar.gz
+    provides:
+      Net::Server 2.008
+      Net::Server::Daemonize 0.06
+      Net::Server::Fork undef
+      Net::Server::HTTP undef
+      Net::Server::INET undef
+      Net::Server::INET::Handle undef
+      Net::Server::Log::Log::Log4perl undef
+      Net::Server::Log::Sys::Syslog undef
+      Net::Server::MultiType undef
+      Net::Server::Multiplex undef
+      Net::Server::Multiplex::MUX undef
+      Net::Server::PSGI undef
+      Net::Server::PreFork undef
+      Net::Server::PreForkSimple undef
+      Net::Server::Proto undef
+      Net::Server::Proto::SSL undef
+      Net::Server::Proto::SSLEAY undef
+      Net::Server::Proto::TCP undef
+      Net::Server::Proto::UDP undef
+      Net::Server::Proto::UNIX undef
+      Net::Server::Proto::UNIXDGRAM undef
+      Net::Server::SIG 0.03
+      Net::Server::Single undef
+      Net::Server::TiedHandle 2.008
+    requirements:
+      ExtUtils::MakeMaker 0
+      IO::Socket 0
+      POSIX 0
+      Socket 0
+      Time::HiRes 0
   POSIX-strftime-Compiler-0.42
     pathname: K/KA/KAZEBURO/POSIX-strftime-Compiler-0.42.tar.gz
     provides:
@@ -1200,6 +1231,24 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
+  Starman-0.4014
+    pathname: M/MI/MIYAGAWA/Starman-0.4014.tar.gz
+    provides:
+      HTTP::Server::PSGI::Net::Server::PreFork undef
+      Plack::Handler::Starman undef
+      Starman 0.4014
+      Starman::Server undef
+    requirements:
+      Data::Dump 0
+      HTTP::Date 0
+      HTTP::Parser::XS 0
+      HTTP::Status 0
+      Module::Build::Tiny 0.039
+      Net::Server 2.007
+      Plack 0.9971
+      Test::TCP 2.00
+      parent 0
+      perl 5.008001
   Stream-Buffered-0.03
     pathname: D/DO/DOY/Stream-Buffered-0.03.tar.gz
     provides:

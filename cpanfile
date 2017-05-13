@@ -11,6 +11,7 @@ requires "JSON::XS" => 0;
 requires "Plack"  => 0;
 requires "Plack::Middleware" => 0;
 requires "Plack::Middleware::Deflater" => 0;
+requires "Plack::Handler::Starman" => 0;
 requires "File::Slurp"  => 0;
 requires "Fcntl" => 0;
 requires "FindBin" => 0;

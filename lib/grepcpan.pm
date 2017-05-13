@@ -39,69 +39,40 @@ get '/source-code' => sub {
     };
 };
 
-get '/search/autocomplete' => sub {    # need to disable it from js
+get '/search/:legacy' => sub {    # need to disable it from js
     content_type 'application/json';
     return to_json {};
 };
 
 get '/search' => sub {
-
     my $q        = param('q');         # FIXME clean query
     my $filetype = param('qft');
     my $qdistro  = param('qd');
     my $qci      = param('qci');       # case insensitive
     my $page     = param('p') || 1;
-    my $query    = $grep->do_search(
-        search          => $q,
-        page            => $page - 1,
-        filetype        => $filetype,
-        caseinsensitive => $qci,
-        query_distro    => $qdistro,    # custom search with glob
-    );
-
-    return template 'search' => {
-        search        => $q,
-        query         => $query,
-        page          => $page,
-        last_searches => _update_history_cookie($q),
-        show_sumup    => 1,
-        qft           => $filetype // q{},
-        qd            => $qdistro // q{},
-        qci           => $qci,
-    };
-};
-
-get '/search/:distro/' => sub {
-    my $q        = param('q');         # FIXME clean query
-    my $filetype = param('qft');
-    my $qdistro  = param('qd');
-    my $qci      = param('qci');       # case insensitive
-    my $page     = param('p') || 1;
-    my $distro   = param('distro');
     my $file     = param('f');
     my $query    = $grep->do_search(
         search          => $q,
         page            => $page - 1,
-        search_distro   => $distro,     # filter on a distribution
-        query_distro    => $qdistro,    # custom search with glob
+        search_distro   => $qdistro,    # filter on a distribution
         search_file     => $file,
         filetype        => $filetype,
         caseinsensitive => $qci,
     );
 
-    my $nopagination = defined $file   && length $file   ? 1 : 0;
-    my $show_sumup   = defined $distro && length $distro ? 0 : 1;
+    my $nopagination = defined $file && length $file ? 1 : 0;
+    my $show_sumup = $nopagination;  #defined $distro && length $distro ? 0 : 1;
 
     return template 'search' => {
         search        => $q,
-        search_distro => $distro,
+        search_distro => $qdistro,
         query         => $query,
         page          => $page,
         last_searches => _update_history_cookie($q),
         nopagination  => $nopagination,
         show_sumup    => $show_sumup,
         qt            => $filetype // q{},
-        qd            => $distro,                      #$qdistro // q{},
+        qd            => $qdistro,                     #$qdistro // q{},
         qci           => $qci,
     };
 };
@@ -116,24 +87,6 @@ get '/api/search' => sub {
         search   => $q,
         page     => $page - 1,
         filetype => $filetype
-    );
-
-    content_type 'application/json';
-    return to_json $query;
-};
-
-get '/api/search/:distro/' => sub {
-    my $q        = param('q');          # FIXME clean query
-    my $page     = param('p') || 1;
-    my $distro   = param('distro');
-    my $file     = param('f');
-    my $filetype = param('filetype');
-    my $query    = $grep->do_search(
-        search        => $q,
-        page          => $page - 1,
-        search_distro => $distro,
-        search_file   => $file,
-        filetype      => $filetype
     );
 
     content_type 'application/json';
@@ -312,10 +265,10 @@ sub do_search {
     my ( $self, %opts ) = @_;
 
     my ( $search, $page, $search_distro, $search_file,
-        $filetype, $caseinsensitive, $query_distro, )
+        $filetype, $caseinsensitive, )
       = (
         $opts{search}, $opts{page}, $opts{search_distro}, $opts{search_file},
-        $opts{filetype}, $opts{caseinsensitive}, $opts{query_distro},
+        $opts{filetype}, $opts{caseinsensitive},
       );
 
     my $t0 = [Time::HiRes::gettimeofday];
@@ -327,20 +280,25 @@ sub do_search {
     $page //= 0;
     $page = 0 if $page < 0;
     my $cache =
-      $self->get_match_cache( $search, $search_distro // $query_distro,
+      $self->get_match_cache( $search, $search_distro,
         $filetype, $caseinsensitive );
+
+    #note "CACHE: ", explain $cache;
 
     my $context = $self->search_context();    # default context
     if ( defined $search_file ) {
         $context = $self->search_context_file();
     }
-    elsif ( defined $search_distro ) {
+    elsif (defined $search_distro
+        && length $search_distro
+        && exists $cache->{distros}->{$search_distro} )
+    {
         $context = $self->search_context_distro();
     }
 
     my $files_to_search =
       $self->get_list_of_files_to_search( $cache, $search, $page,
-        $search_distro, $search_file, $filetype );
+        $search_distro, $search_file, $filetype );    ## notidy
 
     # can also probably simply use Git::Repo there
     my $matches;
@@ -451,8 +409,8 @@ sub do_search {
 }
 
 sub get_list_of_files_to_search {
-    my ( $self, $cache, $search, $page, $search_distro, $search_file,
-        $filetype ) = @_;
+    my ( $self, $cache, $search, $page, $distro, $search_file, $filetype ) =
+      @_;    ## notidy
 
 # try to get one file per distro except if we do not have enough distros matching
 # maybe sort the files by distros having the most matches ??
@@ -461,10 +419,9 @@ sub get_list_of_files_to_search {
 
     # if we have enough distros
     my $limit = $self->distros_per_page;
-    if ( defined $search_distro ) {
+    if ( defined $distro && exists $cache->{distros}->{$distro} ) {
 
-        # let's pick all the files for this distro
-        my $distro = $search_distro;
+        # let's pick all the files for this distro: as we are looking for it
         return [] unless exists $cache->{distros}->{$distro};
         my $prefix = $cache->{distros}->{$distro}->{prefix};
         @flat_list = map { $prefix . '/' . $_ }
@@ -473,8 +430,6 @@ sub get_list_of_files_to_search {
             @flat_list = grep { $_ eq $prefix . '/' . $search_file }
               @flat_list;    # make sure the file is known and sanitize
         }
-
-        #} elsif ( scalar keys $cache->{distros}->%* > $limit ) {
     }
     else {                   # pick one single file per distro
                              #my @distros =

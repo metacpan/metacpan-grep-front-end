@@ -183,6 +183,13 @@ DISTRIBUTIONS
       Module::Build 0.38
       URI::Escape 0
       perl 5.008001
+  Cpanel-JSON-XS-3.0233
+    pathname: R/RU/RURBAN/Cpanel-JSON-XS-3.0233.tar.gz
+    provides:
+      Cpanel::JSON::XS 3.0233
+    requirements:
+      ExtUtils::MakeMaker 0
+      Pod::Text 2.08
   Dancer2-0.205000
     pathname: C/CR/CROMEDOME/Dancer2-0.205000.tar.gz
     provides:

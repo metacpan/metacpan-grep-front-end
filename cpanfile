@@ -9,10 +9,14 @@ requires "Dancer2"  => "0";
 requires "Template" => 0;
 requires "JSON::XS" => 0;
 requires "Plack"  => 0;
+requires "Plack::Middleware" => 0;
 requires "Plack::Middleware::Deflater" => 0;
 requires "File::Slurp"  => 0;
 requires "Fcntl" => 0;
 requires "FindBin" => 0;
+requires "Cpanel::JSON::XS" => 0;
+requires "JSON::MaybeXS" => 0;
+requires "HTTP::Entity::Parser" => 0;
 
 recommends "YAML"             => "0";
 recommends "URL::Encode::XS"  => "0";

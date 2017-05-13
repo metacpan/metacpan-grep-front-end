@@ -3,6 +3,9 @@ package grepcpan;
 use Dancer2;
 use Dancer2::Serializer::JSON;
 
+use strict;
+use warnings;
+
 our $VERSION = '0.1';
 
 my $GrepCpanConfig = config()->{'grepcpan'};
@@ -208,9 +211,8 @@ sub _build_cache {
       . ( $self->config()->{'cache'}->{'version'} || 0 );
     die unless $dir;
 
-	my $appdir = $FindBin::Bin . '/../';
+	my $appdir = $FindBin::Bin . '/';
 	$dir =~ s{~APPDIR~}{$appdir}g;
-
 
     qx{mkdir -p $dir};    # cleanup
     die unless -d $dir;
@@ -312,7 +314,7 @@ sub do_search {
         push @git_cmd,
           (
             '-n', '--heading', '-C', $context, $flavor, $search, '--',
-            $files_to_search->@*
+            @$files_to_search
           );
         my @out = $self->git->run(@git_cmd);
         $matches = \@out;
@@ -351,7 +353,7 @@ sub do_search {
         $result->{matches} //= [];
 
         #@diffblocks = scalar @diffblocks; # debugging clear the blocks
-        push $result->{matches}->@*,
+        push @{$result->{matches}},
           { file => $shortpath, blocks => [@diffblocks] };
         return
           if scalar @output
@@ -426,7 +428,7 @@ sub get_list_of_files_to_search {
         return [] unless exists $cache->{distros}->{$distro};
         my $prefix = $cache->{distros}->{$distro}->{prefix};
         @flat_list = map { $prefix . '/' . $_ }
-          $cache->{distros}->{$distro}->{files}->@*;    # all the files
+          @{ $cache->{distros}->{$distro}->{files} };    # all the files
         if ( defined $search_file ) {
             @flat_list = grep { $_ eq $prefix . '/' . $search_file }
               @flat_list;    # make sure the file is known and sanitize
@@ -439,10 +441,10 @@ sub get_list_of_files_to_search {
             my $prefix        = $cache->{distros}->{$distro}->{prefix};
             my $list_of_files = $cache->{distros}->{$distro}->{files};
             my $candidate = $list_of_files->[0];    # only the first file
-            if ( scalar $list_of_files->@* > 1 ) {
+            if ( scalar @$list_of_files > 1 ) {
 
                 # try to find a more perlish file first
-                foreach my $f ( $list_of_files->@* ) {
+                foreach my $f ( @$list_of_files ) {
                     if ( $f =~ qr{\.p[lm]$} ) {
                         $candidate = $f;
                         last;
@@ -453,7 +455,7 @@ sub get_list_of_files_to_search {
             # use our best candidate ( and add our prefix )
             $prefix . '/' . $candidate;
           }
-          sort keys $cache->{distros}->%*;
+          sort keys %{ $cache->{distros} };
     }
 
     # now do the pagination
@@ -560,7 +562,7 @@ sub get_match_cache {
         $last_distro = $distro;
         my $prefix = join '/', $where, $distro;
         $cache->{distros}->{$distro} //= { files => [], prefix => $prefix };
-        push $cache->{distros}->{$distro}->{files}->@*, $shortpath;
+        push @{ $cache->{distros}->{$distro}->{files} }, $shortpath;
     }
 
     if ( $cache->{is_incomplete} )
@@ -569,7 +571,7 @@ sub get_match_cache {
     }
 
     $cache->{match} =
-      { files => $match_files, distros => scalar keys $cache->{distros}->%* };
+      { files => $match_files, distros => scalar keys %{ $cache->{distros} } };
 
     #note explain $cache;
     if ( !$search_in_progress ) {

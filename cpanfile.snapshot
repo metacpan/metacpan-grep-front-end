@@ -173,7 +173,20 @@ DISTRIBUTIONS
       Config::Any::XML undef
       Config::Any::YAML undef
     requirements:
+      Config::General 2.47
       Module::Pluggable::Object 3.6
+  Config-General-2.63
+    pathname: T/TL/TLINDEN/Config-General-2.63.tar.gz
+    provides:
+      Config::General 2.63
+      Config::General::Extended 2.07
+      Config::General::Interpolated 2.15
+    requirements:
+      ExtUtils::MakeMaker 0
+      File::Glob 0
+      File::Spec::Functions 0
+      FileHandle 0
+      IO::File 0
   Cookie-Baker-0.07
     pathname: K/KA/KAZEBURO/Cookie-Baker-0.07.tar.gz
     provides:
@@ -726,6 +739,15 @@ DISTRIBUTIONS
       Symbol 0
       strict 0
       warnings 0
+  IO-Tty-1.12
+    pathname: T/TO/TODDR/IO-Tty-1.12.tar.gz
+    provides:
+      IO::Pty 1.12
+      IO::Tty 1.12
+      IO::Tty::Constant undef
+    requirements:
+      ExtUtils::MakeMaker 0
+      Test::More 0
   IPC-Run-0.96
     pathname: T/TO/TODDR/IPC-Run-0.96.tar.gz
     provides:
@@ -738,6 +760,7 @@ DISTRIBUTIONS
       IPC::Run::Win32Pump 0.96
     requirements:
       ExtUtils::MakeMaker 0
+      IO::Pty 1.08
       Test::More 0.47
   Import-Into-1.002005
     pathname: H/HA/HAARG/Import-Into-1.002005.tar.gz
@@ -755,6 +778,7 @@ DISTRIBUTIONS
       JSON::MaybeXS 1.003009
     requirements:
       Carp 0
+      Cpanel::JSON::XS 2.3310
       ExtUtils::CBuilder 0.27
       ExtUtils::MakeMaker 0
       File::Spec 0

@@ -70,4 +70,10 @@ grepcpan:
       search_context:   	  5
       search_context_distro: 10
       search_context_file:   60
+   gitrepo: '/home/toddr/metacpan-cpan-extracted'
+   binaries:
+      git: '/home/toddr/git/bin/git'
+   cache: 
+      directory: '~APPDIR~/var/tmp'
+      version: '1.00'   
 

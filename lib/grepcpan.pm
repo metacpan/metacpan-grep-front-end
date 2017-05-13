@@ -165,6 +165,8 @@ use IO::Handle         ();
 use Fcntl qw(:flock SEEK_END);
 use Test::More;
 
+use FindBin;
+
 use Digest::MD5 qw( md5_hex );
 
 use constant END_OF_FILE_MARKER => qq{##______END_OF_FILE_MARKER______##};
@@ -205,6 +207,11 @@ sub _build_cache {
     my $dir = $self->config()->{'cache'}->{'directory'} . '/'
       . ( $self->config()->{'cache'}->{'version'} || 0 );
     die unless $dir;
+
+	my $appdir = $FindBin::Bin . '/../';
+	$dir =~ s{~APPDIR~}{$appdir}g;
+
+
     qx{mkdir -p $dir};    # cleanup
     die unless -d $dir;
     return $dir;

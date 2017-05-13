@@ -29,5 +29,5 @@ grepcpan:
    binaries:
       git: '/usr/local/cpanel/3rdparty/bin/git'
    cache: 
-      directory: '/home/grepcpan/.grepcpan/cache'
+      directory: '~APPDIR~/var/tmp'
       version: '1.05'

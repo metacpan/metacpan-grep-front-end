@@ -14,11 +14,3 @@ show_errors: 0
 
 # disable server tokens in production environments
 no_server_tokens: 1
-
-grepcpan:
-   gitrepo: '/home/toddr/metacpan-cpan-extracted'
-   binaries:
-      git: '/home/toddr/git/bin/git'
-   cache: 
-      directory: '~APPDIR~/var/tmp'
-      version: '1.00'

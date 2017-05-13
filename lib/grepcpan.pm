@@ -42,12 +42,16 @@ get '/source-code' => sub {
 get '/search' => sub {
 
     my $q        = param('q');          # FIXME clean query
-    my $filetype = param('filetype');
+    my $filetype = param('qft');
+    my $qdistro  = param('qd');
+    my $qci      = param('qci'); # case insensitive
     my $page     = param('p') || 1;
     my $query    = $grep->do_search(
         search   => $q,
         page     => $page - 1,
-        filetype => $filetype
+        filetype => $filetype,
+        caseinsensitive => $qci,
+		query_distro  => $qdistro, # custom search with glob
     );
 
     return template 'search' => {
@@ -56,22 +60,28 @@ get '/search' => sub {
         page          => $page,
         last_searches => _update_history_cookie($q),
         show_sumup    => 1,
-        filetype      => $filetype // q{},
+        qft           => $filetype // q{},
+        qd            => $qdistro // q{},
+        qci           => $qci,
     };
 };
 
 get '/search/:distro/' => sub {
     my $q        = param('q');          # FIXME clean query
-    my $filetype = param('filetype');
+    my $filetype = param('qft');
+    my $qdistro  = param('qd');
+    my $qci      = param('qci'); # case insensitive
     my $page     = param('p') || 1;
     my $distro   = param('distro');
     my $file     = param('f');
     my $query    = $grep->do_search(
         search        => $q,
         page          => $page - 1,
-        search_distro => $distro,
+        search_distro => $distro, # filter on a distribution
+        query_distro  => $qdistro, # custom search with glob
         search_file   => $file,
-        filetype      => $filetype
+        filetype      => $filetype,
+        caseinsensitive => $qci,        
     );
 
     my $nopagination = defined $file   && length $file   ? 1 : 0;
@@ -85,7 +95,9 @@ get '/search/:distro/' => sub {
         last_searches => _update_history_cookie($q),
         nopagination  => $nopagination,
         show_sumup    => $show_sumup,
-        filetype      => $filetype // q{},
+        qt            => $filetype // q{},
+        qd            => $distro, #$qdistro // q{},
+        qci           => $qci,
     };
 };
 
@@ -292,9 +304,11 @@ sub _get_git_grep_flavor {
 sub do_search {
     my ( $self, %opts ) = @_;
 
-    my ( $search, $page, $search_distro, $search_file, $filetype ) = (
+    my ( $search, $page, $search_distro, $search_file, 
+    	$filetype, $caseinsensitive, $query_distro,
+     ) = (
         $opts{search}, $opts{page}, $opts{search_distro}, $opts{search_file},
-        $opts{filetype}
+        $opts{filetype}, $opts{caseinsensitive}, $opts{query_distro},
     );
 
     my $t0 = [Time::HiRes::gettimeofday];
@@ -305,7 +319,7 @@ sub do_search {
 
     $page //= 0;
     $page = 0 if $page < 0;
-    my $cache = $self->get_match_cache( $search, $search_distro, $filetype );
+    my $cache = $self->get_match_cache( $search, $search_distro // $query_distro, $filetype, $caseinsensitive );
 
     my $context = $self->search_context();    # default context
     if ( defined $search_file ) {
@@ -324,11 +338,14 @@ sub do_search {
 
     if ( scalar @$files_to_search ) {
         my $flavor = _get_git_grep_flavor($search);
-        my @out    = $self->git->run(
-            'grep',   '-n',    '--heading', '-C',
+        my @git_cmd = ( 'grep' );
+        push @git_cmd, '-i' if $caseinsensitive;
+        push @git_cmd, (
+            '-n',    '--heading', '-C',
             $context, $flavor, $search,     '--',
             $files_to_search->@*
         );
+        my @out    = $self->git->run( @git_cmd );
         $matches = \@out;
     }
 
@@ -355,7 +372,6 @@ sub do_search {
     my $process_file = sub {
         return unless defined $current_file;
         $add_block->();    # push the last block
-            #note "#### A file #### $current_file => \n", explain \@diffblocks;
 
         my ( $where, $distro, $shortpath ) = massage_filepath($current_file);
         return unless length $shortpath;
@@ -372,8 +388,6 @@ sub do_search {
           if scalar @output
           && $output[-1] eq $result;    # same hash do not add it more than once
         push @output, $result;
-
-        #note "Adding a block... for distro $distro file $shortpath";
 
         return;
     };
@@ -477,64 +491,48 @@ sub get_list_of_files_to_search {
           sort keys $cache->{distros}->%*;
     }
 
-#note explain $cache;
-# } else {
-# 	# let's pick all the files
-# 	@flat_list = map {
-# 			my $distro = $_;
-# 			my $prefix = $cache->{distros}->{$distro}->{prefix};
-# 			map { $prefix . '/' . $_ } $cache->{distros}->{$distro}->{files}->@* # all the files
-# 		}
-# 		sort keys $cache->{distros}->%*;
-# }
-
     # now do the pagination
     # page 0: from 0 to limit - 1
     # page 1: from limit to 2 * limit - 1
     # page 2: from 2*limit to 3 * limit - 1
 
-    #note explain \@flat_list;
     my @short = splice( @flat_list, $page * $limit, $limit );
-
-    #note "SHORT LIST....", explain \@short;
-    #note scalar @short;
 
     return \@short;
 }
 
 sub get_match_cache {
-    my ( $self, $search, $search_distro, $filetype ) = @_;
+    my ( $self, $search, $search_distro, $query_filetype, $caseinsensitive ) = @_;
+
+    $caseinsensitive //= 0;
 
     my $gitdir = $self->git()->work_tree;
     my $limit = $self->config()->{limit}->{files_per_search} or die;
 
     my $flavor = _get_git_grep_flavor($search);
-    my @git_cmd = ( qw{grep -l}, $flavor, $search, q{distros} );
-
-    if ( defined $search_distro && $search_distro =~ qr{^([0-9a-zA-Z])} ) {
-        $git_cmd[-1] =
-          q{distros/} . $1 . '/' . $search_distro;   # FIXME clean search distro
-    }
+    my @git_cmd = qw{grep -l};
+    push @git_cmd, q{-i} if $caseinsensitive;
+    push @git_cmd, $flavor, $search, q{--}, q{distros/};
 
     # use the full cache when available -- need to filter it later
-    my $cache_file =
-      $self->cache() . '/search-ls-' . md5_hex($search) . '.cache';
+    my $cache_file = $self->cache() . '/search-ls-' . md5_hex($search . q{|} . $caseinsensitive ) . '.cache';
+	return YAML::Syck::LoadFile($cache_file) if -e $cache_file && !$self->config()->{nocache};
 
-#return YAML::Syck::LoadFile($cache_file) if -e $cache_file && !$self->config()->{nocache}; # maybe also check the timestamp FIXME
+	$search_distro =~ s{::+}{-}g if defined $search_distro;
+	# the distro can either come from url or the query with some glob
+    if ( defined $search_distro && length($search_distro) && $search_distro =~ qr{^([0-9a-zA-Z_\*])[0-9a-zA-Z_\*\-]*$} ) {
+    	# replace the disros search
+    	$git_cmd[-1] = q{distros/} . $1 . '/' . $search_distro . '/*'; # add a / to do not match some other distro
+    }
 
-    if (   defined $filetype
-        && length $filetype
-        && $filetype =~ qr{^[0-9\.\-\*_a-zA-Z]+$} )
-    {
-        push @git_cmd, '--', $filetype;
+	# filter on some type files distro + query filetype
+    if (   defined $query_filetype && length $query_filetype && $query_filetype =~ qr{^[0-9\.\-\*_a-zA-Z]+$} ) {
+        # append to the distros search
+        $git_cmd[-1] .= '*' . $query_filetype;
     }
 
     # fallback to a shorter search ( and a different cache )
-    $cache_file =
-        $self->cache()
-      . '/search-ls-'
-      . md5_hex( join( '|', @git_cmd ) )
-      . '.cache';
+    $cache_file = $self->cache() . '/search-ls-' . md5_hex( join( '|', @git_cmd ) ) . '.cache';
     return YAML::Syck::LoadFile($cache_file)
       if -e $cache_file
       && !$self->config()->{nocache};    # maybe also check the timestamp FIXME
@@ -553,8 +551,8 @@ sub get_match_cache {
 
     # remove the final marker if there
     my $search_in_progress = 1;
-    note "LAST LINE .... " . $list_files->[-1];
-    note " check  ? ", $list_files->[-1] eq END_OF_FILE_MARKER() ? 1 : 0;
+    #note "LAST LINE .... " . $list_files->[-1];
+    #note " check  ? ", $list_files->[-1] eq END_OF_FILE_MARKER() ? 1 : 0;
     if ( scalar @$list_files && $list_files->[-1] eq END_OF_FILE_MARKER() ) {
         pop @$list_files;
         $search_in_progress = 0;
@@ -588,7 +586,7 @@ sub get_match_cache {
 
     #note explain $cache;
     if ( !$search_in_progress ) {
-        note "Search in progress..... done caching yaml file";
+        #note "Search in progress..... done caching yaml file";
         YAML::Syck::DumpFile( $cache_file, $cache );
         unlink($raw_cache_file) if -e $raw_cache_file;
     }
@@ -634,7 +632,7 @@ sub run_git_cmd_limit {
         }
         else {
             # return the content of our current cache from previous run
-            note "use our cache from previous run";
+            #note "use our cache from previous run";
             my @from_cache = File::Slurp::read_file($cache_file);
             chomp @from_cache;
             return \@from_cache;
@@ -665,18 +663,15 @@ sub run_git_cmd_limit {
                 chomp $line;
                 push @lines, $line;
                 last if ++$c > $limit;
-                note "GOT: $line ", $line eq END_OF_FILE_MARKER() ? 1 : 0;
+                #note "GOT: $line ", $line eq END_OF_FILE_MARKER() ? 1 : 0;
                 last if $line eq END_OF_FILE_MARKER();
             }
             alarm(0);
             1;
-        } or warn $@;
-        note "Closing...";
+        };# or warn $@;
         close($from_kid);
-        note "Parent has read $c lines....";
         kill 'USR1' => $child_pid;
         while ( waitpid( -1, WNOHANG ) > 0 ) { 1 }; # catch what we can at this step... the process is running in bg
-        note "after the wait...";
     }
     else {
         # in kid process
@@ -684,7 +679,7 @@ sub run_git_cmd_limit {
         my $current_pid       = $$;
         my $can_write_to_pipe = 1;
         local $SIG{'USR1'} = sub {                  # not really used anymore
-            warn "SIGUSR1.... start";
+            #warn "SIGUSR1.... start";
             $can_write_to_pipe = 0;
             close($CW);
             open STDIN,  '>', '/dev/null';

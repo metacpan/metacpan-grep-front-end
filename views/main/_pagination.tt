@@ -1,11 +1,23 @@
 <% IF !nopagination %>
+<%
+  SET pagq = search | html_entity;
+  SET pagqd = qd | html_entity;
+  SET pagqft = qft | html_entity;
+  SET pagqci = qci | html_entity;
+  SET pagination_uri = "qd=$qd&amp;qft=$qft&amp;qci=$qci&amp;q=${pagq}";
+%>
 <!-- start of pagination -->
 <div class="text-center">
   <ul class="pagination">
     <% SET pagefrom = ( page div 10 ) * 10 || 1;  %>
     <% SET pageto = query.results.size ? pagefrom + 10 : pagefrom  %>
+    <% SET lastpage = (query.match.distros || 0 ) div 30 + 1 %>
+    <% IF pageto > lastpage %>
+    <% pageto = lastpage < pagefrom ? pagefrom : lastpage %>
+    <% SET disable_next_p = 1 %>
+    <% END %>
     <li class="<% page < 10 ? 'disabled' : '' %>">
-      <a href="/search?p=<% pagefrom - 10 %>&amp;q=<% search | html_entity %>">«</a>
+      <a href="/search?p=<% pagefrom - 10 %>&amp;<% pagination_uri %>">«</a>
     </li>
     <% IF query.results.size %>
     <% FOREACH p in [ pagefrom..pageto] %>
@@ -14,11 +26,11 @@
     <% ELSE %>
     <li>
     <% END %>
-      <a href="/search?p=<% p %>&amp;q=<% search | html_entity %>"><% p %></a>
+      <a href="/search?p=<% p %>&amp;<% pagination_uri %>"><% p %></a>
     </li>
     <% END %>
-    <li>
-      <a href="/search?p=<% pagefrom + 10 %>&amp;q=<% search | html_entity %>">»</a>
+    <li class="<% disable_next_p ? 'disabled' : '' %>">
+      <a href="/search?p=<% pagefrom + 10 %>&amp;<% pagination_uri %>">»</a>
     </li>
     <% END # end check query.results.size %>
   </ul>

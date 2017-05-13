@@ -4,9 +4,13 @@
     <input type="hidden" name="size" id="search-size" value="20">
     <div class="form-group" style="overflow: hidden; display: table;">
       <!-- FIXME to move to css -->
-      <input type="text" name="q" size="35" autofocus="autofocus" id="search-input" class="form-control home-search-input" style="width:285px; float:left" placeholder="your query with perl RegEx">
-      <input type="text" name="filetype" size="6" autofocus="autofocus" id="search-input" class="form-control home-search-input" style="width:65px; float:left" placeholder="*.pm">
+      <input type="text" name="q" size="35" autofocus="autofocus" id="search-input" class="form-control home-search-input" autocomplete="off" placeholder="search with perl RegEx">
+      <br><input type="text" name="qd" size="35" id="xsearch-input" class="form-control home-search-distro-input optional-input" autocomplete="off" placeholder="in distro like App-*">
+      <input type="text" name="qft" size="6" id="xysearch-input" class="form-control home-search-filetype-input optional-input" autocomplete="off" placeholder="*.pm">
       <!-- .class + .class { width: 100px } -->
+      <div style="text-align:left; font-size: 14px;">
+        <label for="ci-input" style="font-weight: normal;"><input type="checkbox" name="qci" id="ci-input">&nbsp;case&nbsp;insensitive&nbsp;search</label>
+      </div>
     </div>
     <div class="form-group">
       <button type="submit" class="btn search-btn">Grep the CPAN</button>

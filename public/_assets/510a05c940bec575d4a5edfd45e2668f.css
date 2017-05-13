@@ -4255,7 +4255,8 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   border-left: 0;
 }
 .input-group-btn {
-  position: relative;
+  /* position: relative; */
+  float: left;
   font-size: 0;
   white-space: nowrap;
 }
@@ -8622,11 +8623,29 @@ h3,
   max-height: 250px;
   -webkit-overflow-scrolling: touch;
 }
-input#search-input {
+
+.search-input-results {
   font-size: 16px;
   padding: 4px 12px;
   height: 30px;
+  width: 280px;
 }
+
+input#search-distro-input-results {
+  font-size: 16px;
+  padding: 4px 12px;
+  height: 30px;
+  width: 200px;
+}
+
+input#search-filetype-input-results{
+  font-size: 16px;
+  padding: 4px 12px;
+  height: 30px;
+  width: 60px;
+}
+
+
 .toolbar-search {
   margin-bottom: 2px;
 }
@@ -8635,7 +8654,7 @@ input#search-input {
   width: 340px !important;
 }
 .search-form {
-  width: 450px;
+  /* width: 450px; */
   display: inline-block;
 }
 .search-form.form-horizontal .form-group {
@@ -8675,8 +8694,8 @@ form#logout {
   padding: 0 10px 10px 10px;
 }
 .head-small-logo {
-  width: 200px;
-  padding-right: 5px;
+  width: 172px;
+  padding-right: 5px;  
 }
 .main-content {
   margin-bottom: 60px;
@@ -8714,7 +8733,7 @@ form#logout {
   width: 180px;
   height: 33px;
   background-repeat: no-repeat;
-  background-size: 180px 33px;
+  background-size: 160px 33px;
   background-image: url("/static/images/grep_cpan_logo.svg");
 }
 #right-panel-toggle {
@@ -10063,10 +10082,6 @@ ul.nav-pills.affix {
   .home {
     padding-top: 0px;
   }
-  body .home #search-input {
-    width: 93%;
-    font-size: 1.4em;
-  }
   body .big-logo {
     margin: 20px 0 25px 0;
     width: 180px;
@@ -10187,12 +10202,6 @@ ul.nav-pills.affix {
 }
 .home .btn {
   font-size: 1.2em;
-}
-.home #search-input {
-  width: 400px;
-  margin: 0px;
-  height: 30px;
-  font-size: 1.4em;
 }
 .home .home-hint {
   color: #999999;
@@ -10344,3 +10353,30 @@ body .syntaxhighlighter .container .pod-placeholder button {
   float: left;
   font-size: 2.7em;
 }
+
+.home-search-input {
+  font-size: 1.4em;
+  padding: 4px 12px;
+  float:left;
+}
+
+.home-search-distro-input {
+  width:285px; 
+  float:left;
+  font-size: 1.4em;
+}
+
+.home-search-filetype-input {
+  width:65px; 
+  float:left;
+  font-size: 1.4em;
+}
+
+.optional-input:placeholder-shown {
+  font-style: italic;
+}
+.optional-input::placeholder {
+  font-style: italic;
+}
+
+

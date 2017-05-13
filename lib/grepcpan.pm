@@ -54,14 +54,14 @@ get '/search' => sub {
     my $query    = $grep->do_search(
         search          => $q,
         page            => $page - 1,
-        search_distro   => $qdistro,    # filter on a distribution
+        search_distro   => $qdistro, # filter on a distribution
         search_file     => $file,
         filetype        => $filetype,
         caseinsensitive => $qci,
     );
 
-    my $nopagination = defined $file && length $file ? 1 : 0;
-    my $show_sumup = $nopagination;  #defined $distro && length $distro ? 0 : 1;
+    my $nopagination = defined $file   && length $file   ? 1 : 0;
+    my $show_sumup   = !$query->{is_a_known_distro}; #defined $distro && length $distro ? 0 : 1;
 
     return template 'search' => {
         search        => $q,
@@ -72,7 +72,7 @@ get '/search' => sub {
         nopagination  => $nopagination,
         show_sumup    => $show_sumup,
         qt            => $filetype // q{},
-        qd            => $qdistro,                     #$qdistro // q{},
+        qd            => $qdistro,                      #$qdistro // q{},
         qci           => $qci,
     };
 };
@@ -268,7 +268,7 @@ sub do_search {
         $filetype, $caseinsensitive, )
       = (
         $opts{search}, $opts{page}, $opts{search_distro}, $opts{search_file},
-        $opts{filetype}, $opts{caseinsensitive},
+        $opts{filetype}, $opts{caseinsensitive}, 
       );
 
     my $t0 = [Time::HiRes::gettimeofday];
@@ -283,22 +283,17 @@ sub do_search {
       $self->get_match_cache( $search, $search_distro,
         $filetype, $caseinsensitive );
 
-    #note "CACHE: ", explain $cache;
+    my $is_a_known_distro = defined $search_distro && length $search_distro && exists $cache->{distros}->{$search_distro};
 
     my $context = $self->search_context();    # default context
     if ( defined $search_file ) {
         $context = $self->search_context_file();
     }
-    elsif (defined $search_distro
-        && length $search_distro
-        && exists $cache->{distros}->{$search_distro} )
-    {
+    elsif ( $is_a_known_distro ) {
         $context = $self->search_context_distro();
     }
 
-    my $files_to_search =
-      $self->get_list_of_files_to_search( $cache, $search, $page,
-        $search_distro, $search_file, $filetype );    ## notidy
+    my $files_to_search = $self->get_list_of_files_to_search( $cache, $search, $page, $search_distro, $search_file, $filetype ); ## notidy
 
     # can also probably simply use Git::Repo there
     my $matches;
@@ -405,12 +400,12 @@ sub do_search {
         match              => $cache->{match},
         results            => \@output,
         time_elapsed       => $elapsed,
+        is_a_known_distro  => $is_a_known_distro,
     };
 }
 
 sub get_list_of_files_to_search {
-    my ( $self, $cache, $search, $page, $distro, $search_file, $filetype ) =
-      @_;    ## notidy
+    my ( $self, $cache, $search, $page, $distro, $search_file, $filetype ) = @_; ## notidy
 
 # try to get one file per distro except if we do not have enough distros matching
 # maybe sort the files by distros having the most matches ??
@@ -420,8 +415,7 @@ sub get_list_of_files_to_search {
     # if we have enough distros
     my $limit = $self->distros_per_page;
     if ( defined $distro && exists $cache->{distros}->{$distro} ) {
-
-        # let's pick all the files for this distro: as we are looking for it
+        # let's pick all the files for this distro: as we are looking for it 
         return [] unless exists $cache->{distros}->{$distro};
         my $prefix = $cache->{distros}->{$distro}->{prefix};
         @flat_list = map { $prefix . '/' . $_ }

@@ -1,6 +1,6 @@
 <div align="center" class="home">
   <a href="/" class="big-logo" alt="meta::cpan"></a>
-  <form action="/search">
+  <form action="/search" onSubmit="doGrepping()">
     <input type="hidden" name="size" id="search-size" value="20">
     <div class="form-group" style="overflow: hidden; display: table;">
       <!-- FIXME to move to css -->

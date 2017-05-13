@@ -170,7 +170,7 @@ use Digest::MD5 qw( md5_hex );
 use constant END_OF_FILE_MARKER => qq{##______END_OF_FILE_MARKER______##};
 use constant TOO_BUSY_MARKER    => qq{##______TOO_BUSY_MARKER______##};
 
-use v5.024;
+use v5.022;
 
 $YAML::Syck::LoadBlessed = 0;
 $YAML::Syck::SortKeys    = 1;

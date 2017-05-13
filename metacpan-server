@@ -1,4 +1,4 @@
 #!/bin/sh
 
-plackup -E metacpan -p 5000 -R . bin/app.psgi
+plackup -E metacpan -p 5055 -R . bin/app.psgi
 #plackup -E metacpan -s Starman --workers=10 -l /tmp/app.sock -a ./bin/app.pl

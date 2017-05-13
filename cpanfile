@@ -9,6 +9,7 @@ requires "Dancer2"  => "0";
 requires "Template" => 0;
 requires "JSON::XS" => 0;
 requires "Plack"  => 0;
+requires "Plack::Middleware::Deflater" => 0;
 requires "File::Slurp"  => 0;
 requires "Fcntl" => 0;
 

@@ -8,7 +8,7 @@
 <%
 
 SET gh_metacpan_grep_front_end = '<a href="https://github.com/metacpan/metacpan-grep-front-end"><i class="fa fa-github-alt"></i>&nbsp;metacpan-grep-front-end</a>';
-SET gh_metacpan_grep_builder   = '<a href="https://github.com/metacpan/metacpan-grep-builderd"><i class="fa fa-github-alt"></i>&nbsp;metacpan-grep-builder</a>';
+SET gh_metacpan_grep_builder   = '<a href="https://github.com/metacpan/metacpan-grep-builder"><i class="fa fa-github-alt"></i>&nbsp;metacpan-grep-builder</a>';
 SET gh_metacpan_cpan_extracted = '<a href="https://github.com/metacpan/metacpan-cpan-extracted"><i class="fa fa-github-alt"></i>&nbsp;metacpan-cpan-extracted</a>';
 
 %>

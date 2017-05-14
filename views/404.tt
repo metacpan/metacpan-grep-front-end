@@ -1,0 +1,11 @@
+<div id="overlay" style="display:;">
+	<div align="center" class="home">
+		<a href="/" class="big-logo" alt="meta::cpan"></a>
+	</div>
+    <p>
+        <i class="fa fa-exclamation-triangle fa-3x fa-fw margin-bottom"></i>
+	    <span class="sr-only">/!\</span>
+        Error <% status %>
+    </p>
+    <p><% message || "Not Found" %></p>
+</div>

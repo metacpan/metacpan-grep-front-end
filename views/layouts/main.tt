@@ -10,11 +10,11 @@
 		<title>Let's grep the CPAN together: search a pattern among all perl distributions</title>
 <% END %>
 		<link rel="alternate" type="application/rss+xml" title="RSS" href="/feed/recent" />
-		<link href="/_assets/20170514110036-510a05c940bec575d4a5edfd45e2668f.css" rel="stylesheet" type="text/css">
+		<link href="/_assets/20170514155752-510a05c940bec575d4a5edfd45e2668f.css" rel="stylesheet" type="text/css">
 		<link rel="search" href="/static/opensearch.xml" type="application/opensearchdescription+xml" title="MetaCPAN">
 		<link rel="shortcut icon" href="/static/icons/favicon.ico">
 		<link rel="apple-touch-icon" sizes="152x152" href="/static/icons/apple-touch-icon.png">
-		<script src="/_assets/20170514110036-8ee3b0e7a6641aed845899d0645808f6.js" type="text/javascript"></script>
+		<script src="/_assets/20170514155752-8ee3b0e7a6641aed845899d0645808f6.js" type="text/javascript"></script>
         <script>
           (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
           (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

@@ -17,3 +17,25 @@
     </div>
   </form>
 </div>
+<div class="news-highlight row">
+    <div class="col-xs-12 col-sm-12 col-sm-push-2 col-md-6 col-md-push-3">
+      <p>
+        grep.MetaCPAN would like to acknowledge the following sponsors:
+      </p>
+      <div class="row xsponsor-grid">
+        <div class="col-sm-6">
+          <!-- perl careers ad remains until Jan 1, 2018 -->
+          <a href="http://perl.careers/" target="_blank"><img src="/static/images/sponsors/perl-careers.png" width=150 alt="Find Perl Jobs and Perl Developers with Perl Careers"></a>
+        </div>
+        <div class="col-sm-6">
+          <a href="http://cpanel.net/" target="_blank"><img src="/static/images/sponsors/cpanel.png"  height=50 alt="cPanel"></a>
+        </div>
+        <br>
+        <div class="col-sm-4">
+          <!-- promocodewatch ad remains until July 6, 2017 -->
+          <a href="https://www.promocodewatch.com" target="_blank">PromoCodeWatch</a>
+        </div>
+
+      </div>
+    </div>
+  </div>

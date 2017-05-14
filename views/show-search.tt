@@ -31,7 +31,8 @@
   <% END %>
 
     <a href="<% link_to_distro %>"><i class="fa fa-list"></i>&nbsp;view all matches for this distribution</a><br>
-    <a href="https://metacpan.org/search?q=<% item.distro | html_entity %>"><i class="fa fa-search"></i>&nbsp;<i>search on metacpan</i></a>  
+    <a href="https://metacpan.org/release/<% item.distro | html_entity %>"><i class="fa fa-book"></i>&nbsp;<i>view on metacpan</i></a>  
+    - <a href="https://metacpan.org/search?q=<% item.distro | html_entity %>"><i class="fa fa-search"></i>&nbsp;<i>search on metacpan</i></a>  
 
   <span class="relatize"><% item.version %></span>
 <br>

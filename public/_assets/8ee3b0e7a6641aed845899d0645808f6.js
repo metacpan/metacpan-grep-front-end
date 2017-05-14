@@ -1163,7 +1163,33 @@ var data=$spy.data()
 data.offset=data.offset||{}
 if(data.offsetBottom)data.offset.bottom=data.offsetBottom
 if(data.offsetTop)data.offset.top=data.offsetTop
-$spy.affix(data)})})}(jQuery);!function($){"use strict";var SlidePanel=function(element){this.element=$(element)}SlidePanel.prototype={constructor:SlidePanel,toggle:function(){var $this=this.element,selector=$this.attr('data-target'),width=$this.attr('data-slidepanel-width'),$target,ee=$.Event('toggle')$this.trigger(e)if(e.isDefaultPrevented())return$target=$(selector)if(!width){width=$target.outerWidth()$this.attr('data-slidepanel-width',width)$target.css('left',-width).css('visibility','visible');}if($target.hasClass('slidepanel-visible'))this.hide()elsethis.show()},show:function($target){var $this=this.element,selector=$this.attr('data-target'),width=$this.attr('data-slidepanel-width'),eif(!$target)$target=$(selector)$this.css('transform','translateX('+width+'px)')$target.css('transform','translateX('+width+'px)').addClass('slidepanel-visible');},hide:function($target){var $this=this.element,selector=$this.attr('data-target'),width=$this.attr('data-slidepanel-width'),eif(!$target)$target=$(selector)$target.css('transform','translateX(0px)').removeClass('slidepanel-visible');$this.css('transform','translateX(0px)')}}var old=$.fn.slidepanel$.fn.slidepanel=function(option){return this.each(function(){var $this=$(this),data=$this.data('slidepanel')if(!data)$this.data('slidepanel',(data=new SlidePanel(this)))if(typeof option=='string')data[option]()})}$.fn.slidepanel.Constructor=SlidePanel$.fn.slidepanel.noConflict=function(){$.fn.slidepanel=oldreturn this}$(document).on('click.slidepanel.data-api','[data-toggle="slidepanel"]',function(e){e.preventDefault()$(this).slidepanel('toggle')})}(window.jQuery);$(function(){function parseLines(lines){lines=lines.split(/\s*,\s*/);var all_lines=[];for(var i=0;i<lines.length;i++){var line=lines[i];var res=line.match(/^\s*(\d+)\s*(?:-\s*(\d+)\s*)?$/);if(res){var start=res[1]*1;var end=(res[2]||res[1])*1;if(start>end){var swap=end;end=start;start=swap;}
+$spy.affix(data)})})}(jQuery);!function($){"use strict";var SlidePanel=function(element){this.element=$(element)}
+SlidePanel.prototype={constructor:SlidePanel,toggle:function(){var $this=this.element,selector=$this.attr('data-target'),width=$this.attr('data-slidepanel-width'),$target,e
+e=$.Event('toggle')
+$this.trigger(e)
+if(e.isDefaultPrevented())return
+$target=$(selector)
+if(!width){width=$target.outerWidth()
+$this.attr('data-slidepanel-width',width)
+$target.css('left',-width).css('visibility','visible');}
+if($target.hasClass('slidepanel-visible'))
+this.hide()
+else
+this.show()},show:function($target){var $this=this.element,selector=$this.attr('data-target'),width=$this.attr('data-slidepanel-width'),e
+if(!$target)$target=$(selector)
+$this.css('transform','translateX('+width+'px)')
+$target.css('transform','translateX('+width+'px)').addClass('slidepanel-visible');},hide:function($target){var $this=this.element,selector=$this.attr('data-target'),width=$this.attr('data-slidepanel-width'),e
+if(!$target)$target=$(selector)
+$target.css('transform','translateX(0px)').removeClass('slidepanel-visible');$this.css('transform','translateX(0px)')}}
+var old=$.fn.slidepanel
+$.fn.slidepanel=function(option){return this.each(function(){var $this=$(this),data=$this.data('slidepanel')
+if(!data)$this.data('slidepanel',(data=new SlidePanel(this)))
+if(typeof option=='string')data[option]()})}
+$.fn.slidepanel.Constructor=SlidePanel
+$.fn.slidepanel.noConflict=function(){$.fn.slidepanel=old
+return this}
+$(document).on('click.slidepanel.data-api','[data-toggle="slidepanel"]',function(e){e.preventDefault()
+$(this).slidepanel('toggle')})}(window.jQuery);$(function(){function parseLines(lines){lines=lines.split(/\s*,\s*/);var all_lines=[];for(var i=0;i<lines.length;i++){var line=lines[i];var res=line.match(/^\s*(\d+)\s*(?:-\s*(\d+)\s*)?$/);if(res){var start=res[1]*1;var end=(res[2]||res[1])*1;if(start>end){var swap=end;end=start;start=swap;}
 for(var l=start;l<=end;l++){all_lines.push(l);}}}
 return all_lines;}
 function findLines(el,lines){var selector=$.map(parseLines(lines),function(line){return'.number'+line}).join(', ');return el.find('.syntaxhighlighter .line').filter(selector);}
@@ -1190,3 +1216,5 @@ link.removeAttr('id');document.location.hash='#L'+line;link.attr('id',id);source
 $(window).on('hashchange',function(){var lineMatch;if(lineMatch=document.location.hash.match(hashLines)){source.attr('data-line',lineMatch[1]);source.find('.highlighted').removeClass('highlighted');var lines=findLines(source,lineMatch[1]);lines.addClass('highlighted');if(lines.filter('.pod-line').length){$('.pod-toggle').removeClass('pod-hidden');$(window).scrollTop($(lines[0]).offset().top);}}});}});function togglePod(){var scrollTop=$(window).scrollTop();var topLine;var topOffset;$('.syntaxhighlighter .line').each(function(i,el){var line=$(el);if(line.hasClass('pod-line')){return;}
 else if($(el).offset().top<scrollTop){topLine=line;}});if(topLine){topOffset=topLine.offset().top-scrollTop;}
 $('.pod-toggle').toggleClass('pod-hidden');if(topLine){$(window).scrollTop(topLine.offset().top-topOffset);}}
+/* need to automatize assets: auto minimize & merge js + update/bump the release version (/name) */
+function doGrepping() { $('#firstcontainer').fadeOut(); $('#overlay').fadeIn(1200); return true; }

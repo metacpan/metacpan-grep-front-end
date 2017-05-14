@@ -15,13 +15,6 @@
 		<link rel="shortcut icon" href="/static/icons/favicon.ico">
 		<link rel="apple-touch-icon" sizes="152x152" href="/static/icons/apple-touch-icon.png">
 		<script src="/_assets/8ee3b0e7a6641aed845899d0645808f6.js" type="text/javascript"></script>
-		<script>
-		function doGrepping() {
-			jQuery('#firstcontainer').fadeOut();
-			jQuery('#overlay').fadeIn(1200);
-			return true;
-		}
-		</script>
 	</head>
 	<body>
 		<% INCLUDE main/_header.tt %>

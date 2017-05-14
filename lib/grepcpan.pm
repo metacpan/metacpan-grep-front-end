@@ -267,8 +267,8 @@ sub _sanitize_search {
     $s =~ s{\n}{}g;
     $s =~ s{'}{\'}g;
 
-    $s =~ s{[^a-zA-Z0-9\-\.\?\\*\&_'"~!$%^()\[\]\{\}:;<>,/@| ]}{}g
-      ;    # whitelist possible characters ?
+    # whitelist possible characters ?
+    $s =~ s{[^\^a-zA-Z0-9\-\.\?\\*\&_'"~!\$\%()\[\]\{\}:;<>,/\@| ]}{}g;
 
     return $s;
 }

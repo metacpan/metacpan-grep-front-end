@@ -19,8 +19,8 @@ grepcpan:
    nocache: 0
    maxworkers: 1000
    gitrepo: '/home/toddr/metacpan-cpan-extracted'
-   binaries:
-      git: '/home/toddr/git/bin/git'
+#   binaries:
+#      git: '/home/toddr/git/bin/git'
    cache: 
       directory: '~APPDIR~/var/tmp'
-      version: '1.00'
+      version: '1.01'

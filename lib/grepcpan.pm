@@ -158,7 +158,7 @@ grepcpan@grep.cpan.me [~/minicpan_grep.git]# time git grep -C15 -n xyz HEAD | he
 =cut
 
 use Simple::Accessor
-  qw{ config git cache distros_per_page search_context search_context_file search_context_distro git_binary };
+  qw{ config git cache distros_per_page search_context search_context_file search_context_distro git_binary root};
 use POSIX qw{:sys_wait_h setsid};
 use Proc::ProcessTable ();
 use YAML::Syck         ();
@@ -183,7 +183,7 @@ $YAML::Syck::SortKeys    = 1;
 sub _build_git {
     my $self = shift;
 
-    my $gitdir = $self->config()->{'gitrepo'};
+    my $gitdir = $self->massage_path( $self->config()->{'gitrepo'} );
     die qq{Invalid git directory $gitdir} unless defined $gitdir && -d $gitdir;
 
     return Git::Repository->new(
@@ -211,13 +211,26 @@ sub _build_cache {
       . ( $self->config()->{'cache'}->{'version'} || 0 );
     die unless $dir;
 
-	my $appdir = $FindBin::Bin . '/';
-	$dir =~ s{~APPDIR~}{$appdir}g;
-
+    $dir = $self->massage_path( $dir );
     qx{mkdir -p $dir};    # cleanup
     die unless -d $dir;
     return $dir;
 }
+
+sub _build_root {
+    return $FindBin::Bin . '/';   
+}
+
+sub massage_path {
+    my ( $self, $s ) = @_;
+
+    return unless defined $s;
+    my $appdir = $self->root;
+    $s =~ s{~APPDIR~}{$appdir}g;
+
+    return $s;
+}
+
 
 ## TODO factorize
 sub _build_distros_per_page {

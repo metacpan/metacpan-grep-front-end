@@ -74,7 +74,7 @@ get '/search' => sub {
         last_searches => _update_history_cookie($q),
         nopagination  => $nopagination,
         show_sumup    => $show_sumup,
-        qt            => $filetype // q{},
+        qft           => $filetype // q{},
         qd            => $qdistro,                      #$qdistro // q{},
         qci           => $qci,
     };

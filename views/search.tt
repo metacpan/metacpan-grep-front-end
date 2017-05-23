@@ -56,7 +56,7 @@
         <% IF query.is_incomplete %>
           found more than <b><% query.match.distros %></b> distributions - <i>search limited to the first <b><% query.match.files %></b> files matching your query</i>
         <% ELSE %>
-          found <b><% query.match.distros %></b> distributuons and <b><% query.match.files %></b> files matching your query !
+          found <b><% query.match.distros %></b> distributions and <b><% query.match.files %></b> files matching your query !
         <% END %>
         
         <% END # END of search_in_progress  %>

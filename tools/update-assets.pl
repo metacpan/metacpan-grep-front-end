@@ -46,14 +46,17 @@ sub run {
         $base = $prefix if !defined $base;
         my $new            = qq{/_assets/$ts-$base};
         my $new_asset_file = qq{$root/public/$new};
-        system( 'cp', "$root/public/_assets/$asset", $new_asset_file ) == 0
+        my $old_asset = "$root/public/_assets/$asset";
+        system( 'cp', $old_asset, $new_asset_file ) == 0
           or die;
 
         my $cmd = qq{sed -i -e "s|/_assets/$asset|$new|g" }
           . join( ' ', sort keys %{ $assets{$asset} } );
         qx{$cmd};
         warn "Error: $cmd - $!" if $? != 0;
+
         $git->run( 'add', $new_asset_file, sort keys %{ $assets{$asset} } );
+        $git->run( 'rm', $old_asset );
 
         foreach my $f ( sort keys %{ $assets{$asset} } ) {
             my $_e = $f . q{-e};

@@ -527,9 +527,8 @@ sub get_list_of_files_to_search {
         }
     }
     else {                   # pick one single file per distro
-                             #my @distros =
         @flat_list = map {
-            my $distro        = $_;
+            my $distro = $_;    # warning this is over riding the input variable
             my $prefix        = $cache->{distros}->{$distro}->{prefix};
             my $list_of_files = $cache->{distros}->{$distro}->{files};
             my $candidate = $list_of_files->[0];    # only the first file
@@ -546,6 +545,16 @@ sub get_list_of_files_to_search {
 
             # use our best candidate ( and add our prefix )
             $prefix . '/' . $candidate;
+          }
+          grep {
+            my $key  = $_;
+            my $keep = 1;
+
+            # check if there is a distro filter and apply it
+            if ( defined $distro && length $distro ) {
+                $keep = $key =~ qr{$distro}i ? 1 : 0;
+            }
+            $keep;
           }
           sort keys %{ $cache->{distros} };
     }

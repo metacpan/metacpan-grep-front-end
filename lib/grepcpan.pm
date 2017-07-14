@@ -84,14 +84,19 @@ get '/search' => sub {
 
 ### API routes
 get '/api/search' => sub {
-
-    my $q        = param('q');                         # FIXME clean query
-    my $page     = param('p') || 1;
+    my $q        = param('q');
     my $filetype = param('qft');
-    my $query    = $grep->do_search(
-        search   => $q,
-        page     => $page - 1,
-        filetype => $filetype
+    my $qdistro  = param('qd');
+    my $qci      = param('qci');                       # case insensitive
+    my $page     = param('p') || 1;
+    my $file     = param('f');
+
+    my $query = $grep->do_search(
+        search          => $q,
+        page            => $page - 1,
+        search_distro   => $qdistro,    # filter on a distribution
+        filetype        => $filetype,
+        caseinsensitive => $qci,
     );
 
     content_type 'application/json';

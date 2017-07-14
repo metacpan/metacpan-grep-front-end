@@ -16,9 +16,15 @@
     <% pageto = lastpage < pagefrom ? pagefrom : lastpage %>
     <% SET disable_next_p = 1 %>
     <% END %>
-    <li class="<% page < 10 ? 'disabled' : '' %>">
+    <% IF page < 10 # disable pagination « %>
+    <li class="disabled">
+      <a href="#">«</a>
+    </li>
+    <% ELSE %>
+    <li class="">
       <a href="/search?p=<% pagefrom - 10 %>&amp;<% pagination_uri %>">«</a>
     </li>
+    <% END %>
     <% IF query.results.size %>
     <% FOREACH p in [ pagefrom..pageto] %>
     <% IF p == page %>
@@ -29,9 +35,15 @@
       <a href="/search?p=<% p %>&amp;<% pagination_uri %>"><% p %></a>
     </li>
     <% END %>
-    <li class="<% disable_next_p ? 'disabled' : '' %>">
+    <%IF disable_next_p # disable pagination » %>
+    <li class="disabled">
+      <a href="#">»</a>
+    </li>
+    <% ELSE %>
+    <li class="">
       <a href="/search?p=<% pagefrom + 10 %>&amp;<% pagination_uri %>">»</a>
     </li>
+    <% END %>
     <% END # end check query.results.size %>
   </ul>
 </div>

@@ -85,7 +85,7 @@ get '/api/search' => sub {
 
     my $q        = param('q');                         # FIXME clean query
     my $page     = param('p') || 1;
-    my $filetype = param('filetype');
+    my $filetype = param('qft');
     my $query    = $grep->do_search(
         search   => $q,
         page     => $page - 1,

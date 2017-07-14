@@ -1,0 +1,5 @@
+#!/bin/sh
+
+export PATH=/home/atoomic/metacpan-grep-front-end/local/bin:$PATH
+
+plackup -p 5008 -R . bin/app.psgi

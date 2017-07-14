@@ -72,7 +72,7 @@ grepcpan:
       search_context_file:   60
    gitrepo: '/home/toddr/metacpan-cpan-extracted'
    binaries:
-      git: '/home/toddr/git/bin/git'
+      git: '/home/atoomic/bin/git'
    cache: 
       directory: '~APPDIR~/var/tmp'
       version: '1.01'

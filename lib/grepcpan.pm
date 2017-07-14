@@ -10,6 +10,12 @@ use utf8;
 our $VERSION = '0.1';
 
 my $GrepCpanConfig = config()->{'grepcpan'};
+
+# patch the LD_LIBRARY_PATH to load libpcre
+if ( $GrepCpanConfig->{'ENV'} && $GrepCpanConfig->{'ENV'}{'LD_LIBRARY_PATH'} ) {
+    $ENV{'LD_LIBRARY_PATH'} = $GrepCpanConfig->{'ENV'}{'LD_LIBRARY_PATH'};
+}
+
 my $grep = GrepCpan->new( config => $GrepCpanConfig );
 $grep->cache();    # create and cleanup cache directory at startup
 

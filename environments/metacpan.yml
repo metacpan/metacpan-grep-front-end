@@ -19,7 +19,9 @@ grepcpan:
    nocache: 0
    maxworkers: 1000
    gitrepo: '/mnt/lv-ssdscratch/metacpan-cpan-extracted'
-#   binaries:
-#      git: '/home/toddr/git/bin/git'
+   binaries:
+      git: '/home/atoomic/bin/git'
+   ENV:
+      LD_LIBRARY_PATH: '/lib:/home/atoomic/lib'
    cache: 
       directory: '~APPDIR~/var/tmp'

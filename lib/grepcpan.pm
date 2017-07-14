@@ -10,6 +10,7 @@ our $VERSION = '0.1';
 
 my $GrepCpanConfig = config()->{'grepcpan'};
 my $grep = GrepCpan->new( config => $GrepCpanConfig );
+$grep->cache();    # create and cleanup cache directory at startup
 
 my $COOKIE_LAST_SEARCH = $GrepCpanConfig->{'cookie'}->{'history_name'}
   or die "missing cookie:history entry";
@@ -57,14 +58,15 @@ get '/search' => sub {
     my $query    = $grep->do_search(
         search          => $q,
         page            => $page - 1,
-        search_distro   => $qdistro, # filter on a distribution
+        search_distro   => $qdistro,    # filter on a distribution
         search_file     => $file,
         filetype        => $filetype,
         caseinsensitive => $qci,
     );
 
-    my $nopagination = defined $file   && length $file   ? 1 : 0;
-    my $show_sumup   = !$query->{is_a_known_distro}; #defined $distro && length $distro ? 0 : 1;
+    my $nopagination = defined $file && length $file ? 1 : 0;
+    my $show_sumup =
+      !$query->{is_a_known_distro};  #defined $distro && length $distro ? 0 : 1;
 
     return template 'search' => {
         search        => $q,
@@ -75,7 +77,7 @@ get '/search' => sub {
         nopagination  => $nopagination,
         show_sumup    => $show_sumup,
         qft           => $filetype // q{},
-        qd            => $qdistro,                      #$qdistro // q{},
+        qd            => $qdistro,                     #$qdistro // q{},
         qci           => $qci,
     };
 };
@@ -158,7 +160,7 @@ grepcpan@grep.cpan.me [~/minicpan_grep.git]# time git grep -C15 -n xyz HEAD | he
 =cut
 
 use Simple::Accessor
-  qw{ config git cache distros_per_page search_context search_context_file search_context_distro git_binary root};
+  qw{ config git cache distros_per_page search_context search_context_file search_context_distro git_binary root HEAD };
 use POSIX qw{:sys_wait_h setsid};
 use Proc::ProcessTable ();
 use YAML::Syck         ();
@@ -203,22 +205,86 @@ sub _build_git_binary {
     return $git;
 }
 
+sub _build_HEAD {
+    my $self = shift;
+
+    my $head = $self->git()->run(qw{rev-parse --short HEAD});
+    chomp $head if defined $head;
+    die unless length($head);
+
+    return $head;
+}
+
 sub _build_cache {
     my $self = shift;
 
     # also use HEAD ?? FIXME
-    my $dir = $self->config()->{'cache'}->{'directory'} . '/'
-      . ( $self->config()->{'cache'}->{'version'} || 0 );
+    my $dir =
+        $self->config()->{'cache'}->{'directory'} . '/'
+      . ( $self->config()->{'cache'}->{'version'} || 0 )
+      . '/HEAD-'
+      . $self->HEAD;
     die unless $dir;
 
-    $dir = $self->massage_path( $dir );
-    qx{mkdir -p $dir};    # cleanup
+    $dir = $self->massage_path($dir);
+    qx{mkdir -p $dir};
     die unless -d $dir;
+
+    # cleanup after directory structure creation
+    $self->cache_cleanup($dir);
+
     return $dir;
 }
 
 sub _build_root {
-    return $FindBin::Bin . '/';   
+    return $FindBin::Bin . '/';
+}
+
+sub cache_cleanup {    # aka tmpwatch
+    my ( $self, $current_cachedir ) = @_;
+
+    return unless $current_cachedir;
+
+    my @path = split qr{/}, $current_cachedir;
+
+    {                  # purge old cache versions
+        my @tmp = @path;
+        pop @tmp for 1 .. 2;
+
+        my $cache_root = join '/', @tmp;
+        if ( opendir( my $tmp_dh, $cache_root ) ) {
+            foreach my $dir ( readdir($tmp_dh) ) {
+                next if $dir eq '.' || $dir eq '..';
+                my $fdir = $cache_root . '/' . $dir;
+                next
+                  if $dir eq ( $self->config()->{'cache'}->{'version'} || 0 );
+                next if -l $fdir;
+                next unless -d $fdir;
+                next unless length $fdir > 5;
+                qx{rm -rf $fdir}
+                  ; # kind of dangerous but should be ok, we are controlling these values
+            }
+            close($tmp_dh);
+        }
+    }
+
+    {               # purge old HEAD directories for the same version
+        my @tmp = @path;
+        pop @tmp;
+        my $version_cache = join '/', @tmp;
+        if ( opendir( my $tmp_dh, $version_cache ) ) {
+            foreach my $dir ( readdir($tmp_dh) ) {
+                next if $dir eq '.' || $dir eq '..';
+                my $fdir = $version_cache . '/' . $dir;
+                next if -l $fdir;
+                next unless -d $fdir;
+                next if $fdir eq $current_cachedir;
+                qx{rm -rf $fdir};   # purge old cache, in the same weird fashion
+            }
+        }
+    }
+
+    return;
 }
 
 sub massage_path {
@@ -230,7 +296,6 @@ sub massage_path {
 
     return $s;
 }
-
 
 ## TODO factorize
 sub _build_distros_per_page {
@@ -290,7 +355,7 @@ sub do_search {
         $filetype, $caseinsensitive, )
       = (
         $opts{search}, $opts{page}, $opts{search_distro}, $opts{search_file},
-        $opts{filetype}, $opts{caseinsensitive}, 
+        $opts{filetype}, $opts{caseinsensitive},
       );
 
     my $t0 = [Time::HiRes::gettimeofday];
@@ -305,17 +370,22 @@ sub do_search {
       $self->get_match_cache( $search, $search_distro,
         $filetype, $caseinsensitive );
 
-    my $is_a_known_distro = defined $search_distro && length $search_distro && exists $cache->{distros}->{$search_distro};
+    my $is_a_known_distro =
+         defined $search_distro
+      && length $search_distro
+      && exists $cache->{distros}->{$search_distro};
 
     my $context = $self->search_context();    # default context
     if ( defined $search_file ) {
         $context = $self->search_context_file();
     }
-    elsif ( $is_a_known_distro ) {
+    elsif ($is_a_known_distro) {
         $context = $self->search_context_distro();
     }
 
-    my $files_to_search = $self->get_list_of_files_to_search( $cache, $search, $page, $search_distro, $search_file, $filetype ); ## notidy
+    my $files_to_search =
+      $self->get_list_of_files_to_search( $cache, $search, $page,
+        $search_distro, $search_file, $filetype );    ## notidy
 
     # can also probably simply use Git::Repo there
     my $matches;
@@ -366,7 +436,7 @@ sub do_search {
         $result->{matches} //= [];
 
         #@diffblocks = scalar @diffblocks; # debugging clear the blocks
-        push @{$result->{matches}},
+        push @{ $result->{matches} },
           { file => $shortpath, blocks => [@diffblocks] };
         return
           if scalar @output
@@ -427,7 +497,8 @@ sub do_search {
 }
 
 sub get_list_of_files_to_search {
-    my ( $self, $cache, $search, $page, $distro, $search_file, $filetype ) = @_; ## notidy
+    my ( $self, $cache, $search, $page, $distro, $search_file, $filetype ) =
+      @_;    ## notidy
 
 # try to get one file per distro except if we do not have enough distros matching
 # maybe sort the files by distros having the most matches ??
@@ -437,7 +508,8 @@ sub get_list_of_files_to_search {
     # if we have enough distros
     my $limit = $self->distros_per_page;
     if ( defined $distro && exists $cache->{distros}->{$distro} ) {
-        # let's pick all the files for this distro: as we are looking for it 
+
+        # let's pick all the files for this distro: as we are looking for it
         return [] unless exists $cache->{distros}->{$distro};
         my $prefix = $cache->{distros}->{$distro}->{prefix};
         @flat_list = map { $prefix . '/' . $_ }
@@ -457,7 +529,7 @@ sub get_list_of_files_to_search {
             if ( scalar @$list_of_files > 1 ) {
 
                 # try to find a more perlish file first
-                foreach my $f ( @$list_of_files ) {
+                foreach my $f (@$list_of_files) {
                     if ( $f =~ qr{\.p[lm]$} ) {
                         $candidate = $f;
                         last;

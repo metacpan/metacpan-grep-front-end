@@ -12,21 +12,137 @@ The API is built around these simple concepts:
 <ul>
 	<li>simple http GET queries</li>
 	<li>the output format is JSON</li>
-	<li>just add the '/api' prefix to any of your search, and you should be to go !</li>
-	
-</ul>	
+	<li>just add the '/api' prefix to any of your search, and you should be to go !</li>	
+</ul>
+
+Here is a simple example:
+
+if you are browsing grep.metacpan.org, just copy paste your URL which should looks like this
+<pre>
+	https://grep.metacpan.org/api/search?q=test&qd=&qft=
+</pre>
+
+You just want to add the <b>/api/</b> prefix to your URI
+<pre>
+	curl -X GET 'https://grep.metacpan.org/api/search?q=test&qd=&qft' | json
+</pre>
 
 </p>
 
-<h2>Search among all CPAN distributions</h2>
+<h2>The Output Format</h2>
 
+The format is not definitive and still in an early stage development, but here's what it should looks like
+
+<h3>Keys used at the main level of the output format</h3>
+<ul>
+	<li><b>results:</b> array which contains all the matching informations</li>
+	<li><b>is_incomplete:</b> boolean which tell you if the request was truncated (after 2000 files), or if it contains all result from CPAN</li>
+	<li><b>search_in_progress:</b> boolean to tell you if you need to query it a little later, as the query might still be running in background</li>
+	<li><b>time_elapsed:</b> time in seconds to render the request</li>
+	<li><b>is_a_known_distro:</b> boolean to tell you if the distro filter matches a known CPAN distribution</li>
+	<li><b>match:</b> quick sumup metrics for your query</li>
+</ul>
+
+<h3>The results values</h3>
+The match of your query are stored in the <b>results</b> array at the main level.
+This is a list hashes of all matching results. Where each hash describes the results 
+for a specific distribution.
+
+The format of a distribution result is the following:
+<ul>
+<li><b>files:</b> list of all files for this distribution matching your query</li>
+<li><b>matches:</b> list of array representing all matching codeblocks for a file</li>
+<li><b>prefix:</b> distribution filepath on disk</li>
+<li><b>distro:</b> distribution name</li>
+</ul>
+
+<h3>Codeblock structure</h3>
+A codeblock represent the output of git grep with some context,
+so we need to indicate which line is the first one in the code extract
+and which lines are the one matching your query.
+<ul>
+<li><b>matchlines:</b> array of integers listing all the file line number matching the query.</li>
+<li><b>code:</b> code extract for the match with some context</li>
+<li><b>start_at:</b> integer indicating the first line number in the code extract</li>
+</ul>
+
+<h3>The sumup statistics</h3>
+Basic metrics about your query, you can know how many distributions and files match your query.
+
+<ul>
+	<li><b>distros:</b> integer value with the number of total distributions matching your query</li>
+	<li><b>files:</b> integer value with the number of total files matching your query</li>
+</ul>
+
+<h3>Sample output format</h3>
 <pre>
+{
+  "results": [
+    {
+      "files": [
+        "MANIFEST",
+        "t/test.t"
+      ],
+      "matches": [
+        {
+          "blocks": [
+            {
+              "matchlines": [
+                "6",
+                "7",
+                "8",
+                "9",
+                "10"
+              ],
+              "code": "Changes\nMANIFEST\nMakefile.PL\nREADME\nlib/abbreviation.pm\nt/test.t\ntestlib/CAPS/On.pm\ntestlib/Foo.pm\ntestlib/FooBar/Baz.pm\ntestlib/FooBar/Baz/Doh.pm\n",
+              "start_at": "1"
+            }
+          ],
+          "file": "MANIFEST"
+        }
+      ],
+      "prefix": "distros/a/abbreviation",
+      "distro": "abbreviation"
+    },
+    ... --- additional results where cut from there ---
+  ],
+  "is_incomplete": 0,
+  "search_in_progress": 0,
+  "time_elapsed": 0.016502,
+  "is_a_known_distro": "",
+  "match": {
+    "files": "64",
+    "distros": "7"
+  }
+}
 </pre>
 
-<h2>Search in a specific CPAN distribution</h2>
 
-<pre>
-</pre>
+<h2>Adding a filter to your query</h2>
+
+Here are the valid parameters for your http query:
+
+<ul>
+<li><b>q:</b> string for the query pattern (required)</li>
+<li><b>qci:</b> boolean 0 or 1 for a case insensitive search (optional - default 0)</li>
+<li><b>qd:</b> string for the distribution filter pattern (optional)</li>
+<li><b>qft:</b> string for the file type filter pattern (optional)</li>
+<li><b>f:</b> string for a specific file name filter pattern (optional)</li>
+<li><b>p:</b> integer for the page number. As the WebUI this is using pagination (optional - default 1)</li>
+</ul>
+
+<hr>
+Some API queries samples:
+<br>
+- search for 'test' among all CPAN distributions: 
+<a href="https://grep.metacpan.org/api/search?q=test">/api/search?q=test</a>
+<br>
+- case insensitive search for 'test' among all CPAN distributions: 
+<a href="https://grep.metacpan.org/api/search?q=test&qci=1">/api/search?q=test&qci=1</a>
+<br>
+- search for 'test' among all distributions matching '*snap*': 
+<a href="https://grep.metacpan.org/api/search?q=test&qd=snap">/api/search?q=test&qd=*snap*</a>
+<hr>
 
 <h2>Thumb Rules</h2>
 

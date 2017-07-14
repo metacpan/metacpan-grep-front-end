@@ -5,6 +5,7 @@ use Dancer2::Serializer::JSON;
 
 use strict;
 use warnings;
+use utf8;
 
 our $VERSION = '0.1';
 
@@ -176,6 +177,7 @@ use Fcntl qw(:flock SEEK_END);
 use Test::More;
 
 use FindBin;
+use utf8;
 
 use Digest::MD5 qw( md5_hex );
 

@@ -30,4 +30,3 @@ grepcpan:
 #      git: '/usr/local/cpanel/3rdparty/bin/git'
    cache: 
       directory: '~APPDIR~/../var/tmp'
-      version: '1.05'

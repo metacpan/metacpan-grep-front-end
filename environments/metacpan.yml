@@ -23,4 +23,3 @@ grepcpan:
 #      git: '/home/toddr/git/bin/git'
    cache: 
       directory: '~APPDIR~/var/tmp'
-      version: '1.02'

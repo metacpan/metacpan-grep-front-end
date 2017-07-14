@@ -2,6 +2,7 @@ package grepcpan;
 
 use Dancer2;
 use Dancer2::Serializer::JSON;
+use Encode;
 
 use strict;
 use warnings;
@@ -113,7 +114,7 @@ sub _update_history_cookie { # and return the human version list in all cases...
 
     my $separator = q{||};
 
-    my $value = cookie($COOKIE_LAST_SEARCH);
+    my $value = Encode::decode( 'UTF-8', cookie($COOKIE_LAST_SEARCH) );
 
     my @last_searches = split( qr{\Q$separator\E}, $value // '' );
 
@@ -124,7 +125,7 @@ sub _update_history_cookie { # and return the human version list in all cases...
         unshift @last_searches, $search;    # move it first
         @last_searches = splice( @last_searches, 0,
             $GrepCpanConfig->{'cookie'}->{'history_size'} );
-        cookie $COOKIE_LAST_SEARCH => join( $separator, @last_searches ),
+        cookie $COOKIE_LAST_SEARCH => Encode::encode( 'UTF-8', join( $separator, @last_searches ) ),
           expires                  => "21 days";
     }
 

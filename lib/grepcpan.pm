@@ -8,7 +8,7 @@ use strict;
 use warnings;
 use utf8;
 
-our $VERSION = '0.1';
+our $VERSION = '1.00';
 
 my $GrepCpanConfig = config()->{'grepcpan'};
 

@@ -1,0 +1,38 @@
+<% FOREACH item IN query.results %>
+<!-- beginning of module -->
+
+  <% 
+    l2d_qci = qci | html_entity;
+    l2d_q   = search | html_entity;
+    l2d_qd  = item.distro | html_entity;
+    l2d_qft = qft | html_entity;
+    l2d_qls = qls | html_entity;
+
+    SET link_to_distro = "/search?qci=${l2d_qci}&amp;q=${l2d_q}&amp;qft=${l2d_qft}&amp;qd=${l2d_qd}&amp;qls=${l2d_qls}";
+    SET link_withmatch = "/search?qci=${l2d_qci}&amp;q=${l2d_q}&amp;qft=${l2d_qft}&amp;qd=${l2d_qd}&amp;qls=0";
+  %>
+  <div class="module-result">
+    <big><strong>
+     <a href="<% link_to_distro %>"><% item.distro | html %></a>
+    </strong></big>
+    <div class="logged_out" style="display: inline;">
+      <a href="<% link_to_distro %>" class="favorite highlight">
+      <span><%= item.files.size %></span> <%= item.files.size <= 1 ? 'match' : 'match' %></a>
+    </div>
+    
+  <br>
+  <p class="description">
+
+  <% IF qd %>
+
+  <% FOREACH match IN item.matches %>
+  <p class="description">
+    <a class="author" href="<% link_withmatch %>&amp;f=<% match.file | html_entity %>" title="grep on this file"><% match.file %></a>
+  </p>   
+  <% END %>
+
+  <% END # fi %>
+
+  </div>
+
+<% END # foreach query.results %>

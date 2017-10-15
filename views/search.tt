@@ -2,7 +2,8 @@
 <%
   SET gram_sec = 'second';# : 'second';
   SET gram_sec = 'seconds' IF query.time_elapsed >= 2;
-  SET html_time_elapsed = "<i>( run in ${query.time_elapsed} $gram_sec using v${query.version} )</i>"
+  SET html_time_elapsed = "<i>( run in ${query.time_elapsed} )</i>";
+  SET html_time_elapsed_with_version = "<i>( run in ${query.time_elapsed} $gram_sec using v${query.version} )</i>";
 %>
 <% END  %>
 <div class="container-fluid">
@@ -68,7 +69,7 @@
         <% INCLUDE 'show-search.tt' %>
         <% IF query.results.size || page > 1 %>
         <% INCLUDE main/_pagination.tt %>
-        <div class="center"><% html_time_elapsed %></div>
+        <div class="center"><% html_time_elapsed_with_version %></div>
         <% END %>
       </div>
     </div>

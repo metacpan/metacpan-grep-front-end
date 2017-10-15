@@ -10,6 +10,7 @@
       <!-- .class + .class { width: 100px } -->
       <div style="text-align:left; font-size: 14px;">
         <label for="ci-input" style="font-weight: normal;"><input type="checkbox" name="qci" id="ci-input">&nbsp;case&nbsp;insensitive&nbsp;search</label>
+        <label for="ls-input" style="font-weight: normal;"><input type="checkbox" name="qls" <% qls ? 'checked' : '' %> id="ls-input" class="">&nbsp;list&nbsp;distro/files</label>
       </div>
     </div>
     <div class="form-group">

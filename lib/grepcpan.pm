@@ -8,7 +8,7 @@ use strict;
 use warnings;
 use utf8;
 
-our $VERSION = '0.1';
+our $VERSION = '1.00';
 
 my $GrepCpanConfig = config()->{'grepcpan'};
 
@@ -61,6 +61,7 @@ get '/search' => sub {
     my $filetype = param('qft');
     my $qdistro  = param('qd');
     my $qci      = param('qci');       # case insensitive
+    my $qls      = param('qls');       # only list files
     my $page     = param('p') || 1;
     my $file     = param('f');
     my $query    = $grep->do_search(
@@ -70,13 +71,16 @@ get '/search' => sub {
         search_file     => $file,
         filetype        => $filetype,
         caseinsensitive => $qci,
+        list_files      => $qls,        # not used for now, only impact the view
     );
 
     my $nopagination = defined $file && length $file ? 1 : 0;
     my $show_sumup =
       !$query->{is_a_known_distro};  #defined $distro && length $distro ? 0 : 1;
 
-    return template 'search' => {
+    my $template = $qls ? 'list-files' : 'search';
+
+    return template $template => {
         search        => $q,
         search_distro => $qdistro,
         query         => $query,
@@ -86,7 +90,7 @@ get '/search' => sub {
         show_sumup    => $show_sumup,
         qft           => $filetype // q{},
         qd            => $qdistro,                     #$qdistro // q{},
-        qci           => $qci,
+        qls           => $qls,
     };
 };
 

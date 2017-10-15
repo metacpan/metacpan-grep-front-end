@@ -1,0 +1,82 @@
+<%  IF query.time_elapsed %>
+<%
+  SET gram_sec = 'second';# : 'second';
+  SET gram_sec = 'seconds' IF query.time_elapsed >= 2;
+  SET html_time_elapsed = "<i>( run in ${query.time_elapsed} )</i>";
+  SET html_time_elapsed_with_version = "<i>( run in ${query.time_elapsed} $gram_sec using v${query.version} )</i>";
+%>
+<% END  %>
+<div class="container-fluid">
+  
+  
+  <div class="row hidden-phone">
+    <div class="head-small-logo col-md-3">
+      <a href="/" class="small-logo"></a>
+    </div>
+    <div class="col-md-9">
+      <form action="/search" class="search-form form-horizontal" onSubmit="doGrepping()">
+        <div class="form-group">
+          <div class="input-group" style="overflow: hidden; display: table;">
+            <input type="text" name="q" size="41" autofocus="autofocus" id="search-input" class="form-control search-input-results" style="width:280px;" value="<% search | html_entity %>" autocomplete="off" placeholder="search with perl RegEx">
+            <input type="text" name="qd" size="35" id="search-distro-input-results" class="form-control optional-input" value="<% qd | html_entity %>" autocomplete="off" placeholder="in distro like ^App-.*">
+            <input type="text" name="qft" size="6" id="search-filetype-input-results" class="form-control optional-input" value="<% qft | html_entity %>" autocomplete="off" placeholder="*.pm">
+            <span class="input-group-btn">
+              <button class="btn search-btn" type="submit">Search</button>
+            </span>
+            <div style="float: block; "><label for="ci-input" style="font-weight: normal;"><input type="checkbox" name="qci" <% qci ? 'checked' : '' %> id="ci-input" class="">&nbsp;case&nbsp;insensitive&nbsp;search</label>
+            <label for="ls-input" style="font-weight: normal;"><input type="checkbox" name="qls" <% qls ? 'checked' : '' %> id="ls-input" class="">&nbsp;list&nbsp;distro/files</label>
+
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="main-content col-md-12">
+      <ul class="nav-list slidepanel sticky-panel-top">
+        <% INCLUDE main/_last_search.tt %>
+      </ul>
+      <% IF query.results.size %>
+      <div class="hidden-phone">
+        <% INCLUDE main/_pagination.tt %>
+      </div>
+      <% END %>
+
+      <div class="content search-results">
+  
+        <% IF show_sumup %>
+        <div class="module-result">
+        <big><strong>Result: </strong></big>
+        <div style="display: inline;">
+
+        <% IF query.search_in_progress %>
+          <i class="fa fa-cog fa-spin fa-2x fa-fw margin-bottom"></i>
+          <span class="sr-only">Your query is still running in background...</span>Search in progress...
+          at this time found <b><% query.match.distros %></b> distributions and <b><% query.match.files %></b> files matching your query.
+          <br>Next refresh should show more results.
+        <% ELSE %>
+        <% IF query.is_incomplete %>
+          found more than <b><% query.match.distros %></b> distributions - <i>search limited to the first <b><% query.match.files %></b> files matching your query</i>
+        <% ELSE %>
+          found <b><% query.match.distros %></b> distributions and <b><% query.match.files %></b> files matching your query !
+        <% END %>
+        
+        <% END # END of search_in_progress  %>
+        <% html_time_elapsed %>
+        </div>
+        <br><br>
+        <% END %>
+
+        <% INCLUDE "${subview}.tt"  %>
+
+        <% IF query.results.size || page > 1 %>
+        <% INCLUDE main/_pagination.tt %>
+        <div class="center"><% html_time_elapsed_with_version %></div>
+        <% END %>
+      </div>
+    </div>
+  </div>
+</div>
+</div>

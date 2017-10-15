@@ -131,8 +131,9 @@ sub _update_history_cookie { # and return the human version list in all cases...
         unshift @last_searches, $search;    # move it first
         @last_searches = splice( @last_searches, 0,
             $GrepCpanConfig->{'cookie'}->{'history_size'} );
-        cookie $COOKIE_LAST_SEARCH => Encode::encode( 'UTF-8', join( $separator, @last_searches ) ),
-          expires                  => "21 days";
+        cookie $COOKIE_LAST_SEARCH =>
+          Encode::encode( 'UTF-8', join( $separator, @last_searches ) ),
+          expires => "21 days";
     }
 
     return \@last_searches;
@@ -507,7 +508,34 @@ sub do_search {
         results            => \@output,
         time_elapsed       => $elapsed,
         is_a_known_distro  => $is_a_known_distro,
+        version            => $self->current_version(),
     };
+}
+
+sub current_version {
+    my ($self) = @_;
+
+    return $self->{__version__} if $self->{__version__};
+
+    # cache the current grep metacpan version
+    $self->{__version__} = join(
+        '-',
+        $grepcpan::VERSION,
+        'cache' => $self->config()->{'cache'}->{'version'},
+        'grep'  => eval {
+            scalar Git::Repository->new(
+                work_tree => $self->root,
+                { git => $self->git_binary }
+            )->run(qw{rev-parse --short HEAD});
+        } // '',
+        'cpan' => eval { scalar $self->git->run(qw{rev-parse --short HEAD}) }
+          // '',
+    );
+
+    #my $run     = scalar $self->git->run(qw{rev-parse --short HEAD});
+    # ....
+
+    return $self->{__version__};
 }
 
 sub get_list_of_files_to_search {

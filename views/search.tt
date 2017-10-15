@@ -2,7 +2,7 @@
 <%
   SET gram_sec = 'second';# : 'second';
   SET gram_sec = 'seconds' IF query.time_elapsed >= 2;
-  SET html_time_elapsed = "<i>( run in ${query.time_elapsed} $gram_sec )</i>"
+  SET html_time_elapsed = "<i>( run in ${query.time_elapsed} $gram_sec using v${query.version} )</i>"
 %>
 <% END  %>
 <div class="container-fluid">

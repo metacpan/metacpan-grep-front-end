@@ -9,15 +9,15 @@ CPAN content.</p>
 
 <p>This is <b>Y</b>et <b>A</b>nother project for searching the CPAN.</p>
 
-<p>This is not the first attempt to provide a grep through all CPAN distribution,
-	and you probably also want to try the original <a href="http://grep.cpan.me">grep.cpan.me</a>
-	which is using a redis database as backend.
+<p>This is not the first attempt to provide a grep through all CPAN distributions,
+	but we hope you'll find it helpful. You should also try the original
+	<a href="http://grep.cpan.me">grep.cpan.me</a> which uses a Redis database as backend.
 </p>
 
-<p>The goal of this project is purely experimental and see how 'git grep' can compete with a more
-traditional database approach. One of its main advantage is that it's easy to deploy on a standalone server / laptop.
-The drawback is... that it can be *slow*... but sometimes you might be surprise by how fast it can be :-) 
-All the most when your query can grep several results, the more frequent is the term you are looking for the faster it should be.
+<p>This project is purely experimental. The goal is to see how 'git grep' can compete with a more
+traditional database approach. One of its main advantages is that it's easy to deploy on a standalone server/workstation.
+The drawback is that it can be *slow*... but you might be surprised by how fast it can be for some searches. :-)
+The more frequently a term is searched for, the faster the grep for that term gets.
 </p>
 
 
@@ -32,17 +32,17 @@ All the most when your query can grep several results, the more frequent is the 
 
 <p>Read more about how the code is organized by reading our <a href="/source-code">GitHub repositories</a> introduction.
 
-<p>(grep::)?MetaCPAN is <a href="/about/contributors">a community effort</a>, which come from an original idea from <a href="https://metacpan.org/author/TODDR">Todd R.</a> while working on the 'dot removal from @INC'. (and yes grep.cpan.me was down at this time...)</p>
+<p>(grep::)?MetaCPAN is <a href="/about/contributors">a community effort</a>. The original idea came about when  <a href="https://metacpan.org/author/TODDR">Todd R.</a> was working on the 'dot removal from @INC' (and <a href="http://grep.cpan.me">grep.cpan.me</a> wasn't available at that particular time).</p>
 
 
 <h2 id="helpwanted"><a href="#helpwanted" class="anchor"><span class="fa fa-bookmark black"></span></a>Help wanted</h2>
 
-<p>We are always in need of more contributors, feel free to submit merge request to one of our <a href="/source-code">source code repositories</a>.</p>
+<p>We are always in need of more contributors, so feel free to submit merge request to one of our <a href="/source-code">source code repositories</a>.</p>
 
 <h2 id="wheredidyougetthatgreatlogo"><a href="#wheredidyougetthatgreatlogo" class="anchor"><span class="fa fa-bookmark black"></span></a>Where did you get that great logo?</h2>
 
 <p>
-The logo was stolen to metacpan, which came from <b>Raul Matei</b> who won the MetaCPAN <a href="http://entries.contest.metacpan.org/">logo competition</a>
+The logo was stolen from metacpan, which came from <b>Raul Matei</b> who won the MetaCPAN <a href="http://entries.contest.metacpan.org/">logo competition</a>
 (sponsored by the <a href="http://www.enlightenedperl.org/">Enlightened Perl Organization</a>) with his <a href="http://entries.contest.metacpan.org/2011/12/raul-matei.html">entry</a>.
 
 <br><b>Babs V.</b> kindly provided an altered version for this grep::metacpan website :-)

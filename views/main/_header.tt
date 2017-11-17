@@ -1,11 +1,11 @@
 <nav class="navbar navbar-default" role="navigation">
   <div class="container-fluid">
     <ul class="nav navbar-nav">
+      <li class="">
+        <a href="http://metacpan.org"><img src="/static/icons/metacpan-icon.png" />&nbsp;Home</a>
+      </li>
       <li class="<% menu == 'home' || !menu ? ' active' : '' %>">
         <a href="/"><i class="fa fa-search"></i>&nbsp;grep<img src="/static/icons/metacpan-icon.png" />cpan</a>
-      </li>
-      <li class="">
-        <a href="http://metacpan.org"><i class="fa fa-external-link"></i>&nbsp;&nbsp;meta<img src="/static/icons/metacpan-icon.png" />cpan</a>
       </li>
       <li class="hidden-xs<% menu == 'about' ? ' active' : '' %>">
         <a href="/about"><i class="fa fa-info"></i>&nbsp;About</a>

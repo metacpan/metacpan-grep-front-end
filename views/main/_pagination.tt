@@ -4,7 +4,7 @@
   SET pagqd = qd | html_entity;
   SET pagqft = qft | html_entity;
   SET pagqci = qci | html_entity;
-  SET pagination_uri = "qd=$qd&amp;qft=$qft&amp;qci=$qci&amp;q=${pagq}";
+  SET pagination_uri = "qd=$qd&amp;qft=$qft&amp;qci=$qci&amp;q=${pagq}&amp;qls=${qls}";
 %>
 <!-- start of pagination -->
 <div class="text-center">

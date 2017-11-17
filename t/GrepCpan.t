@@ -65,4 +65,32 @@ foreach my $k ( sort keys %$test_methods ) {
 
 ok -x $grep->git_binary, "git is executable";
 
+like $grep->current_version,
+    qr{^[0-9]+\.[0-9]+-cache-[0-9]+\.[0-9]+-grep-[0-9a-f]+-cpan-[0-9a-f]+$},
+    "current_version";
+
+{
+    my $valid_input = {
+        'distros/a/abbreviation/MANIFEST' =>
+            [ 'distros/a', 'abbreviation', 'MANIFEST' ],
+        'distros/a/accessors-fast/MANIFEST' =>
+            [ 'distros/a', 'accessors-fast', 'MANIFEST' ],
+        'distros/a/accessors/lib/accessors.pm' =>
+            [ 'distros/a', 'accessors', 'lib/accessors.pm' ],
+        'distros/e/eBay-API/eg/XML/getSearchResults.pl' =>
+            [ 'distros/e', 'eBay-API', 'eg/XML/getSearchResults.pl' ],
+        'distros/f/failures/lib/failures.pm' =>
+            [ 'distros/f', 'failures', 'lib/failures.pm' ],
+        'distros/f/fewer/Changes' => [ 'distros/f', 'fewer', 'Changes' ],
+        'distros/s/snapcast/LICENSE' =>
+            [ 'distros/s', 'snapcast', 'LICENSE' ],
+    };
+
+    foreach my $input ( sort keys %$valid_input ) {
+        is [ GrepCpan::massage_filepath($input) ] => $valid_input->{$input},
+            "massage_filepath($input)";
+    }
+
+}
+
 done_testing;

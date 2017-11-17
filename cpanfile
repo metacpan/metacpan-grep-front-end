@@ -26,7 +26,12 @@ recommends "HTTP::Parser::XS" => "0";
 
 on "test" => sub {
     requires "Test::More"            => "0";
+    requires "Test::Builder"         => "0";
     requires "HTTP::Request::Common" => "0";
+    requires "Test2::Suite" => "0";
+    requires "Test2::Bundle::Extended" => "0";
+    requires "Test2::Tools::Explain" => "0";
+    requires "Test2::Plugin::NoWarnings" => "0";
 };
 
 on 'develop' => sub {

@@ -1,10 +1,10 @@
 <% IF !nopagination %>
 <%
-  SET pagq = search | html_entity;
-  SET pagqd = qd | html_entity;
-  SET pagqft = qft | html_entity;
-  SET pagqci = qci | html_entity;
-  SET pagination_uri = "qd=$qd&amp;qft=$qft&amp;qci=$qci&amp;q=${pagq}&amp;qls=${qls}";
+  SET pagq = search | uri;
+  SET pagqd = qd | uri;
+  SET pagqft = qft | uri;
+  SET pagqci = qci | uri;
+  SET pagination_uri = "qd=${pagqd}&amp;qft=${pagqft}&amp;qci=${pagqci}&amp;q=${pagq}&amp;qls=${qls}";
 %>
 <!-- start of pagination -->
 <div class="text-center">

@@ -3,7 +3,7 @@
 <li class="nav-header">Your recent searches</li>
 <li>
   <div>
-    <ul>
+    <ul style="padding: 0px;">
       <% FOREACH search in last_searches %>
       <li><a href="/search?q=<% search | html_entity %>"><% search | html %></a>
       <% END %>

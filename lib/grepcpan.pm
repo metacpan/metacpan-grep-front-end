@@ -317,32 +317,20 @@ sub massage_path {
 }
 
 ## TODO factorize
-sub _build_distros_per_page {
-    my $self = shift;
-    my $v    = $self->config()->{limit}{'distros_per_page'};
-    $v or die;
-    return int($v);
-}
+BEGIN {
+    # initialize (integer) value from config
+    foreach my $key ( qw{distros_per_page search_context search_context_distro search_context_file} ) {
+        no warnings;
+        no strict 'refs';
+        my $sub = '_build_' . $key;
+        *$sub = sub {
+            my $self = shift;
+            my $v    = $self->config()->{limit}{$key};
+            $v or die;
 
-sub _build_search_context {
-    my $self = shift;
-    my $v    = $self->config()->{limit}{'search_context'};
-    $v or die;
-    return int($v);
-}
-
-sub _build_search_context_distro {
-    my $self = shift;
-    my $v    = $self->config()->{limit}{'search_context_distro'};
-    $v or die;
-    return int($v);
-}
-
-sub _build_search_context_file {
-    my $self = shift;
-    my $v    = $self->config()->{limit}{'search_context_file'};
-    $v or die;
-    return int($v);
+            return int($v);
+        };
+    }
 }
 
 sub _sanitize_search {

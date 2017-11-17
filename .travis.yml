@@ -20,6 +20,7 @@ install:
   - export AUTOMATED_TESTING=1 HARNESS_TIMER=1 AUTHOR_TESTING=0 RELEASE_TESTING=0
   - cpan-install --deps       # installs prereqs, including recommends
   - cpan-install --coverage   # installs converage prereqs, if enabled
+  - cpanm --installdeps .
 
 before_script:
   - coverage-setup

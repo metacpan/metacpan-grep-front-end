@@ -19,6 +19,7 @@ WriteMakefile(
     ),
     PL_FILES  => {},
     PREREQ_PM => {
+        'App::cpanminus'              => 0, # for travisci
         'Test::More'                  => 0,
         'YAML'                        => 0,
         'Dancer2'                     => 0.205000,

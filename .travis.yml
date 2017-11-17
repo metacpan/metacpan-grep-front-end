@@ -1,0 +1,42 @@
+language: "perl"
+sudo: false
+# travis-perl filters out cperl, perlbrew does support it
+perl:
+  - "5.18"
+  - "5.20"
+  - "5.22"
+  - "5.24"
+  - "5.26"
+  - "dev"
+  - "blead"
+
+before_install:
+  - mkdir /home/travis/bin || true
+  - ln -s `which true` /home/travis/bin/cpansign
+  - eval $(curl https://travis-perl.github.io/init) --auto
+  - git clone https://github.com/atoomic/metacpan-extracted-lite.git ../metacpan-extracted-lite # get a minimal git repo
+
+
+install:
+  - export AUTOMATED_TESTING=1 HARNESS_TIMER=1 AUTHOR_TESTING=0 RELEASE_TESTING=0
+  - cpan-install --deps       # installs prereqs, including recommends
+  - cpan-install --coverage   # installs converage prereqs, if enabled
+
+before_script:
+  - coverage-setup
+
+notifications:
+  email:
+    on_success: change
+    on_failure: always
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    - env: COVERAGE=1 AUTHOR_TESTING=1
+    - perl: "blead"
+
+# Hack to not run on tag pushes:
+branches:
+  except:
+  - /^v?[0-9]+\.[0-9]+/

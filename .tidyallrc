@@ -2,6 +2,7 @@
 select = {lib,t,tools}/**/*.{pl,pm,t,psgi}
 select = Makefile.PL
 select = bin/app.psgi
+select = cpanfile
 ignore = t/var/**/*
 ignore = .gitignore
 argv = --profile=$ROOT/.perltidyrc

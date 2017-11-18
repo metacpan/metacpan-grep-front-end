@@ -10,11 +10,17 @@ use Test2::Plugin::NoWarnings;
 
 use GrepCpan::Grep;
 
+use File::Temp ();
+
+my $tmp = File::Temp->newdir( "grep-XXXXXX", DIR => q[/tmp], UNLINK => 1 );
+my $tmpdir = $tmp->dirname;
+ok -d $tmpdir, "using tmp directory: $tmpdir";
+
 my $config = {
     'maxworkers' => '2',
     'gitrepo'    => '~APPDIR~/../../metacpan-extracted-lite',
     'cache'      => {
-        'directory' => '/tmp',
+        'directory' => $tmpdir,
         'version'   => "0.$$"
     },
 };

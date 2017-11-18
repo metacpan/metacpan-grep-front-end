@@ -47,6 +47,8 @@ WriteMakefile(
         "CGI::Deurl::XS"              => 0,
         "HTTP::Parser::XS"            => 0,
     },
+
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean => { FILES    => 'grepcpan-*' },
 );
+

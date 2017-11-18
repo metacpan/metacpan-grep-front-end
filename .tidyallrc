@@ -1,0 +1,17 @@
+[PerlTidy]
+select = {lib,t,tools}/**/*.{pl,pm,t,psgi}
+select = Makefile.PL
+select = bin/app.psgi
+ignore = t/var/**/*
+ignore = .gitignore
+argv = --profile=$ROOT/.perltidyrc
+
+[PerlCritic]
+select = {lib,t}/**/*.{pl,pm,t,psgi}
+ignore = t/var/**/*
+
+[SortLines]
+select = .gitignore
+
+[UniqueLines]
+select = .gitignore

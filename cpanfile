@@ -28,3 +28,9 @@ on "test" => sub {
     requires "Test::More"            => "0";
     requires "HTTP::Request::Common" => "0";
 };
+
+on 'develop' => sub {
+    recommends 'Devel::NYTProf';
+    recommends "Code::TidyAll::Git::Precommit";
+};
+

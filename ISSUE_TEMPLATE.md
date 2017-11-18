@@ -2,6 +2,8 @@
 
 [provide more detailed introduction to the issue itself and why it is relevant]
 
+[if possible provide one URL to reproduce the bug]
+
 ## Process
 
 [ordered list the process to finding and recreating the issue, example below]

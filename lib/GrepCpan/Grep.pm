@@ -16,7 +16,7 @@ grepcpan@grep.cpan.me [~/minicpan_grep.git]# time git grep -C15 -n xyz HEAD | he
 =cut
 
 use Simple::Accessor
-  qw{ config git cache distros_per_page search_context search_context_file search_context_distro git_binary root HEAD };
+    qw{ config git cache distros_per_page search_context search_context_file search_context_distro git_binary root HEAD };
 use POSIX qw{:sys_wait_h setsid};
 use Proc::ProcessTable ();
 use YAML::Syck         ();
@@ -43,7 +43,8 @@ sub _build_git {
     my $self = shift;
 
     my $gitdir = $self->massage_path( $self->config()->{'gitrepo'} );
-    die qq{Invalid git directory $gitdir} unless defined $gitdir && -d $gitdir;
+    die qq{Invalid git directory $gitdir}
+        unless defined $gitdir && -d $gitdir;
 
     return Git::Repository->new(
         work_tree => $gitdir,
@@ -76,11 +77,11 @@ sub _build_cache {
     my $self = shift;
 
     # also use HEAD ?? FIXME
-    my $dir =
-        $self->config()->{'cache'}->{'directory'} . '/'
-      . ( $self->config()->{'cache'}->{'version'} || 0 )
-      . '/HEAD-'
-      . $self->HEAD;
+    my $dir
+        = ( $self->config()->{'cache'}->{'directory'} ) . '/'
+        . ( $self->config()->{'cache'}->{'version'} || 0 )
+        . '/HEAD-'
+        . $self->HEAD;
     die unless $dir;
 
     $dir = $self->massage_path($dir);
@@ -114,18 +115,19 @@ sub cache_cleanup {    # aka tmpwatch
                 next if $dir eq '.' || $dir eq '..';
                 my $fdir = $cache_root . '/' . $dir;
                 next
-                  if $dir eq ( $self->config()->{'cache'}->{'version'} || 0 );
+                    if $dir eq
+                    ( $self->config()->{'cache'}->{'version'} || 0 );
                 next if -l $fdir;
                 next unless -d $fdir;
                 next unless length $fdir > 5;
                 qx{rm -rf $fdir}
-                  ; # kind of dangerous but should be ok, we are controlling these values
+                    ; # kind of dangerous but should be ok, we are controlling these values
             }
             close($tmp_dh);
         }
     }
 
-    {               # purge old HEAD directories for the same version
+    {                 # purge old HEAD directories for the same version
         my @tmp = @path;
         pop @tmp;
         my $version_cache = join '/', @tmp;
@@ -136,7 +138,7 @@ sub cache_cleanup {    # aka tmpwatch
                 next if -l $fdir;
                 next unless -d $fdir;
                 next if $fdir eq $current_cachedir;
-                qx{rm -rf $fdir};   # purge old cache, in the same weird fashion
+                qx{rm -rf $fdir}; # purge old cache, in the same weird fashion
             }
         }
     }
@@ -157,9 +159,12 @@ sub massage_path {
 ## TODO factorize
 BEGIN {
     # initialize (integer) value from config
-    foreach my $key ( qw{distros_per_page search_context search_context_distro search_context_file} ) {
+    foreach my $key (
+        qw{distros_per_page search_context search_context_distro search_context_file}
+        )
+    {
         no warnings;
-        no strict 'refs';
+        no strict 'refs';    ## no critic qw(ProhibitNoStrict)
         my $sub = '_build_' . $key;
         *$sub = sub {
             my $self = shift;
@@ -198,10 +203,10 @@ sub do_search {
 
     my ( $search, $page, $search_distro, $search_file,
         $filetype, $caseinsensitive, )
-      = (
+        = (
         $opts{search}, $opts{page}, $opts{search_distro}, $opts{search_file},
         $opts{filetype}, $opts{caseinsensitive},
-      );
+        );
 
     my $t0 = [Time::HiRes::gettimeofday];
 
@@ -211,14 +216,13 @@ sub do_search {
 
     $page //= 0;
     $page = 0 if $page < 0;
-    my $cache =
-      $self->get_match_cache( $search, $search_distro,
+    my $cache = $self->get_match_cache( $search, $search_distro,
         $filetype, $caseinsensitive );
 
-    my $is_a_known_distro =
-         defined $search_distro
-      && length $search_distro
-      && exists $cache->{distros}->{$search_distro};
+    my $is_a_known_distro
+        = defined $search_distro
+        && length $search_distro
+        && exists $cache->{distros}->{$search_distro};
 
     my $context = $self->search_context();    # default context
     if ( defined $search_file ) {
@@ -228,8 +232,8 @@ sub do_search {
         $context = $self->search_context_distro();
     }
 
-    my $files_to_search =
-      $self->get_list_of_files_to_search( $cache, $search, $page,
+    my $files_to_search
+        = $self->get_list_of_files_to_search( $cache, $search, $page,
         $search_distro, $search_file, $filetype );    ## notidy
 
     # can also probably simply use Git::Repo there
@@ -240,10 +244,10 @@ sub do_search {
         my @git_cmd = ('grep');
         push @git_cmd, '-i' if $caseinsensitive;
         push @git_cmd,
-          (
+            (
             '-n', '--heading', '-C', $context, $flavor, $search, '--',
             @$files_to_search
-          );
+            );
         my @out = $self->git->run(@git_cmd);
         $matches = \@out;
     }
@@ -260,11 +264,11 @@ sub do_search {
     my $add_block = sub {
         return unless $diff && length($diff);
         push @diffblocks,
-          {
+            {
             code       => $diff,
             start_at   => $start_line || 1,
             matchlines => [@matching_lines]
-          };
+            };
         return;
     };
 
@@ -282,10 +286,11 @@ sub do_search {
 
         #@diffblocks = scalar @diffblocks; # debugging clear the blocks
         push @{ $result->{matches} },
-          { file => $shortpath, blocks => [@diffblocks] };
+            { file => $shortpath, blocks => [@diffblocks] };
         return
-          if scalar @output
-          && $output[-1] eq $result;    # same hash do not add it more than once
+            if scalar @output
+            && $output[-1] eq
+            $result;    # same hash do not add it more than once
         push @output, $result;
 
         return;
@@ -329,7 +334,8 @@ sub do_search {
     }
     $process_file->();                   # process the last block
 
-    my $elapsed = Time::HiRes::tv_interval( $t0, [Time::HiRes::gettimeofday] );
+    my $elapsed
+        = Time::HiRes::tv_interval( $t0, [Time::HiRes::gettimeofday] );
 
     return {
         is_incomplete      => $cache->{is_incomplete}      || 0,
@@ -359,7 +365,7 @@ sub current_version {
             )->run(qw{rev-parse --short HEAD});
         } // '',
         'cpan' => eval { scalar $self->git->run(qw{rev-parse --short HEAD}) }
-          // '',
+            // '',
     );
 
     #my $run     = scalar $self->git->run(qw{rev-parse --short HEAD});
@@ -369,8 +375,8 @@ sub current_version {
 }
 
 sub get_list_of_files_to_search {
-    my ( $self, $cache, $search, $page, $distro, $search_file, $filetype ) =
-      @_;    ## notidy
+    my ( $self, $cache, $search, $page, $distro, $search_file, $filetype )
+        = @_;    ## notidy
 
 # try to get one file per distro except if we do not have enough distros matching
 # maybe sort the files by distros having the most matches ??
@@ -385,15 +391,15 @@ sub get_list_of_files_to_search {
         return [] unless exists $cache->{distros}->{$distro};
         my $prefix = $cache->{distros}->{$distro}->{prefix};
         @flat_list = map { $prefix . '/' . $_ }
-          @{ $cache->{distros}->{$distro}->{files} };    # all the files
+            @{ $cache->{distros}->{$distro}->{files} };    # all the files
         if ( defined $search_file ) {
             @flat_list = grep { $_ eq $prefix . '/' . $search_file }
-              @flat_list;    # make sure the file is known and sanitize
+                @flat_list;    # make sure the file is known and sanitize
         }
     }
-    else {                   # pick one single file per distro
+    else {                     # pick one single file per distro
         @flat_list = map {
-            my $distro = $_;    # warning this is over riding the input variable
+            my $distro = $_;  # warning this is over riding the input variable
             my $prefix        = $cache->{distros}->{$distro}->{prefix};
             my $list_of_files = $cache->{distros}->{$distro}->{files};
             my $candidate = $list_of_files->[0];    # only the first file
@@ -410,8 +416,8 @@ sub get_list_of_files_to_search {
 
             # use our best candidate ( and add our prefix )
             $prefix . '/' . $candidate;
-          }
-          grep {
+            }
+            grep {
             my $key  = $_;
             my $keep = 1;
 
@@ -420,8 +426,8 @@ sub get_list_of_files_to_search {
                 $keep = $key =~ qr{$distro}i ? 1 : 0;
             }
             $keep;
-          }
-          sort keys %{ $cache->{distros} };
+            }
+            sort keys %{ $cache->{distros} };
     }
 
     # now do the pagination
@@ -435,8 +441,8 @@ sub get_list_of_files_to_search {
 }
 
 sub get_match_cache {
-    my ( $self, $search, $search_distro, $query_filetype, $caseinsensitive ) =
-      @_;
+    my ( $self, $search, $search_distro, $query_filetype, $caseinsensitive )
+        = @_;
 
     $caseinsensitive //= 0;
 
@@ -449,13 +455,13 @@ sub get_match_cache {
     push @git_cmd, $flavor, $search, q{--}, q{distros/};
 
     # use the full cache when available -- need to filter it later
-    my $cache_file =
-        $self->cache()
-      . '/search-ls-'
-      . md5_hex( $search . q{|} . $caseinsensitive )
-      . '.cache';
+    my $cache_file
+        = $self->cache()
+        . '/search-ls-'
+        . md5_hex( $search . q{|} . $caseinsensitive )
+        . '.cache';
     return YAML::Syck::LoadFile($cache_file)
-      if -e $cache_file && !$self->config()->{nocache};
+        if -e $cache_file && !$self->config()->{nocache};
 
     $search_distro =~ s{::+}{-}g if defined $search_distro;
 
@@ -465,11 +471,11 @@ sub get_match_cache {
         && $search_distro =~ qr{^([0-9a-zA-Z_\*])[0-9a-zA-Z_\*\-]*$} )
     {
         # replace the disros search
-        $git_cmd[-1] =
-            q{distros/}
-          . $1 . '/'
-          . $search_distro
-          . '/*';    # add a / to do not match some other distro
+        $git_cmd[-1]
+            = q{distros/}
+            . $1 . '/'
+            . $search_distro
+            . '/*';    # add a / to do not match some other distro
     }
 
     # filter on some type files distro + query filetype
@@ -482,14 +488,14 @@ sub get_match_cache {
     }
 
     # fallback to a shorter search ( and a different cache )
-    $cache_file =
-        $self->cache()
-      . '/search-ls-'
-      . md5_hex( join( '|', @git_cmd ) )
-      . '.cache';
+    $cache_file
+        = $self->cache()
+        . '/search-ls-'
+        . md5_hex( join( '|', @git_cmd ) )
+        . '.cache';
     return YAML::Syck::LoadFile($cache_file)
-      if -e $cache_file
-      && !$self->config()->{nocache};    # maybe also check the timestamp FIXME
+        if -e $cache_file
+        && !$self->config()->{nocache}; # maybe also check the timestamp FIXME
 
     my $raw_cache_file = $cache_file . q{.raw};
 
@@ -497,10 +503,10 @@ sub get_match_cache {
 
     my $list_files = $self->run_git_cmd_limit(
         cache_file       => $raw_cache_file,
-        cmd              => [@git_cmd],       # git command
+        cmd              => [@git_cmd],     # git command
         limit            => $limit,
-        limit_bg_process => $raw_limit,       #files_git_run_bg
-                                              #pre_run => sub { chdir($gitdir) }
+        limit_bg_process => $raw_limit,     #files_git_run_bg
+                                            #pre_run => sub { chdir($gitdir) }
     );
 
     # remove the final marker if there
@@ -536,8 +542,10 @@ sub get_match_cache {
         $cache->{distros}->{$last_distro}->{'is_incomplete'} = 1;
     }
 
-    $cache->{match} =
-      { files => $match_files, distros => scalar keys %{ $cache->{distros} } };
+    $cache->{match} = {
+        files   => $match_files,
+        distros => scalar keys %{ $cache->{distros} }
+    };
 
     #note explain $cache;
     if ( !$search_in_progress ) {
@@ -574,9 +582,9 @@ sub run_git_cmd_limit {
 
         # check if the file is empty and has more than X seconds
 
-        while ( waitpid( -1, WNOHANG ) > 0 ) { 1 }; # catch any zombies we could have from previous run
+        while ( waitpid( -1, WNOHANG ) > 0 ) {1}; # catch any zombies we could have from previous run
 
-        if ( -z $cache_file ) {                     # the file is empty
+        if ( -z $cache_file ) {                   # the file is empty
             my ( $mtime, $ctime ) = ( stat($cache_file) )[ 9, 10 ];
             $mtime //= 0;
             $ctime //= 0;
@@ -596,7 +604,7 @@ sub run_git_cmd_limit {
     }
 
     local $| = 1;
-    local $SIG{'USR1'} = sub { exit }; # avoid a race condition and exit cleanly
+    local $SIG{'USR1'} = sub {exit}; # avoid a race condition and exit cleanly
 
     #my $child_pid = open( my $from_kid, "-|" ) // die "Can't fork: $!";
 
@@ -631,15 +639,15 @@ sub run_git_cmd_limit {
         };    # or warn $@;
         close($from_kid);
         kill 'USR1' => $child_pid;
-        while ( waitpid( -1, WNOHANG ) > 0 ) { 1 }; # catch what we can at this step... the process is running in bg
+        while ( waitpid( -1, WNOHANG ) > 0 ) {1}; # catch what we can at this step... the process is running in bg
     }
     else {
         # in kid process
         local $| = 1;
         my $current_pid       = $$;
         my $can_write_to_pipe = 1;
-        local $SIG{'USR1'} = sub {                  # not really used anymore
-                                                    #warn "SIGUSR1.... start";
+        local $SIG{'USR1'} = sub {                # not really used anymore
+                                                  #warn "SIGUSR1.... start";
             $can_write_to_pipe = 0;
             close($CW);
             open STDIN,  '>', '/dev/null';
@@ -651,8 +659,8 @@ sub run_git_cmd_limit {
         };
 
         #kill 'USR1' => $$; # >>>>
-        local $SIG{'ALRM'} = sub { die };    # probably not required
-                                             # limit our search in time...
+        local $SIG{'ALRM'} = sub {die};    # probably not required
+                                           # limit our search in time...
         alarm( $self->config->{timeout}->{grep_search} );
         $opts{pre_run}->() if ref $opts{pre_run} eq 'CODE';
 
@@ -670,7 +678,7 @@ sub run_git_cmd_limit {
         if ($cache_file) {
             $to_cache = IO::Handle->new;
             open( $to_cache, q{>}, $cache_file )
-              or die "Cannot open cache file: $!";
+                or die "Cannot open cache file: $!";
             $to_cache->autoflush(1);
         }
 
@@ -680,7 +688,7 @@ sub run_git_cmd_limit {
 
         while ( readline $log ) {
             print {$CW} $_
-              if $can_write_to_pipe;    # return the line to our parent
+                if $can_write_to_pipe;    # return the line to our parent
             if ($cache_file) {
                 print {$to_cache} $_ or die;    # if file is removed
             }
@@ -688,11 +696,11 @@ sub run_git_cmd_limit {
         }
         $run->close;
         print {$to_cache}
-          qq{\n};    # in case of the last line did not had a newline
+            qq{\n};    # in case of the last line did not had a newline
         print {$to_cache} END_OF_FILE_MARKER() . qq{\n} if $cache_file;
         print {$CW} END_OF_FILE_MARKER() . qq{\n}       if $can_write_to_pipe;
         note "-- Request finished by kid: $counter lines - "
-          . join( ' ', @$cmd );
+            . join( ' ', @$cmd );
         exit $?;
     }
 
@@ -710,7 +718,7 @@ sub check_if_a_worker_is_available {
     foreach my $id ( 1 .. $maxworkers ) {
         my $f = $dir . '/worker-id-' . $id;
         open( my $fh, '>', $f ) or next;
-        if ( flock( $fh, LOCK_EX ) ) {
+        if ( flock( $fh, LOCK_EX | LOCK_NB ) ) {
             seek( $fh, 0, SEEK_END );
             print {$fh} "$$\n";
             return $fh;

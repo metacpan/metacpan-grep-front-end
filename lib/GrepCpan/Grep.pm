@@ -192,7 +192,8 @@ sub _get_git_grep_flavor {
     my $s = shift;
 
     # regular characters
-    return q{--fixed-string} if $s =~ qr{^[a-zA-Z0-9&_'"~:;<>,/| =]+$};
+    return q{--fixed-string}
+        if !defined $s || $s =~ qr{^[a-zA-Z0-9&_'"~:;<>,/| =]+$};
     return q{-P};
 }
 

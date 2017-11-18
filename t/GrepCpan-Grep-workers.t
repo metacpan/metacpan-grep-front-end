@@ -14,7 +14,7 @@ my $config = {
     'maxworkers' => '2',
     'gitrepo'    => '~APPDIR~/../../metacpan-extracted-lite',
     'cache'      => {
-        'directory' => '/var/tmp',
+        'directory' => '/tmp',
         'version'   => "0.$$"
     },
 };

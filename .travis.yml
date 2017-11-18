@@ -1,5 +1,5 @@
 language: "perl"
-sudo: false
+sudo: true
 # travis-perl filters out cperl, perlbrew does support it
 perl:
   # need perl 5.22 or later - currently using 5.22 in production
@@ -31,7 +31,6 @@ before_install:
   - git clone https://github.com/atoomic/metacpan-extracted-lite.git ../metacpan-extracted-lite # get a minimal git repo
 
 install:
-  - export
   - cpan-install --deps       # installs prereqs, including recommends
   - cpan-install --coverage   # installs converage prereqs, if enabled
   - cpanm --installdeps --notest . # use notests to speedup travis...

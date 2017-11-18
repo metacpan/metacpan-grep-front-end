@@ -1,11 +1,10 @@
 <% FOREACH item IN query.results %>
 <!-- beginning of module -->
-
-  <% 
-    l2d_qci = qci | html_entity;
-    l2d_q   = search | html_entity;
-    l2d_qd  = item.distro | html_entity;
-    l2d_qft = qft | html_entity;
+  <%
+    l2d_qci = qci | uri;
+    l2d_q   = search | uri;
+    l2d_qd  = item.distro | uri;
+    l2d_qft = qft | uri;
 
     SET link_to_distro = "/search?qci=${l2d_qci}&amp;q=${l2d_q}&amp;qft=${l2d_qft}&amp;qd=${l2d_qd}";
   %>
@@ -17,22 +16,29 @@
       <a href="<% link_to_distro %>" class="favorite highlight">
       <span><%= item.files.size %></span> <%= item.files.size <= 1 ? 'match' : 'results' %></a>
     </div>
-    
+
   <br>
   <p class="description">
 
+    <p>
+    <a href="https://metacpan.org/release/<% item.distro | uri %>"><i class="fa fa-book"></i>&nbsp;<i>view release on metacpan</i></a>
+    or <a href="https://metacpan.org/search?q=<% item.distro | uri %>"><i class="fa fa-search"></i>&nbsp;<i>search on metacpan</i></a>
+    </p>
+
   <% FOREACH match IN item.matches %>
   <p class="description">
-    <a class="author" href="<% link_to_distro %>&amp;f=<% match.file | html_entity %>" title="grep on this file"><% match.file %></a>     
+    <a class="author" href="<% link_to_distro %>&amp;f=<% match.file | uri %>" title="grep on this file"><% match.file %></a>
     <% FOREACH bl IN match.blocks %>
     <pre class="line-numbers" data-start="<% bl.start_at %>" data-line="<% bl.matchlines.join(',') %>"><code class="language-perl"><%= bl.code | html_entity -%></code></pre>
     <% END %>
-  </p>        
+  </p>
   <% END %>
 
     <a href="<% link_to_distro %>"><i class="fa fa-list"></i>&nbsp;view all matches for this distribution</a><br>
-    <a href="https://metacpan.org/release/<% item.distro | html_entity %>"><i class="fa fa-book"></i>&nbsp;<i>view on metacpan</i></a>  
-    - <a href="https://metacpan.org/search?q=<% item.distro | html_entity %>"><i class="fa fa-search"></i>&nbsp;<i>search on metacpan</i></a>  
+  <% IF qd && qd.length && item.matches.size %>
+    <a href="https://metacpan.org/release/<% item.distro | uri %>"><i class="fa fa-book"></i>&nbsp;<i>view release on metacpan</i></a>
+    - <a href="https://metacpan.org/search?q=<% item.distro | uri %>"><i class="fa fa-search"></i>&nbsp;<i>search on metacpan</i></a>
+  <% END %>
 
   <span class="relatize"><% item.version %></span>
 <br>

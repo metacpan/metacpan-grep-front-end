@@ -97,8 +97,7 @@ sub list_txt_files {
 
     my @list;
 
-    my @files = qx[ git diff --cached --name-status]
-        ;    # | egrep '^[AM]' | awk '{print $2}'); do
+    my @files = qx[ git diff --cached --name-status];
     chomp @files;
     my $ok;
     foreach my $file ( sort @files ) {
@@ -112,7 +111,7 @@ sub list_txt_files {
         next if $filter && $filter eq 'perl';    # only perl files for perl
         my $type = qx{file $file};
         next if $? != 0;
-        $ok = 1 if $type =~ qr{file};
+        $ok = 1 if $type =~ qr{text};
     }
     continue {
         push @list, $file if $ok;

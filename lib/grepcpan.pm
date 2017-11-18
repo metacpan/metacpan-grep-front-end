@@ -871,7 +871,7 @@ sub check_if_a_worker_is_available {
 
     foreach my $id ( 1 .. $maxworkers ) {
         my $f = $dir . '/worker-id-' . $id;
-        open( my $fh, ">", $f ) or return;
+        open( my $fh, '>', $f ) or next;
         if ( flock( $fh, LOCK_EX ) ) {
             seek( $fh, 0, SEEK_END );
             print {$fh} "$$\n";

@@ -1,6 +1,3 @@
-#package grepcpan;
-#use Dancer2;
-
 use strict;
 use warnings;
 
@@ -8,7 +5,7 @@ use Test2::Bundle::Extended;
 use Test2::Tools::Explain;
 use Test2::Plugin::NoWarnings;
 
-use grepcpan;
+use GrepCpan::Grep;
 
 my $test_methods = {
     config                => D(),
@@ -51,8 +48,10 @@ my $config = {
     }
 };
 
-my $grep = GrepCpan->new( config => $config );
-isa_ok $grep, 'GrepCpan';
+$grepcpan::VERSION = '1.00_01'; # devel version
+
+my $grep = GrepCpan::Grep->new( config => $config );
+isa_ok $grep, 'GrepCpan::Grep';
 
 #note explain config()->{'grepcpan'};
 
@@ -66,7 +65,7 @@ foreach my $k ( sort keys %$test_methods ) {
 ok -x $grep->git_binary, "git is executable";
 
 like $grep->current_version,
-    qr{^[0-9]+\.[0-9]+-cache-[0-9]+\.[0-9]+-grep-[0-9a-f]+-cpan-[0-9a-f]+$},
+    qr{^[0-9]+\.[0-9_]+-cache-[0-9]+\.[0-9]+-grep-[0-9a-f]+-cpan-[0-9a-f]+$},
     "current_version";
 
 {
@@ -87,7 +86,7 @@ like $grep->current_version,
     };
 
     foreach my $input ( sort keys %$valid_input ) {
-        is [ GrepCpan::massage_filepath($input) ] => $valid_input->{$input},
+        is [ GrepCpan::Grep::massage_filepath($input) ] => $valid_input->{$input},
             "massage_filepath($input)";
     }
 

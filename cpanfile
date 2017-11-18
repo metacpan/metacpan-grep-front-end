@@ -37,5 +37,6 @@ on "test" => sub {
 on 'develop' => sub {
     recommends 'Devel::NYTProf';
     recommends "Code::TidyAll::Git::Precommit";
+    recommends "Perl::Critic::Nits";
 };
 

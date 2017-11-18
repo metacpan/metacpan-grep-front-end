@@ -9,21 +9,38 @@ perl:
 # - "dev"
 # - "blead"
 
+env:
+  global:
+     # Carton --deployment only works on the same version of perl
+     # that the snapshot was built from.
+     - DEPLOYMENT_PERL_VERSION=5.22
+     - DEVEL_COVER_OPTIONS="-ignore,^local/"
+     - PERL_CARTON_PATH=$TRAVIS_BUILD_DIR/local
+     - CPAN_RESOLVER=snapshot
+     - AUTOMATED_TESTING=1
+     - HARNESS_TIMER=1
+     - AUTHOR_TESTING=0
+     - RELEASE_TESTING=0
+     - COVERAGE=1
+# matrix:
+
 before_install:
   - mkdir /home/travis/bin || true
   - ln -s `which true` /home/travis/bin/cpansign
   - eval $(curl https://travis-perl.github.io/init) --auto
   - git clone https://github.com/atoomic/metacpan-extracted-lite.git ../metacpan-extracted-lite # get a minimal git repo
 
-
 install:
-  - export AUTOMATED_TESTING=1 HARNESS_TIMER=1 AUTHOR_TESTING=0 RELEASE_TESTING=0
+  - export
   - cpan-install --deps       # installs prereqs, including recommends
   - cpan-install --coverage   # installs converage prereqs, if enabled
   - cpanm --installdeps --notest . # use notests to speedup travis...
 
 before_script:
   - coverage-setup
+
+after_success:
+  - coverage-report
 
 notifications:
   email:

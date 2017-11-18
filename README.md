@@ -3,6 +3,7 @@
 Grep Front End code for [grep.metacpan.org](https://grep.metacpan.org)
 
 [![Build Status](https://travis-ci.org/metacpan/metacpan-grep-front-end.svg?branch=master)](https://travis-ci.org/metacpan/metacpan-grep-front-end)
+[![Coverage Status](https://coveralls.io/repos/github/metacpan/metacpan-grep-front-end/badge.svg?branch=master)](https://coveralls.io/github/metacpan/metacpan-grep-front-end?branch=master)
 
 ![grep.metacpan](https://raw.githubusercontent.com/metacpan/metacpan-grep-front-end/master/public/static/images/grep-cpan-logo-flat.png)
 
@@ -85,7 +86,7 @@ This would use plack to run the psgi app and listen by default on port 5010.
 Any change to any of the file, should automatically trigger a plack restart.
 
 You should let that plack server run in a dedicated terminal then use another
-terminal for your own development. 
+terminal for your own development.
 Note: errors would be logged in the 'devel-server' terminal.
 
 You can now open your browser to this url, and you should be able to see the

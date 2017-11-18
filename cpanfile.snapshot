@@ -107,6 +107,12 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
+  Class-Accessor-Lite-0.08
+    pathname: K/KA/KAZUHO/Class-Accessor-Lite-0.08.tar.gz
+    provides:
+      Class::Accessor::Lite 0.08
+    requirements:
+      ExtUtils::MakeMaker 6.36
   Class-Data-Inheritable-0.08
     pathname: T/TM/TMTM/Class-Data-Inheritable-0.08.tar.gz
     provides:
@@ -173,7 +179,20 @@ DISTRIBUTIONS
       Config::Any::XML undef
       Config::Any::YAML undef
     requirements:
+      Config::General 2.47
       Module::Pluggable::Object 3.6
+  Config-General-2.63
+    pathname: T/TL/TLINDEN/Config-General-2.63.tar.gz
+    provides:
+      Config::General 2.63
+      Config::General::Extended 2.07
+      Config::General::Interpolated 2.15
+    requirements:
+      ExtUtils::MakeMaker 0
+      File::Glob 0
+      File::Spec::Functions 0
+      FileHandle 0
+      IO::File 0
   Cookie-Baker-0.07
     pathname: K/KA/KAZEBURO/Cookie-Baker-0.07.tar.gz
     provides:
@@ -334,6 +353,19 @@ DISTRIBUTIONS
       Sub::Install 0.921
       strict 0
       warnings 0
+  Devel-CheckCompiler-0.07
+    pathname: S/SY/SYOHEX/Devel-CheckCompiler-0.07.tar.gz
+    provides:
+      Devel::AssertC99 undef
+      Devel::CheckCompiler 0.07
+    requirements:
+      Exporter 0
+      ExtUtils::CBuilder 0
+      File::Temp 0
+      Module::Build::Tiny 0.035
+      Test::More 0.98
+      parent 0
+      perl 5.008001
   Devel-GlobalDestruction-0.14
     pathname: H/HA/HAARG/Devel-GlobalDestruction-0.14.tar.gz
     provides:
@@ -533,6 +565,21 @@ DISTRIBUTIONS
       Filesys::Notify::Simple 0.12
     requirements:
       ExtUtils::MakeMaker 6.30
+  Gazelle-0.46
+    pathname: K/KA/KAZEBURO/Gazelle-0.46.tar.gz
+    provides:
+      Gazelle 0.46
+      Plack::Handler::Gazelle 0.46
+    requirements:
+      Devel::CheckCompiler 0.04
+      Guard 0
+      Module::Build 0.38
+      Parallel::Prefork 0.18
+      Plack 1.0037
+      Server::Starter 0
+      Stream::Buffered 0
+      Try::Tiny 0
+      perl 5.008001
   Getopt-Long-Descriptive-0.100
     pathname: R/RJ/RJBS/Getopt-Long-Descriptive-0.100.tar.gz
     provides:
@@ -587,6 +634,12 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
+  Guard-1.023
+    pathname: M/ML/MLEHMANN/Guard-1.023.tar.gz
+    provides:
+      Guard 1.023
+    requirements:
+      ExtUtils::MakeMaker 0
   HTML-Parser-3.72
     pathname: G/GA/GAAS/HTML-Parser-3.72.tar.gz
     provides:
@@ -761,6 +814,12 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       Test::More 0.47
+  IPC-Signal-1.00
+    pathname: R/RO/ROSCH/IPC-Signal-1.00.tar.gz
+    provides:
+      IPC::Signal 1.00
+    requirements:
+      ExtUtils::MakeMaker 0
   Import-Into-1.002005
     pathname: H/HA/HAARG/Import-Into-1.002005.tar.gz
     provides:
@@ -771,12 +830,20 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
+  Importer-0.024
+    pathname: E/EX/EXODIST/Importer-0.024.tar.gz
+    provides:
+      Importer 0.024
+    requirements:
+      ExtUtils::MakeMaker 0
+      perl 5.008001
   JSON-MaybeXS-1.003009
     pathname: E/ET/ETHER/JSON-MaybeXS-1.003009.tar.gz
     provides:
       JSON::MaybeXS 1.003009
     requirements:
       Carp 0
+      Cpanel::JSON::XS 2.3310
       ExtUtils::CBuilder 0.27
       ExtUtils::MakeMaker 0
       File::Spec 0
@@ -800,6 +867,29 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       perl 5.006002
+  List-MoreUtils-0.426
+    pathname: R/RE/REHSACK/List-MoreUtils-0.426.tar.gz
+    provides:
+      List::MoreUtils 0.426
+      List::MoreUtils::PP 0.426
+    requirements:
+      Exporter::Tiny 0.038
+      ExtUtils::MakeMaker 0
+      List::MoreUtils::XS 0.426
+  List-MoreUtils-XS-0.426
+    pathname: R/RE/REHSACK/List-MoreUtils-XS-0.426.tar.gz
+    provides:
+      List::MoreUtils::XS 0.426
+    requirements:
+      Carp 0
+      ExtUtils::MakeMaker 0
+      File::Basename 0
+      File::Copy 0
+      File::Path 0
+      File::Spec 0
+      IPC::Cmd 0
+      XSLoader 0.22
+      base 0
   Module-Build-0.4222
     pathname: L/LE/LEONT/Module-Build-0.4222.tar.gz
     provides:
@@ -1016,6 +1106,22 @@ DISTRIBUTIONS
       XSLoader 0
       strict 0
       warnings 0
+  Parallel-Prefork-0.18
+    pathname: K/KA/KAZUHO/Parallel-Prefork-0.18.tar.gz
+    provides:
+      Parallel::Prefork 0.18
+      Parallel::Prefork::SpareWorkers undef
+      Parallel::Prefork::SpareWorkers::Scoreboard undef
+    requirements:
+      Class::Accessor::Lite 0.04
+      ExtUtils::MakeMaker 6.59
+      List::MoreUtils 0
+      Proc::Wait3 0.03
+      Scope::Guard 0
+      Signal::Mask 0
+      Test::Requires 0
+      Test::SharedFork 0
+      perl 5.008001
   Params-Util-1.07
     pathname: A/AD/ADAMK/Params-Util-1.07.tar.gz
     provides:
@@ -1192,6 +1298,12 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 0
       File::Find 0
       Storable 0
+  Proc-Wait3-0.05
+    pathname: C/CT/CTILMES/Proc-Wait3-0.05.tar.gz
+    provides:
+      Proc::Wait3 0.05
+    requirements:
+      ExtUtils::MakeMaker 0
   Return-MultiLevel-0.04
     pathname: M/MA/MAUKE/Return-MultiLevel-0.04.tar.gz
     provides:
@@ -1222,6 +1334,35 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 0
       Scalar::Util 0
       perl 5.006
+  Scope-Guard-0.21
+    pathname: C/CH/CHOCOLATE/Scope-Guard-0.21.tar.gz
+    provides:
+      Scope::Guard 0.21
+    requirements:
+      ExtUtils::MakeMaker 0
+      Test::More 0
+      perl 5.006001
+  Server-Starter-0.33
+    pathname: K/KA/KAZUHO/Server-Starter-0.33.tar.gz
+    provides:
+      Server::Starter 0.33
+      Server::Starter::Guard undef
+    requirements:
+      ExtUtils::CBuilder 0
+      Module::Build 0.4005
+      perl 5.008
+  Signal-Mask-0.008
+    pathname: L/LE/LEONT/Signal-Mask-0.008.tar.gz
+    provides:
+      Signal::Mask 0.008
+      Signal::Pending 0.008
+    requirements:
+      Carp 0
+      ExtUtils::MakeMaker 6.30
+      IPC::Signal 0
+      POSIX 0
+      strict 0
+      warnings 0
   Simple-Accessor-1.11
     pathname: A/AT/ATOOMIC/Simple-Accessor-1.11.tar.gz
     provides:
@@ -1288,6 +1429,16 @@ DISTRIBUTIONS
       Sub::Exporter::Progressive 0.001013
     requirements:
       ExtUtils::MakeMaker 0
+  Sub-Info-0.002
+    pathname: E/EX/EXODIST/Sub-Info-0.002.tar.gz
+    provides:
+      Sub::Info 0.002
+    requirements:
+      B 0
+      Carp 0
+      ExtUtils::MakeMaker 0
+      Importer 0.024
+      perl 5.008001
   Sub-Install-0.928
     pathname: R/RJ/RJBS/Sub-Install-0.928.tar.gz
     provides:
@@ -1410,6 +1561,23 @@ DISTRIBUTIONS
       File::Spec 0.8
       File::Temp 0.12
       Scalar::Util 0
+  Term-Table-0.012
+    pathname: E/EX/EXODIST/Term-Table-0.012.tar.gz
+    provides:
+      Term::Table 0.012
+      Term::Table::Cell 0.012
+      Term::Table::CellStack 0.012
+      Term::Table::HashBase 0.003
+      Term::Table::LineBreak 0.012
+      Term::Table::Spacer 0.012
+      Term::Table::Util 0.012
+    requirements:
+      Carp 0
+      ExtUtils::MakeMaker 0
+      Importer 0.024
+      List::Util 0
+      Scalar::Util 0
+      perl 5.008001
   Test-Deep-1.127
     pathname: R/RJ/RJBS/Test-Deep-1.127.tar.gz
     provides:
@@ -1531,66 +1699,79 @@ DISTRIBUTIONS
       Test::Builder::Module 0
       Test::More 0.88
       perl 5.008_001
-  Test-Simple-1.302085
-    pathname: E/EX/EXODIST/Test-Simple-1.302085.tar.gz
+  Test-Simple-1.302106
+    pathname: E/EX/EXODIST/Test-Simple-1.302106.tar.gz
     provides:
-      Test2 1.302085
-      Test2::API 1.302085
-      Test2::API::Breakage 1.302085
-      Test2::API::Context 1.302085
-      Test2::API::Instance 1.302085
-      Test2::API::Stack 1.302085
-      Test2::Event 1.302085
-      Test2::Event::Bail 1.302085
-      Test2::Event::Diag 1.302085
-      Test2::Event::Encoding 1.302085
-      Test2::Event::Exception 1.302085
-      Test2::Event::Generic 1.302085
-      Test2::Event::Note 1.302085
-      Test2::Event::Ok 1.302085
-      Test2::Event::Plan 1.302085
-      Test2::Event::Skip 1.302085
-      Test2::Event::Subtest 1.302085
-      Test2::Event::TAP::Version 1.302085
-      Test2::Event::Waiting 1.302085
-      Test2::Formatter 1.302085
-      Test2::Formatter::TAP 1.302085
-      Test2::Hub 1.302085
-      Test2::Hub::Interceptor 1.302085
-      Test2::Hub::Interceptor::Terminator 1.302085
-      Test2::Hub::Subtest 1.302085
-      Test2::IPC 1.302085
-      Test2::IPC::Driver 1.302085
-      Test2::IPC::Driver::Files 1.302085
-      Test2::Tools::Tiny 1.302085
-      Test2::Util 1.302085
-      Test2::Util::ExternalMeta 1.302085
-      Test2::Util::HashBase 0.002
-      Test2::Util::Trace 1.302085
-      Test::Builder 1.302085
-      Test::Builder::Formatter 1.302085
-      Test::Builder::IO::Scalar 2.113
-      Test::Builder::Module 1.302085
-      Test::Builder::Tester 1.302085
-      Test::Builder::Tester::Color 1.302085
-      Test::Builder::Tester::Tie 1.302085
-      Test::Builder::TodoDiag 1.302085
-      Test::More 1.302085
-      Test::Simple 1.302085
-      Test::Tester 1.302085
-      Test::Tester::Capture 1.302085
-      Test::Tester::CaptureRunner 1.302085
-      Test::Tester::Delegate 1.302085
-      Test::use::ok 1.302085
-      ok 1.302085
+      Test2 1.302106
+      Test2::API 1.302106
+      Test2::API::Breakage 1.302106
+      Test2::API::Context 1.302106
+      Test2::API::Instance 1.302106
+      Test2::API::Stack 1.302106
+      Test2::Event 1.302106
+      Test2::Event::Bail 1.302106
+      Test2::Event::Diag 1.302106
+      Test2::Event::Encoding 1.302106
+      Test2::Event::Exception 1.302106
+      Test2::Event::Fail 1.302106
+      Test2::Event::Generic 1.302106
+      Test2::Event::Note 1.302106
+      Test2::Event::Ok 1.302106
+      Test2::Event::Pass 1.302106
+      Test2::Event::Plan 1.302106
+      Test2::Event::Skip 1.302106
+      Test2::Event::Subtest 1.302106
+      Test2::Event::TAP::Version 1.302106
+      Test2::Event::Waiting 1.302106
+      Test2::EventFacet 1.302106
+      Test2::EventFacet::About 1.302106
+      Test2::EventFacet::Amnesty 1.302106
+      Test2::EventFacet::Assert 1.302106
+      Test2::EventFacet::Control 1.302106
+      Test2::EventFacet::Error 1.302106
+      Test2::EventFacet::Info 1.302106
+      Test2::EventFacet::Meta 1.302106
+      Test2::EventFacet::Parent 1.302106
+      Test2::EventFacet::Plan 1.302106
+      Test2::EventFacet::Trace 1.302106
+      Test2::Formatter 1.302106
+      Test2::Formatter::TAP 1.302106
+      Test2::Hub 1.302106
+      Test2::Hub::Interceptor 1.302106
+      Test2::Hub::Interceptor::Terminator 1.302106
+      Test2::Hub::Subtest 1.302106
+      Test2::IPC 1.302106
+      Test2::IPC::Driver 1.302106
+      Test2::IPC::Driver::Files 1.302106
+      Test2::Tools::Tiny 1.302106
+      Test2::Util 1.302106
+      Test2::Util::ExternalMeta 1.302106
+      Test2::Util::Facets2Legacy 1.302106
+      Test2::Util::HashBase 1.302106
+      Test2::Util::Trace 1.302106
+      Test::Builder 1.302106
+      Test::Builder::Formatter 1.302106
+      Test::Builder::IO::Scalar 2.114
+      Test::Builder::Module 1.302106
+      Test::Builder::Tester 1.302106
+      Test::Builder::Tester::Color 1.302106
+      Test::Builder::Tester::Tie 1.302106
+      Test::Builder::TodoDiag 1.302106
+      Test::More 1.302106
+      Test::Simple 1.302106
+      Test::Tester 1.302106
+      Test::Tester::Capture 1.302106
+      Test::Tester::CaptureRunner 1.302106
+      Test::Tester::Delegate 1.302106
+      Test::use::ok 1.302106
+      ok 1.302106
     requirements:
       ExtUtils::MakeMaker 0
       File::Spec 0
       File::Temp 0
-      PerlIO 0
       Scalar::Util 1.13
       Storable 0
-      perl 5.008001
+      perl 5.006002
       utf8 0
   Test-TCP-2.19
     pathname: T/TO/TOKUHIROM/Test-TCP-2.19.tar.gz
@@ -1618,6 +1799,119 @@ DISTRIBUTIONS
       Test::Builder 0.13
       Test::Builder::Tester 1.02
       perl 5.006
+  Test2-Plugin-NoWarnings-0.06
+    pathname: D/DR/DROLSKY/Test2-Plugin-NoWarnings-0.06.tar.gz
+    provides:
+      Test2::Event::Warning 0.06
+      Test2::Plugin::NoWarnings 0.06
+    requirements:
+      Carp 0
+      ExtUtils::MakeMaker 0
+      Test2::API 0
+      Test2::Event 0
+      Test2::Util::HashBase 0
+      parent 0
+      strict 0
+      warnings 0
+  Test2-Suite-0.000083
+    pathname: E/EX/EXODIST/Test2-Suite-0.000083.tar.gz
+    provides:
+      Test2::Bundle 0.000083
+      Test2::Bundle::Extended 0.000083
+      Test2::Bundle::More 0.000083
+      Test2::Bundle::Simple 0.000083
+      Test2::Compare 0.000083
+      Test2::Compare::Array 0.000083
+      Test2::Compare::Bag 0.000083
+      Test2::Compare::Base 0.000083
+      Test2::Compare::Bool 0.000083
+      Test2::Compare::Custom 0.000083
+      Test2::Compare::DeepRef 0.000083
+      Test2::Compare::Delta 0.000083
+      Test2::Compare::Event 0.000083
+      Test2::Compare::EventMeta 0.000083
+      Test2::Compare::Float 0.000083
+      Test2::Compare::Hash 0.000083
+      Test2::Compare::Meta 0.000083
+      Test2::Compare::Negatable 0.000083
+      Test2::Compare::Number 0.000083
+      Test2::Compare::Object 0.000083
+      Test2::Compare::OrderedSubset 0.000083
+      Test2::Compare::Pattern 0.000083
+      Test2::Compare::Ref 0.000083
+      Test2::Compare::Regex 0.000083
+      Test2::Compare::Scalar 0.000083
+      Test2::Compare::Set 0.000083
+      Test2::Compare::String 0.000083
+      Test2::Compare::Undef 0.000083
+      Test2::Compare::Wildcard 0.000083
+      Test2::Event::Times 0.000083
+      Test2::Mock 0.000083
+      Test2::Plugin 0.000083
+      Test2::Plugin::BailOnFail 0.000083
+      Test2::Plugin::DieOnFail 0.000083
+      Test2::Plugin::ExitSummary 0.000083
+      Test2::Plugin::SRand 0.000083
+      Test2::Plugin::Times 0.000083
+      Test2::Plugin::UTF8 0.000083
+      Test2::Require 0.000083
+      Test2::Require::AuthorTesting 0.000083
+      Test2::Require::EnvVar 0.000083
+      Test2::Require::Fork 0.000083
+      Test2::Require::Module 0.000083
+      Test2::Require::Perl 0.000083
+      Test2::Require::RealFork 0.000083
+      Test2::Require::Threads 0.000083
+      Test2::Suite 0.000083
+      Test2::Todo 0.000083
+      Test2::Tools 0.000083
+      Test2::Tools::Basic 0.000083
+      Test2::Tools::Class 0.000083
+      Test2::Tools::ClassicCompare 0.000083
+      Test2::Tools::Compare 0.000083
+      Test2::Tools::Defer 0.000083
+      Test2::Tools::Encoding 0.000083
+      Test2::Tools::Event 0.000083
+      Test2::Tools::Exception 0.000083
+      Test2::Tools::Exports 0.000083
+      Test2::Tools::GenTemp 0.000083
+      Test2::Tools::Grab 0.000083
+      Test2::Tools::Mock 0.000083
+      Test2::Tools::Ref 0.000083
+      Test2::Tools::Subtest 0.000083
+      Test2::Tools::Target 0.000083
+      Test2::Tools::Warnings 0.000083
+      Test2::Util::Grabber 0.000083
+      Test2::Util::Ref 0.000083
+      Test2::Util::Stash 0.000083
+      Test2::Util::Sub 0.000083
+      Test2::Util::Table 0.000083
+      Test2::Util::Table::Cell 0.000083
+      Test2::Util::Table::LineBreak 0.000083
+      Test2::Util::Term 0.000083
+      Test2::Util::Times 0.000083
+      Test2::V0 0.000083
+    requirements:
+      B 0
+      Carp 0
+      ExtUtils::MakeMaker 0
+      Importer 0.024
+      Scalar::Util 0
+      Sub::Info 0.001
+      Term::Table 0.002
+      Test2 1.302102
+      overload 0
+      perl 5.008001
+      utf8 0
+  Test2-Tools-Explain-0.02
+    pathname: P/PE/PETDANCE/Test2-Tools-Explain-0.02.tar.gz
+    provides:
+      Test2::Tools::Explain 0.02
+    requirements:
+      ExtUtils::MakeMaker 0
+      Test2::Suite 0
+      parent 0
+      perl 5.008001
   Text-Diff-1.44
     pathname: N/NE/NEILB/Text-Diff-1.44.tar.gz
     provides:
@@ -1786,6 +2080,13 @@ DISTRIBUTIONS
       ExtUtils::CBuilder 0
       Module::Build 0.4005
       perl 5.008001
+  XSLoader-0.24
+    pathname: S/SA/SAPER/XSLoader-0.24.tar.gz
+    provides:
+      XSLoader 0.24
+    requirements:
+      ExtUtils::MakeMaker 0
+      Test::More 0.47
   YAML-1.23
     pathname: I/IN/INGY/YAML-1.23.tar.gz
     provides:

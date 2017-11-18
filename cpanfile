@@ -1,4 +1,5 @@
 requires "Git::Repository" => 0;
+requires "Gazelle" => 0;
 requires "Proc::ProcessTable" => 0;
 requires "Digest::MD5" => 0;
 requires "YAML::Syck" => 0;

@@ -62,13 +62,15 @@ my $is_boolean = validator(
     }
 );
 
+my $is_a_known_distro = '';
+
 my $query_looks_sane = validator(
     sub {
         my $got = $_;
         like $got, hash {
 
-            field is_a_known_distro => '';
-            field is_incomplete     => $is_boolean;   # cannot guess the value
+            field is_a_known_distro => $is_a_known_distro;
+            field is_incomplete => $is_boolean;    # cannot guess the value
 
             field match => hash {
                 field distros => D();
@@ -126,7 +128,9 @@ my $queries = [
     'third page'  => { search => 'test', page => 2 },
     'fourth page' => { search => 'test', page => 3 },
 
-#'search distro eBay-API' => { search => 'test', search_distro => 'eBay-API' },
+    sub { $is_a_known_distro = 1 }, undef,
+    'search distro eBay-API' =>
+        { search => 'test', search_distro => 'eBay-API' },
 ];
 
 my $iterator = natatime 2, @$queries;
@@ -144,6 +148,13 @@ my $iterator = natatime 2, @$queries;
 # );
 
 while ( my ( $name, $opts ) = $iterator->() ) {
+    if ( ref $name eq 'CODE' ) {
+
+        # custom code before next test
+        $name->();
+        next;
+    }
+
     my $query = $grep->do_search(%$opts);
     is $query, $query_looks_sane, $name;
 }

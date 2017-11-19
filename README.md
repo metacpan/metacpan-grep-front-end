@@ -3,7 +3,7 @@
 Grep Front End code for [grep.metacpan.org](https://grep.metacpan.org)
 
 [![Build Status](https://travis-ci.org/metacpan/metacpan-grep-front-end.svg?branch=master)](https://travis-ci.org/metacpan/metacpan-grep-front-end)
-[![Coverage Status](https://coveralls.io/repos/github/metacpan/metacpan-grep-front-end/badge.svg?branch=master)](https://coveralls.io/github/metacpan/metacpan-grep-front-end?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/metacpan/metacpan-grep-front-end/badge.svg?branch=master&cache=1)](https://coveralls.io/github/metacpan/metacpan-grep-front-end?branch=master)
 
 [![grep.metacpan](https://raw.githubusercontent.com/metacpan/metacpan-grep-front-end/master/public/static/images/grep-cpan-logo-flat.png)](https://grep.metacpan.org)
 

@@ -436,7 +436,11 @@ sub get_list_of_files_to_search {
     # page 1: from limit to 2 * limit - 1
     # page 2: from 2*limit to 3 * limit - 1
 
-    my @short = splice( @flat_list, $page * $limit, $limit );
+    my @short;
+    my $offset = $page * $limit;
+    if ( $offset <= scalar @short ) {    # offset protection
+        @short = splice( @flat_list, $page * $limit, $limit );
+    }
 
     return \@short;
 }

@@ -9,6 +9,7 @@ use Test2::Tools::Explain;
 use Test2::Plugin::NoWarnings;
 
 use GrepCpan::Grep;
+use List::MoreUtils qw{natatime};
 
 use File::Temp ();
 
@@ -47,44 +48,104 @@ my $config = {
     }
 };
 
-my $grep = GrepCpan::Grep->new( config => $config );
-
-my $query = $grep->do_search(
-    search => 'test',
-
-    # optional parameters
-    #page            => 0,
-    #search_distro   => $qdistro,  # filter on a distribution
-    #search_file     => $file,
-    #filetype        => $filetype,
-    #caseinsensitive => $qci,
-    #list_files      => $qls,      # not used for now, only impact the view
-);
-
 #note explain $query;
 
-# https://metacpan.org/pod/Test2::Tools::Compare
-# once done move it to a 'is'
-like $query, hash {
+my $is_number = validator(
+    sub {
+        match(qr{^[0-9]+$});
+    }
+);
 
-    field is_a_known_distro => '';
-    field is_incomplete     => match(qr{^[01]$});    # cannot guess the value
+my $is_boolean = validator(
+    sub {
+        match(qr{^[0-]$});
+    }
+);
 
-    field match => hash {
-        field distros => D();
-        field files   => D();
-    };
+my $query_looks_sane = validator(
+    sub {
+        my $got = $_;
+        like $got, hash {
 
-    field results => array {
+            field is_a_known_distro => '';
+            field is_incomplete     => $is_boolean;   # cannot guess the value
 
-        #all_items isa_ok('HASH');
-        all_items sub { is ref $_, 'HASH', "results entry is a hash" };
-    };
+            field match => hash {
+                field distros => D();
+                field files   => D();
+            };
 
-    field search_in_progress => match(qr{^[01]$});    # cannot guess the value
-    field 'time_elapsed' => match(qr{^[0-9]+\.[0-9]+});
-    field version        => D();
+            field results => array {
 
-}, 'query result looks sane';
+              #all_items sub { is ref $_, 'HASH', "results entry is a hash" };
+                all_items hash {
+                    field distro => D();
+                    field files  => array {
+                        all_items sub {
+                            like $_ => qr{^[/\w\-_\.]+$},
+                                'results/file: valid path file';
+                        };
+                    };
+                    field matches => array {
+
+                    #all_items sub { is ref $_, 'HASH', "match is one hash" };
+                        all_items hash {
+                            field file   => D();
+                            field blocks => array {
+
+                    #all_items sub { is ref $_, 'HASH', "match is one hash" };
+                                all_items hash {
+                                    field code       => D();
+                                    field matchlines => array {
+                                        all_items $is_number;
+                                    };
+                                    field start_at =>
+                                        $is_number;    #match(qr{^[0-9]+$});
+                                };
+                            };
+                        };
+                    };
+                    field 'prefix' => D();
+                };
+            };
+
+            field search_in_progress => $is_boolean;  # cannot guess the value
+            field 'time_elapsed' => match(qr{^[0-9]+\.[0-9]+});
+            field version        => D();
+
+        }
+    }
+);
+
+my $grep = GrepCpan::Grep->new( config => $config );
+
+my $queries = [
+    'basic query without optional parameters' => { search => 'test' },
+    "pcre query without optional parameters"  => { search => '[a-z]est' },
+    'second page' => { search => 'test', page => 1 },
+    'third page'  => { search => 'test', page => 2 },
+    'fourth page' => { search => 'test', page => 3 },
+
+#'search distro eBay-API' => { search => 'test', search_distro => 'eBay-API' },
+];
+
+my $iterator = natatime 2, @$queries;
+
+# my $query = $grep->do_search(
+#     search => 'test',
+
+#     ## optional search parameters
+#     #page            => 0,
+#     #search_distro   => $qdistro,  # filter on a distribution
+#     #search_file     => $file,
+#     #filetype        => $filetype,
+#     #caseinsensitive => $qci,
+#     #list_files      => $qls,      # not used for now, only impact the view
+# );
+
+while ( my ( $name, $opts ) = $iterator->() ) {
+    my $query = $grep->do_search(%$opts);
+    is $query, $query_looks_sane, $name;
+}
 
 done_testing;

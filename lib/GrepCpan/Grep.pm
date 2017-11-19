@@ -438,7 +438,7 @@ sub get_list_of_files_to_search {
 
     my @short;
     my $offset = $page * $limit;
-    if ( $offset <= scalar @short ) {    # offset protection
+    if ( $offset <= scalar @flat_list ) {    # offset protection
         @short = splice( @flat_list, $page * $limit, $limit );
     }
 

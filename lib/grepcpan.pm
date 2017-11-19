@@ -93,6 +93,7 @@ get '/search' => sub {
         qft           => $filetype // q{},
         qd            => $qdistro,                     #$qdistro // q{},
         qls           => $qls,
+        qci           => $qci,
     };
 };
 

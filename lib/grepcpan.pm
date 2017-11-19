@@ -1,5 +1,6 @@
 package grepcpan;    # the dancer app
 
+# smoke one more time
 use Dancer2;
 use Dancer2::Serializer::JSON;
 use Encode;

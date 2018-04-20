@@ -335,6 +335,25 @@ sub do_search {
     }
     $process_file->();                   # process the last block
 
+    # update results...
+    {
+        my ( $count_distro, $count_files ) = ( 0, 0 );
+        foreach my $distro ( sort keys %{ $cache->{distros} } ) {
+            my $c
+                = eval { scalar @{ $cache->{distros}->{$distro}->{matches} } }
+                // 0;
+            next unless $c;
+            ++$count_distro;
+            $count_files += $c;
+        }
+
+        $cache->{match} = {
+            files   => $count_files,
+            distros => $count_distro
+        };
+
+    }
+
     my $elapsed
         = Time::HiRes::tv_interval( $t0, [Time::HiRes::gettimeofday] );
 
@@ -445,6 +464,43 @@ sub get_list_of_files_to_search {
     return \@short;
 }
 
+sub _save_cache {
+    my ( $self, $cache_file, $cache ) = @_;
+
+    # cache is disabled
+    return if $self->config()->{nocache};
+    YAML::Syck::DumpFile( $cache_file, $cache );
+    my $raw_cache_file = $cache_file . '.raw';
+    unlink($raw_cache_file) if -e $raw_cache_file;
+
+    return;
+}
+
+sub _get_cache_file {
+    my ( $self, $keys, $type ) = @_;
+
+    $type //= q[/search-ls];
+    $type .= '-';
+
+    my $cache_file
+        = ( $self->cache() // '' )
+        . $type
+        . md5_hex( join( q{|}, map { defined $_ ? $_ : '' } @$keys ) )
+        . '.cache';
+
+    return $cache_file;
+}
+
+sub _load_cache {
+    my ( $self, $cache_file ) = @_;
+
+    # cache is disabled
+    return if $self->config()->{nocache};
+
+    return unless defined $cache_file && -e $cache_file;
+    return YAML::Syck::LoadFile($cache_file);
+}
+
 sub get_match_cache {
     my ( $self, $search, $search_distro, $query_filetype, $caseinsensitive )
         = @_;
@@ -460,13 +516,12 @@ sub get_match_cache {
     push @git_cmd, $flavor, $search, q{--}, q{distros/};
 
     # use the full cache when available -- need to filter it later
-    my $cache_file
-        = $self->cache()
-        . '/search-ls-'
-        . md5_hex( $search . q{|} . $caseinsensitive )
-        . '.cache';
-    return YAML::Syck::LoadFile($cache_file)
-        if -e $cache_file && !$self->config()->{nocache};
+    my $request_cache_file = $self->_get_cache_file(
+        [ $search, $search_distro, $query_filetype, $caseinsensitive ] );
+    {
+        my $load = $self->_load_cache($request_cache_file);
+        return $load if $load;
+    }
 
     $search_distro =~ s{::+}{-}g if defined $search_distro;
 
@@ -493,14 +548,12 @@ sub get_match_cache {
     }
 
     # fallback to a shorter search ( and a different cache )
-    $cache_file
-        = $self->cache()
-        . '/search-ls-'
-        . md5_hex( join( '|', @git_cmd ) )
-        . '.cache';
-    return YAML::Syck::LoadFile($cache_file)
-        if -e $cache_file
-        && !$self->config()->{nocache}; # maybe also check the timestamp FIXME
+    my $cache_file = $self->_get_cache_file( [@git_cmd] );
+
+    #{
+    #   my $load = $self->_load_cache( $cache_file );
+    #   return $load if $load;
+    #}
 
     my $raw_cache_file = $cache_file . q{.raw};
 
@@ -552,12 +605,13 @@ sub get_match_cache {
         distros => scalar keys %{ $cache->{distros} }
     };
 
-    #note explain $cache;
     if ( !$search_in_progress ) {
 
         #note "Search in progress..... done caching yaml file";
-        YAML::Syck::DumpFile( $cache_file, $cache );
-        unlink($raw_cache_file) if -e $raw_cache_file;
+        $self->_save_cache( $request_cache_file, $cache );
+
+        #$self->_save_cache( $cache_file, $cache );
+        unlink $raw_cache_file if -e $raw_cache_file;
     }
 
     return $cache;
@@ -576,7 +630,7 @@ sub run_git_cmd_limit {
     my ( $self, %opts ) = @_;
 
     my $cache_file = $opts{cache_file};
-    my $cmd = $opts{cmd} // die;
+    my $cmd        = $opts{cmd} // die;
     ref $cmd eq 'ARRAY' or die "cmd should be an ARRAY ref";
     my $limit            = $opts{limit}            || 10;
     my $limit_bg_process = $opts{limit_bg_process} || $limit;

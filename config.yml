@@ -62,7 +62,7 @@ grepcpan:
       grep_search:   900
    cookie:
       history_name: 'lastsearch'
-      history_size: 20 
+      history_size: 20
    limit:
       files_per_search:      60
       files_git_run_bg:    2000
@@ -73,7 +73,7 @@ grepcpan:
    gitrepo: '/home/toddr/metacpan-cpan-extracted'
    binaries:
       git: '/home/atoomic/bin/git'
-   cache: 
+   cache:
       directory: '~APPDIR~/var/tmp'
-      version: '1.03'
+      version: '1.10'
 

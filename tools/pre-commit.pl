@@ -74,8 +74,7 @@ sub tidyall_do {
 }
 
 sub tidyall_check {                # this is only a check
-
-    eval q{use Code::TidyAll::Git::Precommit; 1 } or do {
+    eval { require Code::TidyAll::Git::Precommit; } or do {
         warn
             "Missing module Code::TidyAll::Git::Precommit - cannot run tidyall_check\n";
         return 1;

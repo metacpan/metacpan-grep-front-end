@@ -202,10 +202,10 @@ sub _get_git_grep_flavor {
 sub do_search {
     my ( $self, %opts ) = @_;
 
-    my ( $search, $page, $search_distro, $search_file,
+    my ( $search, $search_distro, $search_file,
         $filetype, $caseinsensitive, )
         = (
-        $opts{search}, $opts{page}, $opts{search_distro}, $opts{search_file},
+        $opts{search}, $opts{search_distro}, $opts{search_file},
         $opts{filetype}, $opts{caseinsensitive},
         );
 
@@ -215,8 +215,40 @@ sub do_search {
 
     $search = _sanitize_search($search);
 
+    my $results = $self->_do_search( %opts );
+
+    my $cache = $results->{cache};
+    my $output = $results->{output};
+    my $is_a_known_distro = $results->{is_a_known_distro};
+
+    my $elapsed = sprintf( "%.3f", Time::HiRes::tv_interval( $t0, [Time::HiRes::gettimeofday] ) );
+
+    return {
+        is_incomplete      => $cache->{is_incomplete}      || 0,
+        search_in_progress => $cache->{search_in_progress} || 0,
+        match              => $cache->{match},
+        results            => $output,
+        time_elapsed       => $elapsed,
+        is_a_known_distro  => $is_a_known_distro,
+        version            => $self->current_version(),
+    };
+}
+
+
+sub _do_search {
+    my ( $self, %opts ) = @_;
+
+    my ( $search, $page, $search_distro, $search_file,
+        $filetype, $caseinsensitive, )
+        = (
+        $opts{search}, $opts{page}, $opts{search_distro}, $opts{search_file},
+        $opts{filetype}, $opts{caseinsensitive},
+        );
+
     $page //= 0;
     $page = 0 if $page < 0;
+
+
     my $cache = $self->get_match_cache( $search, $search_distro,
         $filetype, $caseinsensitive );
 
@@ -336,9 +368,16 @@ sub do_search {
     $process_file->();                   # process the last block
 
     # update results...
-    {
-        my ( $count_distro, $count_files ) = ( 0, 0 );
-        foreach my $distro ( sort keys %{ $cache->{distros} } ) {
+    #update_match_counter( $cache );
+
+    return { cache => $cache, output => \@output, is_a_known_distro => $is_a_known_distro };
+}
+
+sub update_match_counter {
+    my ( $cache ) = @_;
+
+    my ( $count_distro, $count_files ) = ( 0, 0 );
+    foreach my $distro ( sort keys %{ $cache->{distros} } ) {
             my $c
                 = eval { scalar @{ $cache->{distros}->{$distro}->{matches} } }
                 // 0;
@@ -352,20 +391,7 @@ sub do_search {
             distros => $count_distro
         };
 
-    }
-
-    my $elapsed
-        = Time::HiRes::tv_interval( $t0, [Time::HiRes::gettimeofday] );
-
-    return {
-        is_incomplete      => $cache->{is_incomplete}      || 0,
-        search_in_progress => $cache->{search_in_progress} || 0,
-        match              => $cache->{match},
-        results            => \@output,
-        time_elapsed       => $elapsed,
-        is_a_known_distro  => $is_a_known_distro,
-        version            => $self->current_version(),
-    };
+    return;
 }
 
 sub current_version {
@@ -549,11 +575,10 @@ sub get_match_cache {
 
     # fallback to a shorter search ( and a different cache )
     my $cache_file = $self->_get_cache_file( [@git_cmd] );
-
-    #{
-    #   my $load = $self->_load_cache( $cache_file );
-    #   return $load if $load;
-    #}
+    {
+      my $load = $self->_load_cache( $cache_file );
+      return $load if $load;
+    }
 
     my $raw_cache_file = $cache_file . q{.raw};
 
@@ -609,8 +634,7 @@ sub get_match_cache {
 
         #note "Search in progress..... done caching yaml file";
         $self->_save_cache( $request_cache_file, $cache );
-
-        #$self->_save_cache( $cache_file, $cache );
+        $self->_save_cache( $cache_file, $cache );
         unlink $raw_cache_file if -e $raw_cache_file;
     }
 

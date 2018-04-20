@@ -491,7 +491,7 @@ x:-o-prefocus {
  *
  * @version
  * 3.0.83 (July 02 2010)
- *
+ * 
  * @copyright
  * Copyright (C) 2004-2010 Alex Gorbatchev.
  *
@@ -725,7 +725,7 @@ x:-o-prefocus {
  *
  * @version
  * 3.0.83 (July 02 2010)
- *
+ * 
  * @copyright
  * Copyright (C) 2004-2010 Alex Gorbatchev.
  *
@@ -8695,7 +8695,7 @@ form#logout {
 }
 .head-small-logo {
   width: 172px;
-  padding-right: 5px;
+  padding-right: 5px;  
 }
 .main-content {
   margin-bottom: 60px;
@@ -10361,13 +10361,13 @@ body .syntaxhighlighter .container .pod-placeholder button {
 }
 
 .home-search-distro-input {
-  width:285px;
+  width:285px; 
   float:left;
   font-size: 1.4em;
 }
 
 .home-search-filetype-input {
-  width:65px;
+  width:65px; 
   float:left;
   font-size: 1.4em;
 }
@@ -10384,7 +10384,7 @@ body .syntaxhighlighter .container .pod-placeholder button {
   color:      #666666;
   position:     fixed;
   height:        100%;
-  width:         100%;
+  width:         100%;  
   z-index:       5000;
   top:          100px;
   left:             0;

@@ -17,7 +17,7 @@
       <form action="/search" class="search-form form-horizontal" onSubmit="doGrepping()">
         <div class="form-group">
           <div class="input-group" style="overflow: hidden; display: table;">
-            <input type="text" name="q" size="41" autofocus="autofocus" id="search-input" class="form-control search-input-results" style="width:280px;" value="<% search | html_entity %>" autocomplete="off" placeholder="search with perl RegEx">
+            <input type="text" name="q" size="41" autofocus="autofocus" id="search-input" class="form-control search-input-results" style="width:280px;" value="<% search | html_entity %>" autocomplete="off" placeholder="search with Perl RegEx">
             <input type="text" name="qd" size="35" id="search-distro-input-results" class="form-control optional-input" value="<% qd | html_entity %>" autocomplete="off" placeholder="in distro like ^App-.*">
             <input type="text" name="qft" size="6" id="search-filetype-input-results" class="form-control optional-input" value="<% qft | html_entity %>" autocomplete="off" placeholder="*.pm">
             <span class="input-group-btn">

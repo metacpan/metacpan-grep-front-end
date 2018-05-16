@@ -134,7 +134,7 @@ sub _update_history_cookie
     my @last_searches = split( qr{\Q$separator\E}, $value // '' );
 
     if ( defined $search && length $search ) {
-        $value =~ s{\Q$separator\E}{.}g;    # mmmm
+        $value =~ s{\Q$separator\E}{.}g if defined $value;    # mmmm
         @last_searches = grep { $_ ne $search }
             @last_searches;                 # remove it from history if there
         unshift @last_searches, $search;    # move it first

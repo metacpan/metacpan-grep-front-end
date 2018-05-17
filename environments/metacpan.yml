@@ -25,4 +25,4 @@ grepcpan:
    ENV:
       LD_LIBRARY_PATH: '/lib:/home/atoomic/lib'
    cache: 
-      directory: '~APPDIR~/var/tmp'
+      directory: '~APPDIR~/var/mytmp'

@@ -18,11 +18,11 @@ no_server_tokens: 1
 grepcpan:
    nocache: 0
    maxworkers: 1000
-   root_dir: '/home/metacpan/metacpan-grep-front-end'
+   root_dir: '/home/metacpan/metacpan-grep-front-end'   
    gitrepo: '/mnt/lv-ssdscratch/metacpan-cpan-extracted'
    binaries:
-      git: '/home/atoomic/bin/git'
-   ENV:
-      LD_LIBRARY_PATH: '/lib:/home/atoomic/lib'
+      git: '/usr/bin/git'
+#   ENV:
+#      LD_LIBRARY_PATH: '/lib:/home/atoomic/lib'
    cache: 
       directory: '~APPDIR~/var/mytmp'

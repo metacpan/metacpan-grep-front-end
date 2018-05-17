@@ -18,6 +18,7 @@ no_server_tokens: 1
 grepcpan:
    nocache: 0
    maxworkers: 1000
+   root_dir: '/home/metacpan/metacpan-grep-front-end'
    gitrepo: '/mnt/lv-ssdscratch/metacpan-cpan-extracted'
    binaries:
       git: '/home/atoomic/bin/git'

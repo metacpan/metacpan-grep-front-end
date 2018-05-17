@@ -85,6 +85,7 @@ sub _build_cache {
     die unless $dir;
 
     $dir = $self->massage_path($dir);
+    local $ENV{PATH} = '/bin:' .( $ENV{PATH} // '' );
     qx{mkdir -p $dir};
     die unless -d $dir;
 
@@ -95,6 +96,11 @@ sub _build_cache {
 }
 
 sub _build_root {
+    my $self = shift;
+
+    # hard code root dir in production
+    return $self->config()->{'root_dir'} if $self->config()->{'root_dir'};
+
     return $FindBin::Bin . '/';
 }
 
@@ -120,6 +126,8 @@ sub cache_cleanup {    # aka tmpwatch
                 next if -l $fdir;
                 next unless -d $fdir;
                 next unless length $fdir > 5;
+
+                local $ENV{PATH} = '/bin:' .( $ENV{PATH} // '' );
                 qx{rm -rf $fdir}
                     ; # kind of dangerous but should be ok, we are controlling these values
             }
@@ -138,6 +146,8 @@ sub cache_cleanup {    # aka tmpwatch
                 next if -l $fdir;
                 next unless -d $fdir;
                 next if $fdir eq $current_cachedir;
+
+                local $ENV{PATH} = '/bin:' .( $ENV{PATH} // '' );
                 qx{rm -rf $fdir}; # purge old cache, in the same weird fashion
             }
         }

@@ -7,7 +7,7 @@ use Test2::Plugin::NoWarnings;
 
 use GrepCpan::Grep;
 
-my @fixed_string = ( undef, "Something to drink", "a basic= research~ | 1", );
+my @fixed_string = ( undef, "Something to drink", "a basic= research~ 1", );
 
 my @pcre = ( q{[a-z]}, q{?:(a|b)}, q{^abcd}, q{abcd$}, );
 

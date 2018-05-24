@@ -5,7 +5,7 @@
   <div>
     <ul style="padding: 0px;">
       <% FOREACH search in last_searches %>
-      <li><a href="/search?q=<% search | html_entity %>" title="<% search | html_entity %>"><% search | truncate(20, "...") %></a>
+      <li><a href="/search?q=<% search | uri %>" title="<% search | html_entity %>"><% search | truncate(20, "...") %></a>
       <% END %>
     </ul>
   </div>

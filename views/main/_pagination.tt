@@ -1,10 +1,6 @@
 <% IF !nopagination %>
 <%
-  SET pagq = search | uri;
-  SET pagqd = qd | uri;
-  SET pagqft = qft | uri;
-  SET pagqci = qci | uri;
-  SET pagination_uri = "qd=${pagqd}&amp;qft=${pagqft}&amp;qci=${pagqci}&amp;q=${pagq}&amp;qls=${qls}";
+  USE pagination_uri = URL('/search', qd=qd, qft=qft, qci=qci, q=search, qls=qls );
 %>
 <!-- start of pagination -->
 <div class="text-center">
@@ -22,7 +18,7 @@
     </li>
     <% ELSE %>
     <li class="">
-      <a href="/search?p=<% pagefrom - 10 %>&amp;<% pagination_uri %>">«</a>
+      <a href="<% pagination_uri( p=pagefrom-10 ) %>">«</a>
     </li>
     <% END %>
     <% IF query.results.size %>
@@ -32,7 +28,7 @@
     <% ELSE %>
     <li>
     <% END %>
-      <a href="/search?p=<% p %>&amp;<% pagination_uri %>"><% p %></a>
+      <a href="<% pagination_uri( p=p ) %>"><% p %></a>
     </li>
     <% END %>
     <%IF disable_next_p # disable pagination » %>
@@ -41,7 +37,7 @@
     </li>
     <% ELSE %>
     <li class="">
-      <a href="/search?p=<% pagefrom + 10 %>&amp;<% pagination_uri %>">»</a>
+      <a href="<% pagination_uri( p=pagefrom+10 ) %>">»</a>
     </li>
     <% END %>
     <% END # end check query.results.size %>

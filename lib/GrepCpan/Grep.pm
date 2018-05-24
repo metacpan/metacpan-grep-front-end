@@ -203,7 +203,7 @@ sub _get_git_grep_flavor {
 
     # regular characters
     return q{--fixed-string}
-        if !defined $s || $s =~ qr{^[a-zA-Z0-9&_'"~:;<>,/| =]+$};
+        if !defined $s || $s =~ qr{^[a-zA-Z0-9&_'"~:;<>,/ =]+$};
     return q{-P};
 }
 

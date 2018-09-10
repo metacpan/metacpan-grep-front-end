@@ -288,7 +288,7 @@ sub _do_search {
         push @git_cmd, '-i' if $caseinsensitive;
         push @git_cmd,
             (
-            '-n', '--heading', '-C', $context, $flavor, $search, '--',
+            '-n', '--heading', '-C', $context, $flavor, '-e', $search, '--',
             @$files_to_search
             );
         my @out = $self->git->run(@git_cmd);
@@ -549,7 +549,7 @@ sub get_match_cache {
     my $flavor  = _get_git_grep_flavor($search);
     my @git_cmd = qw{grep -l};
     push @git_cmd, q{-i} if $caseinsensitive;
-    push @git_cmd, $flavor, $search, q{--}, q{distros/};
+    push @git_cmd, $flavor, '-e', $search, q{--}, q{distros/};
 
     # use the full cache when available -- need to filter it later
     my $request_cache_file = $self->_get_cache_file(

@@ -752,9 +752,29 @@ sub run_git_cmd_limit {
         };
 
         #kill 'USR1' => $$; # >>>>
-        local $SIG{'ALRM'} = sub {die};    # probably not required
-                                           # limit our search in time...
-        alarm( $self->config->{timeout}->{grep_search} );
+        my $run;
+
+        local $SIG{'ALRM'} = sub {
+            warn "alarm triggered while running git command";
+
+            if ( ref $run ) {
+                my $pid;
+                local $@;
+                $pid = eval { $run->pid };
+                if ($pid) {
+                    warn "killing 'git' process $pid...";
+                    if ( kill( 0, $pid ) ) {
+                        sleep 2;
+                        kill( 9, $pid );
+                    }
+                }
+            }
+
+            die "alarm triggered while running git command: git grep too long...";
+        };
+
+        # limit our search in time...
+        alarm( $self->config->{timeout}->{grep_search} // 600 ); # make sure we always have a value set
         $opts{pre_run}->() if ref $opts{pre_run} eq 'CODE';
 
         my $lock = $self->check_if_a_worker_is_available();
@@ -775,7 +795,7 @@ sub run_git_cmd_limit {
             $to_cache->autoflush(1);
         }
 
-        my $run     = $self->git->command(@$cmd);
+        $run        = $self->git->command(@$cmd);
         my $log     = $run->stdout;
         my $counter = 1;
 

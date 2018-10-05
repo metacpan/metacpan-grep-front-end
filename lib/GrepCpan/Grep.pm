@@ -16,7 +16,11 @@ grepcpan@grep.cpan.me [~/minicpan_grep.git]# time git grep -C15 -n xyz HEAD | he
 =cut
 
 use Simple::Accessor
-    qw{ config git cache distros_per_page search_context search_context_file search_context_distro git_binary root HEAD };
+    qw{ config git cache distros_per_page search_context
+        search_context_file search_context_distro
+        git_binary root HEAD
+        cpan_index_at
+    };
 use POSIX qw{:sys_wait_h setsid};
 use Proc::ProcessTable ();
 use YAML::Syck         ();
@@ -71,6 +75,17 @@ sub _build_HEAD {
     die unless length($head);
 
     return $head;
+}
+
+sub _build_cpan_index_at {
+    my $self = shift;
+
+    # git log -n1 --date=format:'%B %-d %Y' --pretty=format:'%ad'
+    my $out = $self->git()->run( 'log', '-n1', q[--date=format:'%B %-d %Y'], q[--pretty=format:'%ad'] ) // '';
+    chomp $out;
+    $out =~ s{['"]}{}g;
+
+    return $out; # . ' ' . $self->HEAD;
 }
 
 sub _build_cache {

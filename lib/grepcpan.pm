@@ -160,7 +160,7 @@ sub tt {
 }
 
 sub home {
-    template( 'index' => { 'title' => 'grepcpan' } );
+    template( 'index' => { 'title' => 'grepcpan', 'cpan_index_at' => $grep->cpan_index_at() } );
 }
 
 true;

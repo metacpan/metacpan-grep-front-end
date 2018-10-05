@@ -17,18 +17,13 @@
       <button type="submit" class="btn search-btn">Grep the CPAN</button>
     </div>
   </form>
-</div>
-<!--
-<div class="news-highlight row">
-    <div class="col-xs-12 col-sm-12 col-sm-push-2 col-md-6 col-md-push-3">
-      <p>
-        grep.MetaCPAN would like to acknowledge the following sponsors:
-      </p>
-      <div class="row xsponsor-grid">
-        <div class="col-sm-6">
-          <a href="http://cpanel.net/" target="_blank"><img src="/static/images/sponsors/cpanel.png"  height=50 alt="cPanel"></a>
-        </div>
+
+  <div align="center" class="container">
+    <div class="row text-center justify-content-md-center">
+      <div class="col col-lg-4 col-lg-offset-4 text-info bg-info">
+        Info: search is using a copy of CPAN from <% cpan_index_at | html %>
       </div>
     </div>
+  </div>
+
 </div>
--->

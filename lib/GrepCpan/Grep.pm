@@ -82,7 +82,7 @@ sub cpan_index_at {
     my $last_refresh = $self->{_cpan_index_last_refresh_at} // 0;
 
     # cache the value for 90 minutes
-    if ( !$last_refresh || ( $now - $last_refresh ) < ( 60 * 90 ) ) {
+    if ( !$last_refresh || ( $now - $last_refresh ) > ( 60 * 90 ) ) {
         $self->{_cpan_index_last_refresh_at} = $now;
         $self->{_cpan_index_at}              = $self->_build_cpan_index_at();
     }

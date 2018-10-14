@@ -15,12 +15,10 @@ grepcpan@grep.cpan.me [~/minicpan_grep.git]# time git grep -C15 -n xyz HEAD | he
 
 =cut
 
-use Simple::Accessor
-    qw{ config git cache distros_per_page search_context
-        search_context_file search_context_distro
-        git_binary root HEAD
-        cpan_index_at
-    };
+use Simple::Accessor qw{ config git cache distros_per_page search_context
+    search_context_file search_context_distro
+    git_binary root HEAD
+};
 use POSIX qw{:sys_wait_h setsid};
 use Proc::ProcessTable ();
 use YAML::Syck         ();
@@ -77,15 +75,33 @@ sub _build_HEAD {
     return $head;
 }
 
+sub cpan_index_at {
+    my ($self) = @_;
+
+    my $now          = time();
+    my $last_refresh = $self->{_cpan_index_last_refresh_at} // 0;
+
+    # cache the value for 90 minutes
+    if ( !$last_refresh || ( $now - $last_refresh ) < ( 60 * 90 ) ) {
+        $self->{_cpan_index_last_refresh_at} = $now;
+        $self->{_cpan_index_at}              = $self->_build_cpan_index_at();
+    }
+
+    return $self->{_cpan_index_at};
+}
+
 sub _build_cpan_index_at {
     my $self = shift;
 
     # git log -n1 --date=format:'%B %-d %Y' --pretty=format:'%ad'
-    my $out = $self->git()->run( 'log', '-n1', q[--date=format:'%B %-d %Y'], q[--pretty=format:'%ad'] ) // '';
+    my $out = $self->git()->run(
+        'log',                        '-n1',
+        q[--date=format:'%B %-d %Y'], q[--pretty=format:'%ad']
+    ) // '';
     chomp $out;
     $out =~ s{['"]}{}g;
 
-    return $out; # . ' ' . $self->HEAD;
+    return $out;    # . ' ' . $self->HEAD;
 }
 
 sub _build_cache {
@@ -100,7 +116,7 @@ sub _build_cache {
     die unless $dir;
 
     $dir = $self->massage_path($dir);
-    local $ENV{PATH} = '/bin:' .( $ENV{PATH} // '' );
+    local $ENV{PATH} = '/bin:' . ( $ENV{PATH} // '' );
     qx{mkdir -p $dir};
     die unless -d $dir;
 
@@ -142,7 +158,7 @@ sub cache_cleanup {    # aka tmpwatch
                 next unless -d $fdir;
                 next unless length $fdir > 5;
 
-                local $ENV{PATH} = '/bin:' .( $ENV{PATH} // '' );
+                local $ENV{PATH} = '/bin:' . ( $ENV{PATH} // '' );
                 qx{rm -rf $fdir}
                     ; # kind of dangerous but should be ok, we are controlling these values
             }
@@ -162,7 +178,7 @@ sub cache_cleanup {    # aka tmpwatch
                 next unless -d $fdir;
                 next if $fdir eq $current_cachedir;
 
-                local $ENV{PATH} = '/bin:' .( $ENV{PATH} // '' );
+                local $ENV{PATH} = '/bin:' . ( $ENV{PATH} // '' );
                 qx{rm -rf $fdir}; # purge old cache, in the same weird fashion
             }
         }
@@ -227,11 +243,11 @@ sub _get_git_grep_flavor {
 sub do_search {
     my ( $self, %opts ) = @_;
 
-    my ( $search, $search_distro, $search_file,
-        $filetype, $caseinsensitive, )
+    my ( $search, $search_distro, $search_file, $filetype, $caseinsensitive, )
         = (
-        $opts{search}, $opts{search_distro}, $opts{search_file},
-        $opts{filetype}, $opts{caseinsensitive},
+        $opts{search},      $opts{search_distro},
+        $opts{search_file}, $opts{filetype},
+        $opts{caseinsensitive},
         );
 
     my $t0 = [Time::HiRes::gettimeofday];
@@ -240,13 +256,14 @@ sub do_search {
 
     $search = _sanitize_search($search);
 
-    my $results = $self->_do_search( %opts );
+    my $results = $self->_do_search(%opts);
 
-    my $cache = $results->{cache};
-    my $output = $results->{output};
+    my $cache             = $results->{cache};
+    my $output            = $results->{output};
     my $is_a_known_distro = $results->{is_a_known_distro};
 
-    my $elapsed = sprintf( "%.3f", Time::HiRes::tv_interval( $t0, [Time::HiRes::gettimeofday] ) );
+    my $elapsed = sprintf( "%.3f",
+        Time::HiRes::tv_interval( $t0, [Time::HiRes::gettimeofday] ) );
 
     return {
         is_incomplete      => $cache->{is_incomplete}      || 0,
@@ -258,7 +275,6 @@ sub do_search {
         version            => $self->current_version(),
     };
 }
-
 
 sub _do_search {
     my ( $self, %opts ) = @_;
@@ -272,7 +288,6 @@ sub _do_search {
 
     $page //= 0;
     $page = 0 if $page < 0;
-
 
     my $cache = $self->get_match_cache( $search, $search_distro,
         $filetype, $caseinsensitive );
@@ -395,26 +410,30 @@ sub _do_search {
     # update results...
     #update_match_counter( $cache );
 
-    return { cache => $cache, output => \@output, is_a_known_distro => $is_a_known_distro };
+    return {
+        cache             => $cache,
+        output            => \@output,
+        is_a_known_distro => $is_a_known_distro
+    };
 }
 
 sub update_match_counter {
-    my ( $cache ) = @_;
+    my ($cache) = @_;
 
     my ( $count_distro, $count_files ) = ( 0, 0 );
     foreach my $distro ( sort keys %{ $cache->{distros} } ) {
-            my $c
-                = eval { scalar @{ $cache->{distros}->{$distro}->{matches} } }
-                // 0;
-            next unless $c;
-            ++$count_distro;
-            $count_files += $c;
-        }
+        my $c
+            = eval { scalar @{ $cache->{distros}->{$distro}->{matches} } }
+            // 0;
+        next unless $c;
+        ++$count_distro;
+        $count_files += $c;
+    }
 
-        $cache->{match} = {
-            files   => $count_files,
-            distros => $count_distro
-        };
+    $cache->{match} = {
+        files   => $count_files,
+        distros => $count_distro
+    };
 
     return;
 }
@@ -601,8 +620,8 @@ sub get_match_cache {
     # fallback to a shorter search ( and a different cache )
     my $cache_file = $self->_get_cache_file( [@git_cmd] );
     {
-      my $load = $self->_load_cache( $cache_file );
-      return $load if $load;
+        my $load = $self->_load_cache($cache_file);
+        return $load if $load;
     }
 
     my $raw_cache_file = $cache_file . q{.raw};
@@ -659,7 +678,7 @@ sub get_match_cache {
 
         #note "Search in progress..... done caching yaml file";
         $self->_save_cache( $request_cache_file, $cache );
-        $self->_save_cache( $cache_file, $cache );
+        $self->_save_cache( $cache_file,         $cache );
         unlink $raw_cache_file if -e $raw_cache_file;
     }
 
@@ -785,11 +804,13 @@ sub run_git_cmd_limit {
                 }
             }
 
-            die "alarm triggered while running git command: git grep too long...";
+            die
+                "alarm triggered while running git command: git grep too long...";
         };
 
         # limit our search in time...
-        alarm( $self->config->{timeout}->{grep_search} // 600 ); # make sure we always have a value set
+        alarm( $self->config->{timeout}->{grep_search} // 600 )
+            ;    # make sure we always have a value set
         $opts{pre_run}->() if ref $opts{pre_run} eq 'CODE';
 
         my $lock = $self->check_if_a_worker_is_available();
@@ -810,7 +831,7 @@ sub run_git_cmd_limit {
             $to_cache->autoflush(1);
         }
 
-        $run        = $self->git->command(@$cmd);
+        $run = $self->git->command(@$cmd);
         my $log     = $run->stdout;
         my $counter = 1;
 

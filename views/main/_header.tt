@@ -2,10 +2,13 @@
   <div class="container-fluid">
     <ul class="nav navbar-nav">
       <li class="">
-        <a href="http://metacpan.org"><img src="/static/icons/metacpan-icon.png" />&nbsp;Home</a>
+        <a href="https://metacpan.org"><img src="/static/icons/metacpan-icon.png" />&nbsp;Home</a>
       </li>
       <li class="<% menu == 'home' || !menu ? ' active' : '' %>">
         <a href="/"><i class="fa fa-search"></i>&nbsp;grep<img src="/static/icons/metacpan-icon.png" />cpan</a>
+      </li>
+      <li class="hidden-xs<% menu == 'recent' ? ' active' : '' %>">
+        <a href="https://metacpan.org/recent"><i class="fa fa-history"></i>&nbsp;Recent</a>
       </li>
       <li class="hidden-xs<% menu == 'about' ? ' active' : '' %>">
         <a href="/about"><i class="fa fa-info"></i>&nbsp;About</a>

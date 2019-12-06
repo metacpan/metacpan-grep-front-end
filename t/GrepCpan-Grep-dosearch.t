@@ -4,6 +4,13 @@
 use strict;
 use warnings;
 
+BEGIN {
+    use FindBin;
+    unshift @INC, $FindBin::Bin . "/lib";
+}
+
+use Test::Grep::MetaCPAN;
+
 use Test2::V0;
 use Test2::Tools::Explain;
 use Test2::Plugin::NoWarnings;
@@ -31,7 +38,7 @@ my $config = {
         'history_size' => '20'
     },
     'demo'    => '0',
-    'gitrepo' => '~APPDIR~/../../metacpan-extracted-lite',
+    'gitrepo' => '~APPDIR~/../../metacpan-cpan-extracted-lite',
     'limit'   => {
         'distros_per_page'      => '30',
         'files_git_run_bg'      => '2000',

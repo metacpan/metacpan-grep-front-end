@@ -18,7 +18,7 @@ ok -d $tmpdir, "using tmp directory: $tmpdir";
 
 my $config = {
     'maxworkers' => '2',
-    'gitrepo'    => '~APPDIR~/../../metacpan-extracted-lite',
+    'gitrepo'    => '~APPDIR~/../../metacpan-cpan-extracted-lite',
     'cache'      => {
         'directory' => $tmpdir,
         'version'   => "0.$$"

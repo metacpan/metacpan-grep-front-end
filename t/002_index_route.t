@@ -1,6 +1,13 @@
 use strict;
 use warnings;
 
+BEGIN {
+	use FindBin;
+	unshift @INC, $FindBin::Bin . "/lib";
+}
+
+use Test::Grep::MetaCPAN;
+
 use grepcpan;
 use Test::More tests => 2;
 use Plack::Test;

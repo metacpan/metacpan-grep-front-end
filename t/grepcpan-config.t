@@ -1,3 +1,12 @@
+package main;
+
+BEGIN {
+    use FindBin;
+    unshift @INC, $FindBin::Bin . "/lib";
+}
+
+use Test::Grep::MetaCPAN;
+
 package grepcpan;
 use Dancer2;
 

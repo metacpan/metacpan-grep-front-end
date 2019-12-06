@@ -1,13 +1,17 @@
+services:
+ - docker
+
 language: "perl"
 sudo: true
 # travis-perl filters out cperl, perlbrew does support it
 perl:
   # need perl 5.22 or later - currently using 5.22 in production
   - "5.22"
-  - "5.24"
-  - "5.26"
-# - "dev"
-# - "blead"
+  # - "5.26"
+  # - "5.28"
+  # - "5.30"
+  # - "dev"
+  # - "blead"
 
 env:
   global:
@@ -22,24 +26,28 @@ env:
      - AUTHOR_TESTING=0
      - RELEASE_TESTING=0
      - COVERAGE=1
+     - DOCKER_IMAGE_NAME=metacpan-grep-front-end
 # matrix:
 
 before_install:
   - mkdir /home/travis/bin || true
   - ln -s `which true` /home/travis/bin/cpansign
   - eval $(curl https://travis-perl.github.io/init) --auto
-  - git clone https://github.com/atoomic/metacpan-extracted-lite.git ../metacpan-extracted-lite # get a minimal git repo
+  - git clone https://github.com/atoomic/metacpan-extracted-lite.git ../metacpan-cpan-extracted-lite # get a minimal git repo
+  - cpanm -n App::cpm Carton::Snapshot
+  - cpm install -g --without-test Test2::Bundle::Extended Test2::Tools::Explain Test2::Plugin::NoWarnings
 
 install:
   - cpan-install --deps       # installs prereqs, including recommends
   - cpan-install --coverage   # installs converage prereqs, if enabled
-  - cpanm --installdeps --notest . # use notests to speedup travis...
+  - cpm install -g --without-test --cpanfile cpanfile
 
 before_script:
   - coverage-setup
 
 after_success:
   - coverage-report
+  - deploy/build.sh
 
 notifications:
   email:

@@ -44,16 +44,16 @@ For this the production is using one huge git repository (~20 Go) indexing all t
 You can read more on this topic and find tools used to build this Git repo on the (GitHub Repos)[https://grep.metacpan.org/source-code] page.
 
 We do not want to use such a beast during development cycles, we only need a smaller version of it,
-you can simply clone it from this (metacpan-extracted-lite)[https://github.com/atoomic/metacpan-extracted-lite].
+you can simply clone it from this (metacpan-cpan-extracted-lite)[https://github.com/metacpan/metacpan-cpan-extracted-lite].
 It should be clone at the same level of *metacpan-grep-front-end* itself (do not clone it inside the repository).
 
 	# clone at the same level of metacpan-grep-front-end
 	# cd ..; # if you are in metacpan-grep-front-end repo
-	> git clone https://github.com/atoomic/metacpan-extracted-lite.git
+	> git clone https://github.com/metacpan/metacpan-cpan-extracted-lite.git
 
 	# you should have something like this
 	> ls -d metacpan-*
-	metacpan-extracted-lite metacpan-grep-front-end
+	metacpan-cpan-extracted-lite metacpan-grep-front-end
 
 ## Installing dependencies
 

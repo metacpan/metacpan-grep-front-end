@@ -31,7 +31,7 @@ my $config = {
         'history_size' => '20'
     },
     'demo'    => '0',
-    'gitrepo' => '~APPDIR~/../../metacpan-extracted-lite',
+    'gitrepo' => '~APPDIR~/../../metacpan-cpan-extracted-lite',
     'limit'   => {
         'distros_per_page'      => '30',
         'files_git_run_bg'      => '2000',

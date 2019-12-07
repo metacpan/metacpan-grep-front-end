@@ -27,6 +27,8 @@ env:
      - RELEASE_TESTING=0
      - COVERAGE=1
      - DOCKER_IMAGE_NAME=metacpan-grep-front-end
+     # only deploy on the upstream repo
+     - DEPLOY_REPO_SLUG=metacpan/metacpan-grep-front-end
 # matrix:
 
 before_install:

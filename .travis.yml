@@ -66,8 +66,8 @@ branches:
   - /^v?[0-9]+\.[0-9]+/
 
 deploy:
-  - provider: script
-    script:
-      - deploy/push.sh
-    on:
-      branch: master
+  skip_cleanup: true
+  provider: script
+  script: bash deploy/push.sh
+  on:
+    branch: master

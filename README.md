@@ -33,7 +33,7 @@ You can check if git support pcre by using the '-P' option
 
 ## Cloning repositories
 
-You should start forking the main (metacpan-grep-front-end repository)[https://github.com/metacpan/metacpan-grep-front-end]
+You should start forking the main [metacpan-grep-front-end repository](https://github.com/metacpan/metacpan-grep-front-end)
 You can then clone it locally (where you should replace ~YOUR-GITHUB-USERNAME~ by your github username )
 
 	> git clone git@github.com:~YOUR-GITHUB-USERNAME~/metacpan-grep-front-end.git
@@ -42,10 +42,10 @@ You can then clone it locally (where you should replace ~YOUR-GITHUB-USERNAME~ b
 
 The frontend is not using a database, but a `git repo` itself as a backend.
 For this the production is using one huge git repository (~20 Go) indexing all the CPAN in one place !
-You can read more on this topic and find tools used to build this Git repo on the (GitHub Repos)[https://grep.metacpan.org/source-code] page.
+You can read more on this topic and find tools used to build this Git repo on the [GitHub Repos](https://grep.metacpan.org/source-code) page.
 
 We do not want to use such a beast during development cycles, we only need a smaller version of it,
-you can simply clone it from this (metacpan-cpan-extracted-lite)[https://github.com/metacpan/metacpan-cpan-extracted-lite].
+you can simply clone it from this [metacpan-cpan-extracted-lite](https://github.com/metacpan/metacpan-cpan-extracted-lite).
 It should be clone at the same level of *metacpan-grep-front-end* itself (do not clone it inside the repository).
 
 	# clone at the same level of metacpan-grep-front-end
@@ -121,7 +121,7 @@ From there you should be ready to
 
 The project comes with a basic `.travis.yml` file.
 
-If you want to start smoking your own branches, you simply need to link your [GitHub account](https://github.com)
-to your (Travis CI account)[https://travis-ci.org/], then enable the repository in your (Travis Dashboard)[https://travis-ci.org/dashboard]
+If you want to start smoking your own branches, you simply need to link your [GitHub account](https://github.com/)
+to your [Travis CI account](https://travis-ci.org/), then enable the repository in your [Travis Dashboard](https://travis-ci.org/dashboard)
 
 Note that any Pull Request submitted via GitHub would trigger a Travis smoke without any settings required from your side :-)

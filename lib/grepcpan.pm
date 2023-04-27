@@ -123,9 +123,8 @@ get '/api/search' => sub {
 ### dummies helpers
 ###
 
-sub _update_history_cookie
+sub _update_history_cookie ($search)
 {    # and return the human version list in all cases...
-    my $search = shift;
 
     my $separator = q{||};
 
@@ -148,13 +147,11 @@ sub _update_history_cookie
     return \@last_searches;
 }
 
-sub tt {
-    my ( $template, $params ) = @_;
+sub tt ( $template, $params = undef ) {
 
-    if ( ref $params ) {
-
-        #$params->{is_mobile} = 1 if is_mobile_device();
-    }
+    # if ( ref $params ) {
+    #     $params->{is_mobile} = 1 if is_mobile_device();
+    # }
 
     return template( $template, $params );
 }

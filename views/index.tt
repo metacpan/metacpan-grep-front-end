@@ -20,7 +20,7 @@
 
   <div align="center" class="container">
     <div class="row text-center justify-content-md-center">
-      <div class="col col-lg-4 col-lg-offset-4 text-info bg-info">
+      <div class="alert alert-info">
         Info: search is using a copy of CPAN from <% cpan_index_at | html %>
       </div>
     </div>

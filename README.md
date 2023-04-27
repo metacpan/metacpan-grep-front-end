@@ -23,7 +23,8 @@ but it should be pretty straight forward to setup a development environment and 
 For macOS users, it's recommended to use [homebrew](https://brew.sh) to install git with pcre support
 
 	> brew install pcre
-	> brew reinstall --with-pcre git
+	> export USE_LIBPCRE=yes
+	> brew reinstall --build-from-source git
 
 You can check if git support pcre by using the '-P' option
 
@@ -48,7 +49,7 @@ you can simply clone it from this (metacpan-cpan-extracted-lite)[https://github.
 It should be clone at the same level of *metacpan-grep-front-end* itself (do not clone it inside the repository).
 
 	# clone at the same level of metacpan-grep-front-end
-	# cd ..; # if you are in metacpan-grep-front-end repo
+	# cd .. # if you are in metacpan-grep-front-end repo
 	> git clone https://github.com/metacpan/metacpan-cpan-extracted-lite.git
 
 	# you should have something like this

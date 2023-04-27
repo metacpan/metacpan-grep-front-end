@@ -26,7 +26,7 @@ grepcpan:
    nocache: 0
    maxworkers: 2
    gitrepo: '/shared/metacpan_git'
-#   binaries:
-#      git: '/usr/local/cpanel/3rdparty/bin/git'
-   cache: 
+   binaries:
+      git: '/opt/homebrew/bin/git' # for macOS
+   cache:
       directory: '/var/tmp'

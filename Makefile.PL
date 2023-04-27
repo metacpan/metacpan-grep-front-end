@@ -12,7 +12,7 @@ WriteMakefile(
     AUTHOR           => q{Nicolas R. <atoomic@cpan.org>},
     VERSION_FROM     => 'lib/grepcpan.pm',
     ABSTRACT         => 'grep metacpan web frontend',
-    MIN_PERL_VERSION => 5.022,
+    MIN_PERL_VERSION => 5.036,
     (
         $eumm_version >= 6.3001
         ? ( 'LICENSE' => 'perl' )

@@ -1,7 +1,6 @@
 package GrepCpan::Grep;
 
-use strict;
-use warnings;
+use GrepCpan::std;
 
 use Git::Repository ();
 
@@ -15,17 +14,19 @@ grepcpan@grep.cpan.me [~/minicpan_grep.git]# time git grep -C15 -n xyz HEAD | he
 
 =cut
 
-use Simple::Accessor qw{ config git cache distros_per_page search_context
+use Simple::Accessor qw{
+    config git cache distros_per_page search_context
     search_context_file search_context_distro
     git_binary root HEAD
 };
-use POSIX qw{:sys_wait_h setsid};
+
+use POSIX              qw{:sys_wait_h setsid};
 use Proc::ProcessTable ();
 use YAML::Syck         ();
 use Time::HiRes        ();
 use File::Slurp        ();
 use IO::Handle         ();
-use Fcntl qw(:flock SEEK_END);
+use Fcntl              qw(:flock SEEK_END);
 use Test::More;
 
 use FindBin;
@@ -36,7 +37,7 @@ use Digest::MD5 qw( md5_hex );
 use constant END_OF_FILE_MARKER => qq{##______END_OF_FILE_MARKER______##};
 use constant TOO_BUSY_MARKER    => qq{##______TOO_BUSY_MARKER______##};
 
-use v5.022;
+use v5.036;
 
 $YAML::Syck::LoadBlessed = 0;
 $YAML::Syck::SortKeys    = 1;
@@ -142,7 +143,7 @@ sub cache_cleanup {    # aka tmpwatch
 
     my @path = split qr{/}, $current_cachedir;
 
-    {                  # purge old cache versions
+    {    # purge old cache versions
         my @tmp = @path;
         pop @tmp for 1 .. 2;
 
@@ -166,7 +167,7 @@ sub cache_cleanup {    # aka tmpwatch
         }
     }
 
-    {                 # purge old HEAD directories for the same version
+    {    # purge old HEAD directories for the same version
         my @tmp = @path;
         pop @tmp;
         my $version_cache = join '/', @tmp;
@@ -405,7 +406,7 @@ sub _do_search {
             $line_number = $new_line;
         }
     }
-    $process_file->();                   # process the last block
+    $process_file->();    # process the last block
 
     # update results...
     #update_match_counter( $cache );
@@ -492,7 +493,7 @@ sub get_list_of_files_to_search {
             my $distro = $_;  # warning this is over riding the input variable
             my $prefix        = $cache->{distros}->{$distro}->{prefix};
             my $list_of_files = $cache->{distros}->{$distro}->{files};
-            my $candidate = $list_of_files->[0];    # only the first file
+            my $candidate     = $list_of_files->[0];    # only the first file
             if ( scalar @$list_of_files > 1 ) {
 
                 # try to find a more perlish file first
@@ -578,7 +579,7 @@ sub get_match_cache {
     $caseinsensitive //= 0;
 
     my $gitdir = $self->git()->work_tree;
-    my $limit = $self->config()->{limit}->{files_per_search} or die;
+    my $limit  = $self->config()->{limit}->{files_per_search} or die;
 
     my $flavor  = _get_git_grep_flavor($search);
     my @git_cmd = qw{grep -l};
@@ -709,9 +710,11 @@ sub run_git_cmd_limit {
 
         # check if the file is empty and has more than X seconds
 
-        while ( waitpid( -1, WNOHANG ) > 0 ) {1}; # catch any zombies we could have from previous run
+        while ( waitpid( -1, WNOHANG ) > 0 ) {
+            1;
+        };    # catch any zombies we could have from previous run
 
-        if ( -z $cache_file ) {                   # the file is empty
+        if ( -z $cache_file ) {    # the file is empty
             my ( $mtime, $ctime ) = ( stat($cache_file) )[ 9, 10 ];
             $mtime //= 0;
             $ctime //= 0;
@@ -766,15 +769,17 @@ sub run_git_cmd_limit {
         };    # or warn $@;
         close($from_kid);
         kill 'USR1' => $child_pid;
-        while ( waitpid( -1, WNOHANG ) > 0 ) {1}; # catch what we can at this step... the process is running in bg
+        while ( waitpid( -1, WNOHANG ) > 0 ) {
+            1;
+        };    # catch what we can at this step... the process is running in bg
     }
     else {
         # in kid process
         local $| = 1;
         my $current_pid       = $$;
         my $can_write_to_pipe = 1;
-        local $SIG{'USR1'} = sub {                # not really used anymore
-                                                  #warn "SIGUSR1.... start";
+        local $SIG{'USR1'} = sub {    # not really used anymore
+                                      #warn "SIGUSR1.... start";
             $can_write_to_pipe = 0;
             close($CW);
             open STDIN,  '>', '/dev/null';

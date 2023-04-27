@@ -7,8 +7,8 @@ use Encode;
 
 use GrepCpan::Grep ();
 
-use strict;
-use warnings;
+use GrepCpan::std;
+
 use utf8;
 
 our $VERSION = '1.00';
@@ -78,7 +78,7 @@ get '/search' => sub {
     );
 
     my $nopagination = defined $file && length $file ? 1 : 0;
-    my $show_sumup = !$query->{is_a_known_distro}
+    my $show_sumup   = !$query->{is_a_known_distro}
         ;    #defined $distro && length $distro ? 0 : 1;
 
     my $template = $qls ? 'list-files' : 'search';
@@ -103,7 +103,7 @@ get '/api/search' => sub {
     my $q        = param('q');
     my $filetype = param('qft');
     my $qdistro  = param('qd');
-    my $qci      = param('qci');                       # case insensitive
+    my $qci      = param('qci');      # case insensitive
     my $page     = param('p') || 1;
     my $file     = param('f');
 
@@ -136,7 +136,7 @@ sub _update_history_cookie
     if ( defined $search && length $search ) {
         $value =~ s{\Q$separator\E}{.}g if defined $value;    # mmmm
         @last_searches = grep { $_ ne $search }
-            @last_searches;                 # remove it from history if there
+            @last_searches;    # remove it from history if there
         unshift @last_searches, $search;    # move it first
         @last_searches = splice( @last_searches, 0,
             $Config->{'cookie'}->{'history_size'} );
@@ -160,7 +160,12 @@ sub tt {
 }
 
 sub home {
-    template( 'index' => { 'title' => 'grepcpan', 'cpan_index_at' => $grep->cpan_index_at() } );
+    template(
+        'index' => {
+            'title'         => 'grepcpan',
+            'cpan_index_at' => $grep->cpan_index_at()
+        }
+    );
 }
 
 true;

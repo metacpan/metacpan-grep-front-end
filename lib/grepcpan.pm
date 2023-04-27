@@ -157,6 +157,15 @@ sub tt ( $template, $params = undef ) {
 }
 
 sub home {
+
+    # for browsers
+    header( 'Cache-Control' => 'max-age=3600' );
+
+    # for CDN, reverse proxies & co
+    header(
+        'Surrogate-Control' => 'max-age=3600, stale-while-revalidate=60' );
+    header( 'Surrogate-Key' => 'homepage' );
+
     template(
         'index' => {
             'title'         => 'grepcpan',

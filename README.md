@@ -15,7 +15,7 @@ but it should be pretty straight forward to setup a development environment and 
 ## Requirements
 
 * a git client (should be compiled with libpcre)
-* perl 5.22 or later (5.22 is the recommended version, consider [using perlbrew](https://perlbrew.pl))
+* perl 5.36 or later (5.36 is the recommended version, consider [using perlbrew](https://perlbrew.pl))
 * App::cpanminus (read manual on [metacpan](https://metacpan.org/pod/App::cpanminus) )
 
 ### git with pcre support
@@ -60,7 +60,7 @@ It should be clone at the same level of *metacpan-grep-front-end* itself (do not
 
 Now that you have the repository set, let's install all the perl modules required.
 
-You can check your perl version. ( 5.022001 is the recommended one for now )
+You can check your perl version. ( 5.036000 is the recommended one for now )
 
 	perl -E 'say $]'
 

@@ -314,6 +314,16 @@ DISTRIBUTIONS
       Test::More 0.98
       parent 0
       perl 5.008001
+  Devel-CheckLib-1.16
+    pathname: M/MA/MATTN/Devel-CheckLib-1.16.tar.gz
+    provides:
+      Devel::CheckLib 1.16
+    requirements:
+      Exporter 0
+      ExtUtils::MakeMaker 0
+      File::Spec 0
+      File::Temp 0.16
+      perl 5.004050
   Devel-StackTrace-2.04
     pathname: D/DR/DROLSKY/Devel-StackTrace-2.04.tar.gz
     provides:
@@ -1296,6 +1306,60 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 0
       Test::More 0
       perl 5.006001
+  Sereal-5.004
+    pathname: Y/YV/YVES/Sereal-5.004.tar.gz
+    provides:
+      Sereal 5.004
+    requirements:
+      ExtUtils::MakeMaker 0
+      Sereal::Decoder 5.004
+      Sereal::Encoder 5.004
+      perl 5.008
+  Sereal-Decoder-5.004
+    pathname: Y/YV/YVES/Sereal-Decoder-5.004.tar.gz
+    provides:
+      Sereal::Decoder 5.004
+      Sereal::Decoder::Constants 5.004
+      Sereal::Performance undef
+    requirements:
+      Data::Dumper 0
+      Devel::CheckLib 1.16
+      ExtUtils::MakeMaker 7.0
+      ExtUtils::ParseXS 2.21
+      File::Find 0
+      File::Path 0
+      File::Spec 0
+      Scalar::Util 0
+      Test::Deep 0
+      Test::Differences 0
+      Test::LongString 0
+      Test::More 0.88
+      Test::Warn 0
+      XSLoader 0
+      perl 5.008
+  Sereal-Encoder-5.004
+    pathname: Y/YV/YVES/Sereal-Encoder-5.004.tar.gz
+    provides:
+      Sereal::Encoder 5.004
+      Sereal::Encoder::Constants 5.004
+    requirements:
+      Data::Dumper 0
+      Devel::CheckLib 1.16
+      ExtUtils::MakeMaker 7.0
+      ExtUtils::ParseXS 2.21
+      File::Find 0
+      File::Path 0
+      File::Spec 0
+      Hash::Util 0
+      Scalar::Util 0
+      Sereal::Decoder 5.004
+      Test::Deep 0
+      Test::Differences 0
+      Test::LongString 0
+      Test::More 0.88
+      Test::Warn 0
+      XSLoader 0
+      perl 5.008
   Server-Starter-0.35
     pathname: K/KA/KAZUHO/Server-Starter-0.35.tar.gz
     provides:
@@ -1609,6 +1673,14 @@ DISTRIBUTIONS
       perl 5.006001
       strict 0
       warnings 0
+  Test-LongString-0.17
+    pathname: R/RG/RGARCIA/Test-LongString-0.17.tar.gz
+    provides:
+      Test::LongString 0.17
+    requirements:
+      ExtUtils::MakeMaker 0
+      Test::Builder 0.12
+      Test::Builder::Tester 1.04
   Test-Most-0.38
     pathname: O/OV/OVID/Test-Most-0.38.tar.gz
     provides:

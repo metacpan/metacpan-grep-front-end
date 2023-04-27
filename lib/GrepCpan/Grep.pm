@@ -1,8 +1,10 @@
 package GrepCpan::Grep;
 
+use v5.036;
 use GrepCpan::std;
 
 use Git::Repository ();
+use Sereal          ();
 
 =pod
 
@@ -22,7 +24,6 @@ use Simple::Accessor qw{
 
 use POSIX              qw{:sys_wait_h setsid};
 use Proc::ProcessTable ();
-use YAML::Syck         ();
 use Time::HiRes        ();
 use File::Slurp        ();
 use IO::Handle         ();
@@ -36,11 +37,6 @@ use Digest::MD5 qw( md5_hex );
 
 use constant END_OF_FILE_MARKER => qq{##______END_OF_FILE_MARKER______##};
 use constant TOO_BUSY_MARKER    => qq{##______TOO_BUSY_MARKER______##};
-
-use v5.036;
-
-$YAML::Syck::LoadBlessed = 0;
-$YAML::Syck::SortKeys    = 1;
 
 sub _build_git {
     my $self = shift;
@@ -542,7 +538,9 @@ sub _save_cache {
 
     # cache is disabled
     return if $self->config()->{nocache};
-    YAML::Syck::DumpFile( $cache_file, $cache );
+
+    Sereal::write_sereal( $cache_file, $cache );
+
     my $raw_cache_file = $cache_file . '.raw';
     unlink($raw_cache_file) if -e $raw_cache_file;
 
@@ -571,7 +569,7 @@ sub _load_cache {
     return if $self->config()->{nocache};
 
     return unless defined $cache_file && -e $cache_file;
-    return YAML::Syck::LoadFile($cache_file);
+    return Sereal::read_sereal($cache_file);
 }
 
 sub get_match_cache {

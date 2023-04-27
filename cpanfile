@@ -2,7 +2,6 @@ requires "Git::Repository"             => 0;
 requires "Gazelle"                     => 0;
 requires "Proc::ProcessTable"          => 0;
 requires "Digest::MD5"                 => 0;
-requires "YAML::Syck"                  => 0;
 requires "Simple::Accessor"            => "1.02";
 requires "Time::HiRes"                 => 0;
 requires "Test::Harness"               => 0;
@@ -19,6 +18,9 @@ requires "FindBin"                     => 0;
 requires "Cpanel::JSON::XS"            => 0;
 requires "JSON::MaybeXS"               => 0;
 requires "HTTP::Entity::Parser"        => 0;
+requires "Sereal"                      => 0;
+requires "Sereal::Encoder"             => 0;
+requires "Sereal::Decoder"             => 0;
 
 recommends "YAML"             => "0";
 recommends "URL::Encode::XS"  => "0";

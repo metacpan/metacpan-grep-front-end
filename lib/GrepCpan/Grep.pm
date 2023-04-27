@@ -188,11 +188,13 @@ sub cache_cleanup {    # aka tmpwatch
     return;
 }
 
-sub massage_path {
-    my ( $self, $s ) = @_;
+sub massage_path ( $self, $s ) {
 
     return unless defined $s;
+
     my $appdir = $self->root;
+    $appdir =~ s{/(?:bin|t)/?$}{};
+
     $s =~ s{~APPDIR~}{$appdir}g;
 
     return $s;

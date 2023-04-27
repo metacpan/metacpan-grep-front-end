@@ -40,6 +40,7 @@ on "test" => sub {
 on 'develop' => sub {
     recommends 'Devel::NYTProf';
     recommends "Code::TidyAll::Git::Precommit";
+    recommends "Code::TidyAll::Plugin::UniqueLines";
     recommends "Perl::Critic::Nits";
 };
 

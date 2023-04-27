@@ -30,4 +30,4 @@ grepcpan:
    binaries:
       git: '/opt/homebrew/bin/git' # for macOS
    cache:
-      directory: '/var/tmp'
+      directory: '~APPDIR~/var/tmp'

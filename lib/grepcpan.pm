@@ -60,14 +60,15 @@ get '/search/:legacy' => sub {    # need to disable it from js
 };
 
 get '/search' => sub {
-    my $q        = param('q');         # FIXME clean query
-    my $filetype = param('qft');
-    my $qdistro  = param('qd');
-    my $qci      = param('qci');       # case insensitive
-    my $qls      = param('qls');       # only list files
-    my $page     = param('p') || 1;
-    my $file     = param('f');
-    my $query    = $grep->do_search(
+    my $q            = param('q');         # FIXME clean query
+    my $filetype     = param('qft');
+    my $qdistro      = param('qd');
+    my $qci          = param('qci');       # case insensitive
+    my $qls          = param('qls');       # only list files
+    my $page         = param('p') || 1;
+    my $file         = param('f');
+    my $ignore_files = param('qifl');
+    my $query        = $grep->do_search(
         search          => $q,
         page            => $page - 1,
         search_distro   => $qdistro,  # filter on a distribution
@@ -75,6 +76,7 @@ get '/search' => sub {
         filetype        => $filetype,
         caseinsensitive => $qci,
         list_files      => $qls,      # not used for now, only impact the view
+        ignore_files    => $ignore_files
     );
 
     my $nopagination = defined $file && length $file ? 1 : 0;
@@ -95,24 +97,27 @@ get '/search' => sub {
         qd            => $qdistro,                     #$qdistro // q{},
         qls           => $qls,
         qci           => $qci,
+        qifl          => $ignore_files,
     };
 };
 
 ### API routes
 get '/api/search' => sub {
-    my $q        = param('q');
-    my $filetype = param('qft');
-    my $qdistro  = param('qd');
-    my $qci      = param('qci');      # case insensitive
-    my $page     = param('p') || 1;
-    my $file     = param('f');
+    my $q            = param('q');
+    my $filetype     = param('qft');
+    my $qdistro      = param('qd');
+    my $qci          = param('qci');      # case insensitive
+    my $page         = param('p') || 1;
+    my $file         = param('f');
+    my $ignore_files = param('qifl');
 
     my $query = $grep->do_search(
         search          => $q,
         page            => $page - 1,
-        search_distro   => $qdistro,    # filter on a distribution
+        search_distro   => $qdistro,        # filter on a distribution
         filetype        => $filetype,
         caseinsensitive => $qci,
+        ignore_files    => $ignore_files,
     );
 
     content_type 'application/json';

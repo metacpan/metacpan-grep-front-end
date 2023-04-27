@@ -7,8 +7,6 @@
 %>
 <% END  %>
 <div class="container-fluid">
-  
-  
   <div class="row hidden-phone">
     <div class="head-small-logo col-md-3">
       <a href="/" class="small-logo"></a>
@@ -20,6 +18,7 @@
             <input type="text" name="q" size="41" autofocus="autofocus" id="search-input" class="form-control search-input-results" style="width:280px;" value="<% search | html_entity %>" autocomplete="off" placeholder="search with Perl Compatible RegEx">
             <input type="text" name="qd" size="35" id="search-distro-input-results" class="form-control optional-input" value="<% qd | html_entity %>" autocomplete="off" placeholder="in distro like ^App-.*">
             <input type="text" name="qft" size="6" id="search-filetype-input-results" class="form-control optional-input" value="<% qft | html_entity %>" autocomplete="off" placeholder="*.pm">
+            <input type="text" name="qifl" size="35" id="search-ignore-files" class="form-control optional-input" value="<% qifl | html_entity %>" autocomplete="off" placeholder="ignore files like: *.t, ppport.h">
             <span class="input-group-btn">
               <button class="btn search-btn" type="submit">Search</button>
             </span>
@@ -32,7 +31,7 @@
       </form>
     </div>
   </div>
-  
+
   <div class="row">
     <div class="main-content col-md-12">
       <ul class="nav-list slidepanel sticky-panel-top">
@@ -45,7 +44,7 @@
       <% END %>
 
       <div class="content search-results">
-  
+
         <% IF show_sumup %>
         <div class="module-result">
         <big><strong>Result: </strong></big>
@@ -62,7 +61,7 @@
         <% ELSE %>
           found <b><% query.match.distros %></b> distributions and <b><% query.match.files %></b> files matching your query !
         <% END %>
-        
+
         <% END # END of search_in_progress  %>
         <% html_time_elapsed %>
         </div>

@@ -38,6 +38,8 @@ use Digest::MD5 qw( md5_hex );
 use constant END_OF_FILE_MARKER => qq{##______END_OF_FILE_MARKER______##};
 use constant TOO_BUSY_MARKER    => qq{##______TOO_BUSY_MARKER______##};
 
+use constant CACHE_IS_ENABLED => 1;
+
 sub _build_git {
     my $self = shift;
 
@@ -239,14 +241,14 @@ sub _get_git_grep_flavor {
 
 # idea use git rev-parse HEAD to include it in the cache name
 
-sub do_search {
-    my ( $self, %opts ) = @_;
+sub do_search ( $self, %opts ) {
 
-    my ( $search, $search_distro, $search_file, $filetype, $caseinsensitive, )
+    my ( $search, $search_distro, $search_file, $filetype,
+        $caseinsensitive, $ignore_files, )
         = (
-        $opts{search},      $opts{search_distro},
-        $opts{search_file}, $opts{filetype},
-        $opts{caseinsensitive},
+        $opts{search},          $opts{search_distro},
+        $opts{search_file},     $opts{filetype},
+        $opts{caseinsensitive}, $opts{ignore_files},
         );
 
     my $t0 = [Time::HiRes::gettimeofday];
@@ -275,21 +277,21 @@ sub do_search {
     };
 }
 
-sub _do_search {
-    my ( $self, %opts ) = @_;
+sub _do_search ( $self, %opts ) {
 
     my ( $search, $page, $search_distro, $search_file,
-        $filetype, $caseinsensitive, )
+        $filetype, $caseinsensitive, $ignore_files )
         = (
         $opts{search}, $opts{page}, $opts{search_distro}, $opts{search_file},
-        $opts{filetype}, $opts{caseinsensitive},
+        $opts{filetype}, $opts{caseinsensitive}, $opts{ignore_files}
         );
 
     $page //= 0;
     $page = 0 if $page < 0;
 
-    my $cache = $self->get_match_cache( $search, $search_distro,
-        $filetype, $caseinsensitive );
+    #
+    my $cache = $self->get_match_cache( $search, $search_distro, $filetype,
+        $caseinsensitive, $ignore_files );
 
     my $is_a_known_distro
         = defined $search_distro
@@ -533,8 +535,7 @@ sub get_list_of_files_to_search {
     return \@short;
 }
 
-sub _save_cache {
-    my ( $self, $cache_file, $cache ) = @_;
+sub _save_cache ( $self, $cache_file, $cache ) {
 
     # cache is disabled
     return if $self->config()->{nocache};
@@ -547,8 +548,7 @@ sub _save_cache {
     return;
 }
 
-sub _get_cache_file {
-    my ( $self, $keys, $type ) = @_;
+sub _get_cache_file ( $self, $keys, $type = undef ) {
 
     $type //= q[/search-ls];
     $type .= '-';
@@ -562,8 +562,9 @@ sub _get_cache_file {
     return $cache_file;
 }
 
-sub _load_cache {
-    my ( $self, $cache_file ) = @_;
+sub _load_cache ( $self, $cache_file ) {
+
+    return unless CACHE_IS_ENABLED;
 
     # cache is disabled
     return if $self->config()->{nocache};
@@ -572,8 +573,30 @@ sub _load_cache {
     return Sereal::read_sereal($cache_file);
 }
 
+# convert a string of patterns (file to exclude) to a list of git rules to ignore the path
+# t/*, *.md, *.json, *.yaml, *.yml, *.conf, cpanfile, LICENSE, MANIFEST, INSTALL, Changes, Makefile.PL, Build.PL, Copying, *.SKIP, *.ini, README
+sub _parse_ignore_files ( $self, $ignore_files ) {
+
+    my @ignorelist = grep {m{^ [a-zA-Z0-9_\-\.\*/]+ $}x}
+        grep { length $_ } split( /\s*,\s*/, $ignore_files );
+
+    # ignore rules using '..'
+    return if grep {m{\.\.}} @ignorelist;
+
+    return unless scalar @ignorelist;
+
+    my @rules;
+    foreach my $ignore (@ignorelist) {
+        $ignore = '/*' . $ignore unless $ignore =~ m{^\*};
+        push @rules, qq[:!$ignore];
+    }
+
+    return \@rules;
+}
+
 sub get_match_cache {
-    my ( $self, $search, $search_distro, $query_filetype, $caseinsensitive )
+    my ( $self, $search, $search_distro, $query_filetype, $caseinsensitive,
+        $ignore_files )
         = @_;
 
     $caseinsensitive //= 0;
@@ -585,6 +608,10 @@ sub get_match_cache {
     my @git_cmd = qw{grep -l};
     push @git_cmd, q{-i} if $caseinsensitive;
     push @git_cmd, $flavor, '-e', $search, q{--}, q{distros/};
+
+    if ( my $rules = $self->_parse_ignore_files($ignore_files) ) {
+        push @git_cmd, $rules->@*;
+    }
 
     # use the full cache when available -- need to filter it later
     my $request_cache_file = $self->_get_cache_file(
@@ -686,8 +713,7 @@ sub get_match_cache {
     return $cache;
 }
 
-sub massage_filepath {
-    my $line = shift;
+sub massage_filepath ($line) {
     my ( $where, $letter, $distro, $shortpath ) = split( q{/}, $line, 4 );
     $where  //= '';
     $letter //= '';
@@ -695,8 +721,7 @@ sub massage_filepath {
     return ( $where, $distro, $shortpath );
 }
 
-sub run_git_cmd_limit {
-    my ( $self, %opts ) = @_;
+sub run_git_cmd_limit ( $self, %opts ) {
 
     my $cache_file = $opts{cache_file};
     my $cmd        = $opts{cmd} // die;

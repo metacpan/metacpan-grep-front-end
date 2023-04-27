@@ -8628,7 +8628,7 @@ h3,
   font-size: 16px;
   padding: 4px 12px;
   height: 30px;
-  width: 280px;
+  width: 250px;
 }
 
 input#search-distro-input-results {
@@ -8645,6 +8645,12 @@ input#search-filetype-input-results{
   width: 60px;
 }
 
+input#search-ignore-files{
+  font-size: 16px;
+  padding: 4px 12px;
+  height: 30px;
+  width: 250px;
+}
 
 .toolbar-search {
   margin-bottom: 2px;
@@ -10370,6 +10376,12 @@ body .syntaxhighlighter .container .pod-placeholder button {
   width:65px;
   float:left;
   font-size: 1.4em;
+}
+
+.home-search-ignore-files {
+  font-size: 1.4em;
+  padding: 4px 12px;
+  float:left;
 }
 
 .optional-input:placeholder-shown {

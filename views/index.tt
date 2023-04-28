@@ -6,12 +6,12 @@
     <input type="hidden" name="_bb" id="cache-buster" value="<% Math.int( Math.rand(999999999) ) %>">
     <div class="form-group" style="overflow: hidden; display: table;">
       <!-- FIXME to move to css -->
-        <input type="text" name="q" size="35" autofocus="autofocus" id="search-input" class="form-control home-search-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="search with Perl Compatible RegEx">
+        <input type="text" name="q" size="35" autofocus="autofocus" id="search-input" class="form-control home-search-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="search with Perl Compatible RegEx" title="search">
       <br>
-        <input type="text" name="qd" size="35" id="xsearch-input" class="form-control home-search-distro-input optional-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="in distro like ^App-.*">
-        <input type="text" name="qft" size="6" id="xysearch-input" class="form-control home-search-filetype-input optional-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="*.pm">
+        <input type="text" name="qd" size="35" id="xsearch-input" class="form-control home-search-distro-input optional-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="in distro like ^App-.*" title="search in distro">
+        <input type="text" name="qft" size="6" id="xysearch-input" class="form-control home-search-filetype-input optional-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="*.pm" title="extension">
       <br>
-        <input type="text" name="qifl" size="25" id="ignore-files-input" class="form-control home-search-ignore-files optional-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="ignore files like: *.t, ppport.h, ...">
+        <input type="text" name="qifl" size="25" id="ignore-files-input" class="form-control home-search-ignore-files optional-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="ignore files like: *.t, ppport.h, ..." title="ignore filter">
       <br>
       <!-- .class + .class { width: 100px } -->
       <div style="text-align:left; font-size: 14px;">

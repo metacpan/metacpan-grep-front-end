@@ -15,10 +15,10 @@
       <form action="/search" class="search-form form-horizontal" onSubmit="doGrepping()">
         <div class="form-group">
           <div class="input-group" style="overflow: hidden; display: table;">
-            <input type="text" name="q" size="41" autofocus="autofocus" id="search-input" class="form-control search-input-results" style="width:280px;" value="<% search | html_entity %>" autocomplete="off" placeholder="search with Perl Compatible RegEx">
-            <input type="text" name="qd" size="35" id="search-distro-input-results" class="form-control optional-input" value="<% qd | html_entity %>" autocomplete="off" placeholder="in distro like ^App-.*">
-            <input type="text" name="qft" size="6" id="search-filetype-input-results" class="form-control optional-input" value="<% qft | html_entity %>" autocomplete="off" placeholder="*.pm">
-            <input type="text" name="qifl" size="35" id="search-ignore-files" class="form-control optional-input" value="<% qifl | html_entity %>" autocomplete="off" placeholder="ignore files like: *.t, ppport.h">
+            <input type="text" name="q" size="41" autofocus="autofocus" id="search-input" class="form-control search-input-results" style="width:280px;" value="<% search | html_entity %>" autocomplete="off" placeholder="search with Perl Compatible RegEx" title="search">
+            <input type="text" name="qd" size="35" id="search-distro-input-results" class="form-control optional-input" value="<% qd | html_entity %>" autocomplete="off" placeholder="in distro like ^App-.*" title="search in distro">
+            <input type="text" name="qft" size="6" id="search-filetype-input-results" class="form-control optional-input" value="<% qft | html_entity %>" autocomplete="off" placeholder="*.pm" title="extension">
+            <input type="text" name="qifl" size="35" id="search-ignore-files" class="form-control optional-input" value="<% qifl | html_entity %>" autocomplete="off" placeholder="ignore files like: *.t, ppport.h" title="ignore filter">
             <span class="input-group-btn">
               <button class="btn search-btn" type="submit">Search</button>
             </span>

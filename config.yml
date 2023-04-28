@@ -75,5 +75,5 @@ grepcpan:
       git: '/home/atoomic/bin/git'
    cache:
       directory: '~APPDIR~/var/tmp'
-      version: '2.01'
+      version: '2.02'
 

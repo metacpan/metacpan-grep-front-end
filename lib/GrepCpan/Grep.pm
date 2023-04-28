@@ -577,8 +577,10 @@ sub _load_cache ( $self, $cache_file ) {
 # t/*, *.md, *.json, *.yaml, *.yml, *.conf, cpanfile, LICENSE, MANIFEST, INSTALL, Changes, Makefile.PL, Build.PL, Copying, *.SKIP, *.ini, README
 sub _parse_ignore_files ( $self, $ignore_files ) {
 
-    my @ignorelist = grep {m{^ [a-zA-Z0-9_\-\.\*/]+ $}x}
-        grep { length $_ } split( /\s*,\s*/, $ignore_files );
+    return unless length $ignore_files;
+
+    my @ignorelist = grep { length($_) && m{^ [a-zA-Z0-9_\-\.\*/]+ $}x }
+        split( /\s*,\s*/, $ignore_files );
 
     # ignore rules using '..'
     return if grep {m{\.\.}} @ignorelist;

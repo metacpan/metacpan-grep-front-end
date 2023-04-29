@@ -1144,7 +1144,7 @@ $('.pod-toggle').toggleClass('pod-hidden');if(topLine){$(window).scrollTop(topLi
 /* need to automatize assets: auto minimize & merge js + update/bump the release version (/name) */
 function doGrepping() { $('#firstcontainer').fadeOut(); $('#overlay').fadeIn(1200); return true; }
 function setupDefaultIgnoreList() {
-    var default_list = "inc/*, local/*, t/*, *.md, *.json, *.ya?ml, *.conf, cpanfile*, LICENSE, MANIFEST, INSTALL, Changes, Makefile.PL, Build.PL, Copying, *.SKIP, *.ini, README";
+    var default_list = "inc/*, local/*, t/*, *.md, *.json, *.ya?ml, *.conf, cpanfile*, LICENSE, MANIFEST, INSTALL, Changes, Build.PL, Copying, *.SKIP, *.ini, README";
     var ignore = document.getElementById('ignore-files-input');
 
     if ( ignore.value == default_list ) {

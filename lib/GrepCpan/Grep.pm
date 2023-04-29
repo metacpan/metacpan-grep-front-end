@@ -1,9 +1,10 @@
 package GrepCpan::Grep;
 
-use strict;
-use warnings;
+use v5.036;
+use GrepCpan::std;
 
 use Git::Repository ();
+use Sereal          ();
 
 =pod
 
@@ -15,17 +16,18 @@ grepcpan@grep.cpan.me [~/minicpan_grep.git]# time git grep -C15 -n xyz HEAD | he
 
 =cut
 
-use Simple::Accessor qw{ config git cache distros_per_page search_context
+use Simple::Accessor qw{
+    config git cache distros_per_page search_context
     search_context_file search_context_distro
     git_binary root HEAD
 };
-use POSIX qw{:sys_wait_h setsid};
+
+use POSIX              qw{:sys_wait_h setsid};
 use Proc::ProcessTable ();
-use YAML::Syck         ();
 use Time::HiRes        ();
 use File::Slurp        ();
 use IO::Handle         ();
-use Fcntl qw(:flock SEEK_END);
+use Fcntl              qw(:flock SEEK_END);
 use Test::More;
 
 use FindBin;
@@ -36,10 +38,7 @@ use Digest::MD5 qw( md5_hex );
 use constant END_OF_FILE_MARKER => qq{##______END_OF_FILE_MARKER______##};
 use constant TOO_BUSY_MARKER    => qq{##______TOO_BUSY_MARKER______##};
 
-use v5.022;
-
-$YAML::Syck::LoadBlessed = 0;
-$YAML::Syck::SortKeys    = 1;
+use constant CACHE_IS_ENABLED => 1;
 
 sub _build_git {
     my $self = shift;
@@ -142,7 +141,7 @@ sub cache_cleanup {    # aka tmpwatch
 
     my @path = split qr{/}, $current_cachedir;
 
-    {                  # purge old cache versions
+    {    # purge old cache versions
         my @tmp = @path;
         pop @tmp for 1 .. 2;
 
@@ -166,7 +165,7 @@ sub cache_cleanup {    # aka tmpwatch
         }
     }
 
-    {                 # purge old HEAD directories for the same version
+    {    # purge old HEAD directories for the same version
         my @tmp = @path;
         pop @tmp;
         my $version_cache = join '/', @tmp;
@@ -187,11 +186,13 @@ sub cache_cleanup {    # aka tmpwatch
     return;
 }
 
-sub massage_path {
-    my ( $self, $s ) = @_;
+sub massage_path ( $self, $s ) {
 
     return unless defined $s;
+
     my $appdir = $self->root;
+    $appdir =~ s{/(?:bin|t)/?$}{};
+
     $s =~ s{~APPDIR~}{$appdir}g;
 
     return $s;
@@ -240,14 +241,14 @@ sub _get_git_grep_flavor {
 
 # idea use git rev-parse HEAD to include it in the cache name
 
-sub do_search {
-    my ( $self, %opts ) = @_;
+sub do_search ( $self, %opts ) {
 
-    my ( $search, $search_distro, $search_file, $filetype, $caseinsensitive, )
+    my ( $search, $search_distro, $search_file, $filetype,
+        $caseinsensitive, $ignore_files, )
         = (
-        $opts{search},      $opts{search_distro},
-        $opts{search_file}, $opts{filetype},
-        $opts{caseinsensitive},
+        $opts{search},          $opts{search_distro},
+        $opts{search_file},     $opts{filetype},
+        $opts{caseinsensitive}, $opts{ignore_files},
         );
 
     my $t0 = [Time::HiRes::gettimeofday];
@@ -276,21 +277,21 @@ sub do_search {
     };
 }
 
-sub _do_search {
-    my ( $self, %opts ) = @_;
+sub _do_search ( $self, %opts ) {
 
     my ( $search, $page, $search_distro, $search_file,
-        $filetype, $caseinsensitive, )
+        $filetype, $caseinsensitive, $ignore_files )
         = (
         $opts{search}, $opts{page}, $opts{search_distro}, $opts{search_file},
-        $opts{filetype}, $opts{caseinsensitive},
+        $opts{filetype}, $opts{caseinsensitive}, $opts{ignore_files}
         );
 
     $page //= 0;
     $page = 0 if $page < 0;
 
-    my $cache = $self->get_match_cache( $search, $search_distro,
-        $filetype, $caseinsensitive );
+    #
+    my $cache = $self->get_match_cache( $search, $search_distro, $filetype,
+        $caseinsensitive, $ignore_files );
 
     my $is_a_known_distro
         = defined $search_distro
@@ -405,7 +406,7 @@ sub _do_search {
             $line_number = $new_line;
         }
     }
-    $process_file->();                   # process the last block
+    $process_file->();    # process the last block
 
     # update results...
     #update_match_counter( $cache );
@@ -492,7 +493,7 @@ sub get_list_of_files_to_search {
             my $distro = $_;  # warning this is over riding the input variable
             my $prefix        = $cache->{distros}->{$distro}->{prefix};
             my $list_of_files = $cache->{distros}->{$distro}->{files};
-            my $candidate = $list_of_files->[0];    # only the first file
+            my $candidate     = $list_of_files->[0];    # only the first file
             if ( scalar @$list_of_files > 1 ) {
 
                 # try to find a more perlish file first
@@ -534,20 +535,20 @@ sub get_list_of_files_to_search {
     return \@short;
 }
 
-sub _save_cache {
-    my ( $self, $cache_file, $cache ) = @_;
+sub _save_cache ( $self, $cache_file, $cache ) {
 
     # cache is disabled
     return if $self->config()->{nocache};
-    YAML::Syck::DumpFile( $cache_file, $cache );
+
+    Sereal::write_sereal( $cache_file, $cache );
+
     my $raw_cache_file = $cache_file . '.raw';
     unlink($raw_cache_file) if -e $raw_cache_file;
 
     return;
 }
 
-sub _get_cache_file {
-    my ( $self, $keys, $type ) = @_;
+sub _get_cache_file ( $self, $keys, $type = undef ) {
 
     $type //= q[/search-ls];
     $type .= '-';
@@ -561,29 +562,58 @@ sub _get_cache_file {
     return $cache_file;
 }
 
-sub _load_cache {
-    my ( $self, $cache_file ) = @_;
+sub _load_cache ( $self, $cache_file ) {
+
+    return unless CACHE_IS_ENABLED;
 
     # cache is disabled
     return if $self->config()->{nocache};
 
     return unless defined $cache_file && -e $cache_file;
-    return YAML::Syck::LoadFile($cache_file);
+    return Sereal::read_sereal($cache_file);
+}
+
+# convert a string of patterns (file to exclude) to a list of git rules to ignore the path
+# t/*, *.md, *.json, *.yaml, *.yml, *.conf, cpanfile, LICENSE, MANIFEST, INSTALL, Changes, Makefile.PL, Build.PL, Copying, *.SKIP, *.ini, README
+sub _parse_ignore_files ( $self, $ignore_files ) {
+
+    return unless length $ignore_files;
+
+    my @ignorelist = grep { length($_) && m{^ [a-zA-Z0-9_\-\.\*/]+ $}x }
+        split( /\s*,\s*/, $ignore_files );
+
+    # ignore rules using '..'
+    return if grep {m{\.\.}} @ignorelist;
+
+    return unless scalar @ignorelist;
+
+    my @rules;
+    foreach my $ignore (@ignorelist) {
+        $ignore = '/*' . $ignore unless $ignore =~ m{^\*};
+        push @rules, qq[:!$ignore];
+    }
+
+    return \@rules;
 }
 
 sub get_match_cache {
-    my ( $self, $search, $search_distro, $query_filetype, $caseinsensitive )
+    my ( $self, $search, $search_distro, $query_filetype, $caseinsensitive,
+        $ignore_files )
         = @_;
 
     $caseinsensitive //= 0;
 
     my $gitdir = $self->git()->work_tree;
-    my $limit = $self->config()->{limit}->{files_per_search} or die;
+    my $limit  = $self->config()->{limit}->{files_per_search} or die;
 
     my $flavor  = _get_git_grep_flavor($search);
     my @git_cmd = qw{grep -l};
     push @git_cmd, q{-i} if $caseinsensitive;
     push @git_cmd, $flavor, '-e', $search, q{--}, q{distros/};
+
+    if ( my $rules = $self->_parse_ignore_files($ignore_files) ) {
+        push @git_cmd, $rules->@*;
+    }
 
     # use the full cache when available -- need to filter it later
     my $request_cache_file = $self->_get_cache_file(
@@ -685,8 +715,7 @@ sub get_match_cache {
     return $cache;
 }
 
-sub massage_filepath {
-    my $line = shift;
+sub massage_filepath ($line) {
     my ( $where, $letter, $distro, $shortpath ) = split( q{/}, $line, 4 );
     $where  //= '';
     $letter //= '';
@@ -694,8 +723,7 @@ sub massage_filepath {
     return ( $where, $distro, $shortpath );
 }
 
-sub run_git_cmd_limit {
-    my ( $self, %opts ) = @_;
+sub run_git_cmd_limit ( $self, %opts ) {
 
     my $cache_file = $opts{cache_file};
     my $cmd        = $opts{cmd} // die;
@@ -709,9 +737,11 @@ sub run_git_cmd_limit {
 
         # check if the file is empty and has more than X seconds
 
-        while ( waitpid( -1, WNOHANG ) > 0 ) {1}; # catch any zombies we could have from previous run
+        while ( waitpid( -1, WNOHANG ) > 0 ) {
+            1;
+        };    # catch any zombies we could have from previous run
 
-        if ( -z $cache_file ) {                   # the file is empty
+        if ( -z $cache_file ) {    # the file is empty
             my ( $mtime, $ctime ) = ( stat($cache_file) )[ 9, 10 ];
             $mtime //= 0;
             $ctime //= 0;
@@ -766,15 +796,17 @@ sub run_git_cmd_limit {
         };    # or warn $@;
         close($from_kid);
         kill 'USR1' => $child_pid;
-        while ( waitpid( -1, WNOHANG ) > 0 ) {1}; # catch what we can at this step... the process is running in bg
+        while ( waitpid( -1, WNOHANG ) > 0 ) {
+            1;
+        };    # catch what we can at this step... the process is running in bg
     }
     else {
         # in kid process
         local $| = 1;
         my $current_pid       = $$;
         my $can_write_to_pipe = 1;
-        local $SIG{'USR1'} = sub {                # not really used anymore
-                                                  #warn "SIGUSR1.... start";
+        local $SIG{'USR1'} = sub {    # not really used anymore
+                                      #warn "SIGUSR1.... start";
             $can_write_to_pipe = 0;
             close($CW);
             open STDIN,  '>', '/dev/null';

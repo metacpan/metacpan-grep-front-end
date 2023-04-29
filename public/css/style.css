@@ -180,10 +180,22 @@ code, .filepath, .app-info {
 }
 
 #footer {
-clear: both;
-padding-top: 2em;
-text-align: center;
-padding-right: 160px;
-font-family: sans-serif;
-font-size: 10px;
+    clear: both;
+    padding-top: 2em;
+    text-align: center;
+    padding-right: 160px;
+    font-family: sans-serif;
+    font-size: 10px;
+}
+
+.alert {
+    display: inline-block;
+    padding: 5px 2em;
+    border-radius: 7px;
+}
+
+.alert-info {
+    color: #4083a3;
+    background-color: #d9edf7;
+    border-color: #4083a3;
 }

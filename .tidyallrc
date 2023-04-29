@@ -5,6 +5,7 @@ select = bin/app.psgi
 select = cpanfile
 ignore = t/var/**/*
 ignore = .gitignore
+ignore = cpanfile
 argv = --profile=$ROOT/.perltidyrc
 
 [PerlCritic]

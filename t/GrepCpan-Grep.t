@@ -23,7 +23,7 @@ my $test_methods = {
 my $config = {
     'binaries' => { 'git' => '/home/atoomic/bin/git' },
     'cache'    => {
-        'directory' => '~APPDIR~/../var/tmp',
+        'directory' => '~APPDIR~/var/tmp',
         'version'   => '1.03'
     },
     'cookie' => {
@@ -31,7 +31,7 @@ my $config = {
         'history_size' => '20'
     },
     'demo'    => '0',
-    'gitrepo' => '~APPDIR~/../../metacpan-cpan-extracted-lite',
+    'gitrepo' => '~APPDIR~/../metacpan-cpan-extracted-lite',
     'limit'   => {
         'distros_per_page'      => '30',
         'files_git_run_bg'      => '2000',
@@ -48,7 +48,7 @@ my $config = {
     }
 };
 
-$grepcpan::VERSION = '1.00_01'; # devel version
+$grepcpan::VERSION = '1.00_01';    # devel version
 
 my $grep = GrepCpan::Grep->new( config => $config );
 isa_ok $grep, 'GrepCpan::Grep';
@@ -80,13 +80,14 @@ like $grep->current_version,
             [ 'distros/e', 'eBay-API', 'eg/XML/getSearchResults.pl' ],
         'distros/f/failures/lib/failures.pm' =>
             [ 'distros/f', 'failures', 'lib/failures.pm' ],
-        'distros/f/fewer/Changes' => [ 'distros/f', 'fewer', 'Changes' ],
+        'distros/f/fewer/Changes'    => [ 'distros/f', 'fewer', 'Changes' ],
         'distros/s/snapcast/LICENSE' =>
             [ 'distros/s', 'snapcast', 'LICENSE' ],
     };
 
     foreach my $input ( sort keys %$valid_input ) {
-        is [ GrepCpan::Grep::massage_filepath($input) ] => $valid_input->{$input},
+        is [ GrepCpan::Grep::massage_filepath($input) ] =>
+            $valid_input->{$input},
             "massage_filepath($input)";
     }
 

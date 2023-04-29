@@ -7,8 +7,8 @@ use Encode;
 
 use GrepCpan::Grep ();
 
-use strict;
-use warnings;
+use GrepCpan::std;
+
 use utf8;
 
 our $VERSION = '1.00';
@@ -60,14 +60,15 @@ get '/search/:legacy' => sub {    # need to disable it from js
 };
 
 get '/search' => sub {
-    my $q        = param('q');         # FIXME clean query
-    my $filetype = param('qft');
-    my $qdistro  = param('qd');
-    my $qci      = param('qci');       # case insensitive
-    my $qls      = param('qls');       # only list files
-    my $page     = param('p') || 1;
-    my $file     = param('f');
-    my $query    = $grep->do_search(
+    my $q            = param('q');         # FIXME clean query
+    my $filetype     = param('qft');
+    my $qdistro      = param('qd');
+    my $qci          = param('qci');       # case insensitive
+    my $qls          = param('qls');       # only list files
+    my $page         = param('p') || 1;
+    my $file         = param('f');
+    my $ignore_files = param('qifl');
+    my $query        = $grep->do_search(
         search          => $q,
         page            => $page - 1,
         search_distro   => $qdistro,  # filter on a distribution
@@ -75,10 +76,11 @@ get '/search' => sub {
         filetype        => $filetype,
         caseinsensitive => $qci,
         list_files      => $qls,      # not used for now, only impact the view
+        ignore_files    => $ignore_files
     );
 
     my $nopagination = defined $file && length $file ? 1 : 0;
-    my $show_sumup = !$query->{is_a_known_distro}
+    my $show_sumup   = !$query->{is_a_known_distro}
         ;    #defined $distro && length $distro ? 0 : 1;
 
     my $template = $qls ? 'list-files' : 'search';
@@ -95,24 +97,27 @@ get '/search' => sub {
         qd            => $qdistro,                     #$qdistro // q{},
         qls           => $qls,
         qci           => $qci,
+        qifl          => $ignore_files,
     };
 };
 
 ### API routes
 get '/api/search' => sub {
-    my $q        = param('q');
-    my $filetype = param('qft');
-    my $qdistro  = param('qd');
-    my $qci      = param('qci');                       # case insensitive
-    my $page     = param('p') || 1;
-    my $file     = param('f');
+    my $q            = param('q');
+    my $filetype     = param('qft');
+    my $qdistro      = param('qd');
+    my $qci          = param('qci');      # case insensitive
+    my $page         = param('p') || 1;
+    my $file         = param('f');
+    my $ignore_files = param('qifl');
 
     my $query = $grep->do_search(
         search          => $q,
         page            => $page - 1,
-        search_distro   => $qdistro,    # filter on a distribution
+        search_distro   => $qdistro,        # filter on a distribution
         filetype        => $filetype,
         caseinsensitive => $qci,
+        ignore_files    => $ignore_files,
     );
 
     content_type 'application/json';
@@ -123,9 +128,8 @@ get '/api/search' => sub {
 ### dummies helpers
 ###
 
-sub _update_history_cookie
+sub _update_history_cookie ($search)
 {    # and return the human version list in all cases...
-    my $search = shift;
 
     my $separator = q{||};
 
@@ -136,7 +140,7 @@ sub _update_history_cookie
     if ( defined $search && length $search ) {
         $value =~ s{\Q$separator\E}{.}g if defined $value;    # mmmm
         @last_searches = grep { $_ ne $search }
-            @last_searches;                 # remove it from history if there
+            @last_searches;    # remove it from history if there
         unshift @last_searches, $search;    # move it first
         @last_searches = splice( @last_searches, 0,
             $Config->{'cookie'}->{'history_size'} );
@@ -148,19 +152,31 @@ sub _update_history_cookie
     return \@last_searches;
 }
 
-sub tt {
-    my ( $template, $params ) = @_;
+sub tt ( $template, $params = undef ) {
 
-    if ( ref $params ) {
-
-        #$params->{is_mobile} = 1 if is_mobile_device();
-    }
+    # if ( ref $params ) {
+    #     $params->{is_mobile} = 1 if is_mobile_device();
+    # }
 
     return template( $template, $params );
 }
 
 sub home {
-    template( 'index' => { 'title' => 'grepcpan', 'cpan_index_at' => $grep->cpan_index_at() } );
+
+    # for browsers
+    header( 'Cache-Control' => 'max-age=3600' );
+
+    # for CDN, reverse proxies & co
+    header(
+        'Surrogate-Control' => 'max-age=3600, stale-while-revalidate=60' );
+    header( 'Surrogate-Key' => 'homepage' );
+
+    template(
+        'index' => {
+            'title'         => 'grepcpan',
+            'cpan_index_at' => $grep->cpan_index_at()
+        }
+    );
 }
 
 true;

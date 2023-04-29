@@ -11,12 +11,18 @@ verbose = 11
 [-RegularExpressions::RequireExtendedFormatting]
 [-RegularExpressions::RequireLineBoundaryMatching]
 [-Subroutines::ProhibitExplicitReturnUndef]
+[-Subroutines::ProhibitSubroutinePrototypes]
 [-ValuesAndExpressions::ProhibitNoisyQuotes]
 [-ValuesAndExpressions::ProhibitAccessOfPrivateData]
 [-Variables::ProhibitPunctuationVars]
 
 [CodeLayout::RequireTrailingCommas]
 severity = 4
+
+# Don't use function prototypes
+[Community::Prototypes]
+severity = 4
+signature_enablers = cPstrict GrepCpan::std
 
 [TestingAndDebugging::RequireUseStrict]
 equivalent_modules = MetaCPAN::Moose Mojo::Base Test::Routine

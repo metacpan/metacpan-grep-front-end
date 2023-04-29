@@ -25,8 +25,9 @@ startup_info: 1
 grepcpan:
    nocache: 0
    maxworkers: 2
-   gitrepo: '/shared/metacpan_git'
-#   binaries:
-#      git: '/usr/local/cpanel/3rdparty/bin/git'
-   cache: 
-      directory: '/var/tmp'
+   gitrepo: '~APPDIR~/../metacpan-cpan-extracted-lite'
+   #gitrepo: '/shared/metacpan_git'
+   binaries:
+      git: '/opt/homebrew/bin/git' # for macOS
+   cache:
+      directory: '~APPDIR~/var/tmp'

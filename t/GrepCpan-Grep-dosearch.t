@@ -20,15 +20,27 @@ use List::MoreUtils qw{natatime};
 
 use File::Temp ();
 
-my $tmp = File::Temp->newdir( "grep-XXXXXX", DIR => q[/tmp], UNLINK => 1 );
+my $tmp    = File::Temp->newdir( "grep-XXXXXX", DIR => q[/tmp], UNLINK => 1 );
 my $tmpdir = $tmp->dirname;
 ok -d $tmpdir, "using tmp directory: $tmpdir";
 
 $grepcpan::VERSION = "0.01";
 
+my $git;
+
+foreach my $c (
+    qw{ /opt/homebrew/bin/git /usr/local/cpanel/3rdparty/bin/git /usr/bin/git }
+    )
+{
+    next unless -x $c;
+    $git = $c;
+}
+
+die "missing git binary" unless length $git;
+
 ### probably move to a test helper somewhere
 my $config = {
-    'binaries' => { 'git' => '/home/atoomic/bin/git' },
+    'binaries' => { 'git' => $git },
     'cache'    => {
         'directory' => $tmpdir,
         'version'   => "0.$$"
@@ -38,7 +50,7 @@ my $config = {
         'history_size' => '20'
     },
     'demo'    => '0',
-    'gitrepo' => '~APPDIR~/../../metacpan-cpan-extracted-lite',
+    'gitrepo' => '~APPDIR~/../metacpan-cpan-extracted-lite',
     'limit'   => {
         'distros_per_page'      => '30',
         'files_git_run_bg'      => '2000',
@@ -77,7 +89,7 @@ my $query_looks_sane = validator(
         like $got, hash {
 
             field is_a_known_distro => $is_a_known_distro;
-            field is_incomplete => $is_boolean;    # cannot guess the value
+            field is_incomplete     => $is_boolean;   # cannot guess the value
 
             field match => hash {
                 field distros => D();
@@ -119,8 +131,8 @@ my $query_looks_sane = validator(
             };
 
             field search_in_progress => $is_boolean;  # cannot guess the value
-            field 'time_elapsed' => match(qr{^[0-9]+\.[0-9]+});
-            field version        => D();
+            field 'time_elapsed'     => match(qr{^[0-9]+\.[0-9]+});
+            field version            => D();
 
         }
     }

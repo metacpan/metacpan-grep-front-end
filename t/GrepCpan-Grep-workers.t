@@ -12,13 +12,13 @@ use GrepCpan::Grep;
 
 use File::Temp ();
 
-my $tmp = File::Temp->newdir( "grep-XXXXXX", DIR => q[/tmp], UNLINK => 1 );
+my $tmp    = File::Temp->newdir( "grep-XXXXXX", DIR => q[/tmp], UNLINK => 1 );
 my $tmpdir = $tmp->dirname;
 ok -d $tmpdir, "using tmp directory: $tmpdir";
 
 my $config = {
     'maxworkers' => '2',
-    'gitrepo'    => '~APPDIR~/../../metacpan-cpan-extracted-lite',
+    'gitrepo'    => '~APPDIR~/../metacpan-cpan-extracted-lite',
     'cache'      => {
         'directory' => $tmpdir,
         'version'   => "0.$$"
@@ -59,7 +59,7 @@ my $fork_a_worker = sub {
                                              # the worker is working....
         while ( kill USR2 => $mainpid )
         {    # run until as long as our parent is running
-                #note "sending USR2 from $$";
+             #note "sending USR2 from $$";
             sleep 1;
         }
         exit;
@@ -75,7 +75,7 @@ is $grep->check_if_a_worker_is_available(), undef,
 
 kill 'KILL' => $kids[0];
 ok waitpid( $kids[0], 0 ), 'one worker finished';
-ok $fork_a_worker->(), 'can fork an extra worker';
+ok $fork_a_worker->(),     'can fork an extra worker';
 is $grep->check_if_a_worker_is_available(), undef,
     "queue is full: cannot start an extra worker";
 

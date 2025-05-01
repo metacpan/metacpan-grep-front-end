@@ -40,8 +40,7 @@ use constant TOO_BUSY_MARKER    => qq{##______TOO_BUSY_MARKER______##};
 
 use constant CACHE_IS_ENABLED => 1;
 
-sub _build_git {
-    my $self = shift;
+sub _build_git($self) {
 
     my $gitdir = $self->massage_path( $self->config()->{'gitrepo'} );
     die qq{Invalid git directory $gitdir}
@@ -53,8 +52,7 @@ sub _build_git {
     );
 }
 
-sub _build_git_binary {
-    my $self = shift;
+sub _build_git_binary($self) {
 
     my $git = $self->config()->{'binaries'}->{'git'};
     return $git if $git && -x $git;
@@ -64,8 +62,7 @@ sub _build_git_binary {
     return $git;
 }
 
-sub _build_HEAD {
-    my $self = shift;
+sub _build_HEAD($self) {
 
     my $head = $self->git()->run(qw{rev-parse --short HEAD});
     chomp $head if defined $head;
@@ -74,8 +71,7 @@ sub _build_HEAD {
     return $head;
 }
 
-sub cpan_index_at {
-    my ($self) = @_;
+sub cpan_index_at($self) {
 
     my $now          = time();
     my $last_refresh = $self->{_cpan_index_last_refresh_at} // 0;
@@ -89,8 +85,7 @@ sub cpan_index_at {
     return $self->{_cpan_index_at};
 }
 
-sub _build_cpan_index_at {
-    my $self = shift;
+sub _build_cpan_index_at($self) {
 
     # git log -n1 --date=format:'%B %-d %Y' --pretty=format:'%ad'
     my $out = $self->git()->run(
@@ -103,8 +98,7 @@ sub _build_cpan_index_at {
     return $out;    # . ' ' . $self->HEAD;
 }
 
-sub _build_cache {
-    my $self = shift;
+sub _build_cache($self) {
 
     # also use HEAD ?? FIXME
     my $dir
@@ -125,8 +119,7 @@ sub _build_cache {
     return $dir;
 }
 
-sub _build_root {
-    my $self = shift;
+sub _build_root($self) {
 
     # hard code root dir in production
     return $self->config()->{'root_dir'} if $self->config()->{'root_dir'};
@@ -134,8 +127,7 @@ sub _build_root {
     return $FindBin::Bin . '/';
 }
 
-sub cache_cleanup {    # aka tmpwatch
-    my ( $self, $current_cachedir ) = @_;
+sub cache_cleanup( $self, $current_cachedir = undef ) {    # aka tmpwatch
 
     return unless $current_cachedir;
 
@@ -199,27 +191,28 @@ sub massage_path ( $self, $s ) {
 }
 
 ## TODO factorize
+# Define builder methods for integer configuration values
 BEGIN {
     # initialize (integer) value from config
     foreach my $key (
         qw{distros_per_page search_context search_context_distro search_context_file}
         )
     {
-        no warnings;
-        no strict 'refs';    ## no critic qw(ProhibitNoStrict)
-        my $sub = '_build_' . $key;
-        *$sub = sub {
-            my $self = shift;
-            my $v    = $self->config()->{limit}{$key};
-            $v or die;
-
+        my $sub  = '_build_' . $key;
+        my $code = sub ($self) {
+            my $v = $self->config()->{limit}{$key};
+            die "Missing configuration for limit.$key" unless defined $v;
             return int($v);
         };
+
+        # Install the method in the current package
+        no strict 'refs';    ## no critic qw(ProhibitNoStrict)
+        *$sub = $code;
     }
 }
 
-sub _sanitize_search {
-    my $s = shift;
+sub _sanitize_search($s) {
+
     return undef unless defined $s;
     $s =~ s{\n}{}g;
     $s =~ s{'}{\'}g;
@@ -230,8 +223,7 @@ sub _sanitize_search {
     return $s;
 }
 
-sub _get_git_grep_flavor {
-    my $s = shift;
+sub _get_git_grep_flavor($s) {
 
     # regular characters
     return q{--fixed-string}
@@ -418,8 +410,7 @@ sub _do_search ( $self, %opts ) {
     };
 }
 
-sub update_match_counter {
-    my ($cache) = @_;
+sub update_match_counter($cache) {    # dead
 
     my ( $count_distro, $count_files ) = ( 0, 0 );
     foreach my $distro ( sort keys %{ $cache->{distros} } ) {
@@ -439,13 +430,10 @@ sub update_match_counter {
     return;
 }
 
-sub current_version {
-    my ($self) = @_;
-
-    return $self->{__version__} if $self->{__version__};
+sub current_version($self) {
 
     # cache the current grep metacpan version
-    $self->{__version__} = join(
+    $self->{__version__} //= join(
         '-',
         $grepcpan::VERSION,
         'cache' => $self->config()->{'cache'}->{'version'},
@@ -459,15 +447,12 @@ sub current_version {
             // '',
     );
 
-    #my $run     = scalar $self->git->run(qw{rev-parse --short HEAD});
-    # ....
-
     return $self->{__version__};
 }
 
-sub get_list_of_files_to_search {
-    my ( $self, $cache, $search, $page, $distro, $search_file, $filetype )
-        = @_;    ## notidy
+sub get_list_of_files_to_search( $self, $cache, $search, $page, $distro,
+    $search_file, $filetype )
+{
 
 # try to get one file per distro except if we do not have enough distros matching
 # maybe sort the files by distros having the most matches ??
@@ -596,10 +581,12 @@ sub _parse_ignore_files ( $self, $ignore_files ) {
     return \@rules;
 }
 
-sub get_match_cache {
-    my ( $self, $search, $search_distro, $query_filetype, $caseinsensitive,
-        $ignore_files )
-        = @_;
+sub get_match_cache(
+    $self, $search, $search_distro, $query_filetype,
+    $caseinsensitive = 0,
+    $ignore_files = undef
+    )
+{
 
     $caseinsensitive //= 0;
 
@@ -888,8 +875,7 @@ sub run_git_cmd_limit ( $self, %opts ) {
     return \@lines;
 }
 
-sub check_if_a_worker_is_available {
-    my ($self) = @_;
+sub check_if_a_worker_is_available($self) {
 
     my $maxworkers = $self->config->{maxworkers} || 1;
 
@@ -904,7 +890,6 @@ sub check_if_a_worker_is_available {
             print {$fh} "$$\n";
             return $fh;
         }
-
     }
 
     return;

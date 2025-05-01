@@ -431,21 +431,32 @@ sub update_match_counter($cache) {    # dead
 }
 
 sub current_version($self) {
+    my $now       = time();
+    my $cache_ttl = 600;      # 10 minutes in seconds
 
-    # cache the current grep metacpan version
-    $self->{__version__} //= join(
-        '-',
-        $grepcpan::VERSION,
-        'cache' => $self->config()->{'cache'}->{'version'},
-        'grep'  => eval {
-            scalar Git::Repository->new(
-                work_tree => $self->root,
-                { git => $self->git_binary }
-            )->run(qw{rev-parse --short HEAD});
-        } // '',
-        'cpan' => eval { scalar $self->git->run(qw{rev-parse --short HEAD}) }
-            // '',
-    );
+    # Check if we need to refresh the cache
+    if (   !exists $self->{__version__}
+        || !exists $self->{__version_timestamp__}
+        || ( $now - $self->{__version_timestamp__} ) > $cache_ttl )
+    {
+
+        $self->{__version__} = join(
+            '-',
+            $grepcpan::VERSION,
+            'cache' => $self->config()->{'cache'}->{'version'},
+            'grep'  => eval {
+                scalar Git::Repository->new(
+                    work_tree => $self->root,
+                    { git => $self->git_binary }
+                )->run(qw{rev-parse --short HEAD});
+            } // '',
+            'cpan' =>
+                eval { scalar $self->git->run(qw{rev-parse --short HEAD}) }
+                // '',
+        );
+
+        $self->{__version_timestamp__} = $now;
+    }
 
     return $self->{__version__};
 }

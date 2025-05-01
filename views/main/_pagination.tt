@@ -1,6 +1,6 @@
 <% IF !nopagination %>
 <%
-  USE pagination_uri = URL('/search', qd=qd, qft=qft, qci=qci, q=search, qls=qls );
+  USE pagination_uri = URL('/search', qd=qd, qft=qft, qci=qci, q=search, qls=qls, qifl=qifl );
 %>
 <!-- start of pagination -->
 <div class="text-center">

@@ -1,0 +1,33 @@
+<div class="content about anchors">
+<h1 id="aboutmetacpan"><a href="#aboutmetacpan" class="anchor"><span class="fa fa-bookmark black"></span></a>Where to find the source code of grep::metacpan ?</h1>
+
+<p><b>grep::metacpan</b> is an open source experimental project developped by the <a href="http://perl.org">Perl Community</a>.
+
+<p>The source code is divided into three git repositories:</p>
+
+<%
+
+SET gh_metacpan_grep_front_end = '<a href="https://github.com/metacpan/metacpan-grep-front-end"><i class="fa fa-github-alt"></i>&nbsp;metacpan-grep-front-end</a>';
+SET gh_metacpan_grep_builder   = '<a href="https://github.com/metacpan/metacpan-grep-builder"><i class="fa fa-github-alt"></i>&nbsp;metacpan-grep-builder</a>';
+SET gh_metacpan_cpan_extracted = '<a href="https://github.com/metacpan/metacpan-cpan-extracted"><i class="fa fa-github-alt"></i>&nbsp;metacpan-cpan-extracted</a>';
+
+%>
+
+<ul>
+<li><% gh_metacpan_grep_front_end %>, the Front End website which is this website...</li>
+<li><% gh_metacpan_grep_builder %> experiment on building a git grep service of current CPAN.</li>
+<li><% gh_metacpan_cpan_extracted %> extracted CPAN, all latest files extracted in one single *big* repository. Thanks GitHub !</li>
+</ul>
+
+<p>The concept is very basic: extract all CPAN distribution (performed by <% gh_metacpan_grep_builder %>) in one single git directory (which lives in <% gh_metacpan_cpan_extracted %>).
+</p>
+<p>
+Then from there, cross fingers and use a pure 'git grep' implementation with a frontend on top of it: <% gh_metacpan_grep_front_end %>.
+</p>
+<p>
+The git grep is divided in two stages: 'git grep -l' to get the list
+of files matching the pattern (this is cached for future queries), then use the list of files to perform the actual 'git grep'.
+</p>
+
+You can also browse other <a href="https://github.com/metacpan/">metacpan projects</a> by visiting the community <a href="https://github.com/metacpan/">github homepage</a>.
+</div>

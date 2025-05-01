@@ -1,3 +1,0 @@
-<% INCLUDE '_display.tt'
-  subview = 'show-ls' 
-%>

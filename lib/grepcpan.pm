@@ -11,7 +11,7 @@ use GrepCpan::std;
 
 use utf8;
 
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 
 my $Config = config()->{'grepcpan'};
 
@@ -33,16 +33,19 @@ my $COOKIE_LAST_SEARCH = $Config->{'cookie'}->{'history_name'}
 get '/' => \&home;
 
 get '/about' => sub {
+    _set_cache_headers_for('aboutpage');
     return template 'about' =>
         { 'title' => 'About grep::metacpan', menu => 'about' };
 };
 
 get '/faq' => sub {
+    _set_cache_headers_for('faqpage');
     return template 'faq' =>
         { 'title' => 'FAQs for grep::metacpan', menu => 'faq' };
 };
 
 get '/api' => sub {
+    _set_cache_headers_for('apipage');
     return template 'api' =>
         { 'title' => 'APIs how to use grep::metacpan APIs', menu => 'api' };
 };
@@ -144,7 +147,8 @@ sub _update_history_cookie ($search)
         unshift @last_searches, $search;    # move it first
         @last_searches = splice( @last_searches, 0,
             $Config->{'cookie'}->{'history_size'} );
-        cookie $COOKIE_LAST_SEARCH =>
+        cookie
+            $COOKIE_LAST_SEARCH =>
             Encode::encode( 'UTF-8', join( $separator, @last_searches ) ),
             expires => "21 days";
     }
@@ -152,24 +156,9 @@ sub _update_history_cookie ($search)
     return \@last_searches;
 }
 
-sub tt ( $template, $params = undef ) {
-
-    # if ( ref $params ) {
-    #     $params->{is_mobile} = 1 if is_mobile_device();
-    # }
-
-    return template( $template, $params );
-}
-
 sub home {
 
-    # for browsers
-    header( 'Cache-Control' => 'max-age=3600' );
-
-    # for CDN, reverse proxies & co
-    header(
-        'Surrogate-Control' => 'max-age=3600, stale-while-revalidate=60' );
-    header( 'Surrogate-Key' => 'homepage' );
+    _set_cache_headers_for('homepage');
 
     template(
         'index' => {
@@ -177,6 +166,19 @@ sub home {
             'cpan_index_at' => $grep->cpan_index_at()
         }
     );
+}
+
+sub _set_cache_headers_for($key) {
+
+    # for browsers
+    header( 'Cache-Control' => 'max-age=3600' );
+
+    # for CDN, reverse proxies & co
+    header(
+        'Surrogate-Control' => 'max-age=3600, stale-while-revalidate=60' );
+    header( 'Surrogate-Key' => $key );
+
+    return;
 }
 
 true;

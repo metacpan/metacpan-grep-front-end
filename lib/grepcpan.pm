@@ -57,11 +57,6 @@ get '/source-code' => sub {
     };
 };
 
-get '/search/:legacy' => sub {    # need to disable it from js
-    content_type 'application/json';
-    return to_json {};
-};
-
 get '/search' => sub {
     my $q            = param('q');         # FIXME clean query
     my $filetype     = param('qft');

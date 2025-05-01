@@ -11,6 +11,7 @@ services:
       - MY_SHARED_ENV=value
     volumes:
       - ./config:/app/config
+      - ${SRC_VOLUME_PATH:-}:/metacpan-grep-front-end
       - ${CPAN_VOLUME_PATH}:/metacpan-cpan-extracted
     ports:
       - "${HOST_PORT:-8088}:3000"

@@ -33,10 +33,7 @@ ARG APP_ENV=development
 # Runtime
 ENV APP_ENV=$APP_ENV
 
-# FIXME
-#ADD . /metacpan-grep-front-end
 COPY src/ ./
-RUN ls -la
 
 # always expose a consistent port
 EXPOSE 3000
@@ -44,7 +41,6 @@ EXPOSE 3000
 VOLUME [ "/metacpan-cpan-extracted" ]
 
 # Make the entrypoint script executable
-COPY docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh
 
 # Use the dynamic entrypoint

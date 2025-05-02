@@ -282,7 +282,7 @@ sub _do_search ( $self, %opts ) {
     $page = 0 if $page < 0;
 
     #
-    my $cache = $self->get_match_cache( $search, $search_distro, $filetype,
+    my $cache = $self->_get_match_cache( $search, $search_distro, $filetype,
         $caseinsensitive, $ignore_files );
 
     my $is_a_known_distro
@@ -362,41 +362,55 @@ sub _do_search ( $self, %opts ) {
         return;
     };
 
+    my $previous_file;
+    my $qr_match_line = qr{^([0-9]+)([-:])};
+
     foreach my $line (@$matches) {
-        if ( !defined $current_file && $line !~ qr{^([0-9]+)[-:]} )
-        { # when more than one block match we are just going to have a -- separator
-            $current_file = $line;
+        if ( !defined $current_file ) {
+
+     # when more than one block match we are just going to have a -- separator
+            if ( $line =~ m{^distros/} ) {
+                $previous_file = $current_file = $line;
+                next;
+            }
+            $current_file //= $previous_file;
         }
-        elsif ( $line eq '--' ) {
+
+        if ( $line eq '--' ) {
+
+        # we found a new block, it's either from the current file or a new one
             $process_file->();
-            undef $current_file;
+            undef $current_file;    # reset: could use previous or next file
             $diff       = '';
             @diffblocks = ();
             undef $start_line;
             undef $line_number;
             @matching_lines = ();
+            next;
         }
-        elsif ( $line =~ s{^([0-9]+)([-:])}{} ) {    # mainly else
-            my $new_line = $1;
-            my $prefix   = $2;
-            $start_line //= $new_line;
-            if ( length($line) > 250 )
-            {    # max length autorized ( js minified & co )
-                $line = substr( $line, 0, 250 ) . '...';
-            }
-            if ( !defined $line_number || $new_line == $line_number + 1 ) {
 
-                # same block
-                push @matching_lines, $new_line if $prefix eq ':';
-                $diff .= $line . "\n";
-            }
-            else {
-                # new block
-                $add_block->();
-                $diff = $line . "\n";    # reset the block
-            }
-            $line_number = $new_line;
+        # matching the main part
+        next unless $line =~ s/$qr_match_line//;
+        my ( $new_line, $prefix ) = ( $1, $2 );
+
+        $start_line //= $new_line;
+        if ( length($line) > 250 )
+        {    # max length autorized ( js minified & co )
+            $line = substr( $line, 0, 250 ) . '...';
         }
+        if ( !defined $line_number || $new_line == $line_number + 1 ) {
+
+            # same block
+            push @matching_lines, $new_line if $prefix eq ':';
+            $diff .= $line . "\n";
+        }
+        else {
+            # new block
+            $add_block->();
+            $diff = $line . "\n";    # reset the block
+        }
+        $line_number = $new_line;
+
     }
     $process_file->();    # process the last block
 
@@ -592,7 +606,7 @@ sub _parse_ignore_files ( $self, $ignore_files ) {
     return \@rules;
 }
 
-sub get_match_cache(
+sub _get_match_cache(
     $self, $search, $search_distro, $query_filetype,
     $caseinsensitive = 0,
     $ignore_files = undef
@@ -600,6 +614,11 @@ sub get_match_cache(
 {
 
     $caseinsensitive //= 0;
+
+    my @keys_for_cache = (
+        $search,          $search_distro, $query_filetype,
+        $caseinsensitive, $ignore_files // ''
+    );
 
     my $gitdir = $self->git()->work_tree;
     my $limit  = $self->config()->{limit}->{files_per_search} or die;
@@ -614,10 +633,8 @@ sub get_match_cache(
     }
 
     # use the full cache when available -- need to filter it later
-    my $request_cache_file = $self->_get_cache_file(
-        [ $search, $search_distro, $query_filetype, $caseinsensitive, $ignore_files // '' ] );
-    {
-        my $load = $self->_load_cache($request_cache_file);
+    my $request_cache_file = $self->_get_cache_file( \@keys_for_cache );
+    if ( my $load = $self->_load_cache($request_cache_file) ) {
         return $load if $load;
     }
 
@@ -647,8 +664,7 @@ sub get_match_cache(
 
     # fallback to a shorter search ( and a different cache )
     my $cache_file = $self->_get_cache_file( [@git_cmd] );
-    {
-        my $load = $self->_load_cache($cache_file);
+    if ( my $load = $self->_load_cache($cache_file) ) {
         return $load if $load;
     }
 
@@ -699,7 +715,7 @@ sub get_match_cache(
 
     $cache->{match} = {
         files   => $match_files,
-        distros => scalar keys %{ $cache->{distros} }
+        distros => scalar keys $cache->{distros}->%*,
     };
 
     if ( !$search_in_progress ) {

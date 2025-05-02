@@ -1173,11 +1173,35 @@ var MetaCPANGrep = {
 
   isDefaultIgnoreList: function(currentValue) {
     return currentValue === this.defaultIgnoreList;
-  }
+  },
+
+  // List of selectors (IDs or classes) for input fields
+  inputSelectors: [
+      '#ignore-files-input',
+      '#only-files-input',
+      '#search-input',
+      '#qft',
+      '#qd',
+      '#qifl',
+    ],
+
+  globalSetup: function() {
+    this.inputSelectors.forEach(function (selector) {
+      if ( $(selector) === undefined ) return;
+      $(selector).attr({
+        autocomplete: 'off',
+        autocorrect: 'off',
+        autocapitalize: 'off',
+        spellcheck: 'false'
+      });
+    });
+  },
 };
 
 // Add an event listener to the ignore input
 $(document).ready(function() {
+
+  MetaCPANGrep.globalSetup();
 
   // Set up initial state
   MetaCPANGrep.updateIgnoreListCheckbox();

@@ -615,7 +615,7 @@ sub get_match_cache(
 
     # use the full cache when available -- need to filter it later
     my $request_cache_file = $self->_get_cache_file(
-        [ $search, $search_distro, $query_filetype, $caseinsensitive ] );
+        [ $search, $search_distro, $query_filetype, $caseinsensitive, $ignore_files // '' ] );
     {
         my $load = $self->_load_cache($request_cache_file);
         return $load if $load;

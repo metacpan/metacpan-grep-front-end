@@ -628,10 +628,6 @@ sub _get_match_cache(
     push @git_cmd, q{-i} if $caseinsensitive;
     push @git_cmd, $flavor, '-e', $search, q{--}, q{distros/};
 
-    if ( my $rules = $self->_parse_ignore_files($ignore_files) ) {
-        push @git_cmd, $rules->@*;
-    }
-
     # use the full cache when available -- need to filter it later
     my $request_cache_file = $self->_get_cache_file( \@keys_for_cache );
     if ( my $load = $self->_load_cache($request_cache_file) ) {
@@ -660,6 +656,10 @@ sub _get_match_cache(
     {
         # append to the distros search
         $git_cmd[-1] .= '*' . $query_filetype;
+    }
+
+    if ( my $rules = $self->_parse_ignore_files($ignore_files) ) {
+        push @git_cmd, $rules->@*;
     }
 
     # fallback to a shorter search ( and a different cache )

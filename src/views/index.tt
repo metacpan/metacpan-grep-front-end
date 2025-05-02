@@ -68,7 +68,7 @@
   <div align="center" class="container">
     <div class="row text-center justify-content-md-center">
       <div class="alert alert-info">
-        Info: search is using a copy of CPAN from <% cpan_index_at | html %>
+        Info: search is using a copy of <b>CPAN</b> from <b><% cpan_index_at | html %></b>
       </div>
     </div>
   </div>

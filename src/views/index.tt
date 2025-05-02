@@ -8,7 +8,7 @@
       <input type="hidden" name="_bb" id="cache-buster" value="<% Math.int( Math.rand(999999999) ) %>">
 
       <div class="form-row">
-        <label for="only-files-input">Search:</label>
+        <label for="only-files-input">Search meta<b style="color:#c00;">::</b>cpan</label>
         <input type="text" name="q" size="35" autofocus="autofocus" id="search-input" class="form-control home-search-input" placeholder="you can use Perl Compatible RegEx" title="search">
       </div>
 
@@ -36,26 +36,32 @@
         <div>
           <label for="ci-default-excludes" style="font-weight: normal;">
             <input type="checkbox" name="default-excludes" id="ci-default-excludes" onClick="MetaCPANGrep.setupIgnoreList(); false;">
-            <span>common exclude rules</span>
+            <span>use common exclude rules <i>(default)</i></span>
           </label>
         </div>
       </div>
 
     <!-- Checkboxes -->
+
     <!-- Case Insensitive Checkbox -->
     <div class="form-row">
       <label></label> <!-- Empty label to maintain alignment -->
-      <div>
+      <div class="checkbox-container">
         <label for="ci-input" style="font-weight: normal;">
-          <input type="checkbox" name="qci" id="ci-input">&nbsp;case&nbsp;insensitive&nbsp;search
+          <input type="checkbox" name="qci" id="ci-input">
+          <span>use case insensitive search</span>
         </label>
       </div>
     </div>
 
+    <!-- List distro/files Checkbox -->
     <div class="form-row">
       <label></label> <!-- Empty label to maintain alignment -->
-      <div>
-          <label for="ls-input" style="font-weight: normal;"><input type="checkbox" name="qls" <% qls ? 'checked' : '' %> id="ls-input" class="">&nbsp;list&nbsp;distro/files</label>
+      <div class="checkbox-container">
+        <label for="ls-input" style="font-weight: normal;">
+          <input type="checkbox" name="qls" <% qls ? 'checked' : '' %> id="ls-input">
+          <span>list distro/files</span>
+        </label>
       </div>
     </div>
 

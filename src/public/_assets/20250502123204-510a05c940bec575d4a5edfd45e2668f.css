@@ -8830,3 +8830,40 @@ body .syntaxhighlighter .container .pod-placeholder button {
 .mb-0 {
   margin-bottom: 0 !important;
 }
+
+/* Make divs in form rows take up all remaining space */
+.form-row .full-width {
+  flex: 1;
+  width: 100%;
+}
+
+/* Override the default label width for checkbox containers */
+.form-row .full-width label {
+  width: auto !important;
+  margin-right: 0;
+}
+
+/* Checkbox container to match input alignment */
+.checkbox-container {
+  flex: 1;
+  padding-left: 0;
+  text-align: left;
+  display: flex;
+  align-items: center;
+}
+
+.checkbox-container label {
+  width: auto !important;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.checkbox-container input[type="checkbox"] {
+  margin-right: 6px;
+}
+
+.checkbox-container span {
+  display: inline-block;
+}

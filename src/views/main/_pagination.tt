@@ -18,7 +18,7 @@
     </li>
     <% ELSE %>
     <li class="">
-      <a href="<% pagination_uri( p=pagefrom-10 ) %>">«</a>
+      <a href="<% pagination_uri( p=pagefrom - 10 ) %>">«</a>
     </li>
     <% END %>
     <% IF query.results.size %>
@@ -37,7 +37,7 @@
     </li>
     <% ELSE %>
     <li class="">
-      <a href="<% pagination_uri( p=pagefrom+10 ) %>">»</a>
+      <a href="<% pagination_uri( p=pagefrom + 10 ) %>">»</a>
     </li>
     <% END %>
     <% END # end check query.results.size %>

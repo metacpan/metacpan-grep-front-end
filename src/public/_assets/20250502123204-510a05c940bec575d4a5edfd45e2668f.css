@@ -8800,6 +8800,15 @@ body .syntaxhighlighter .container .pod-placeholder button {
   background-color: #005fa3;
 }
 
+.no-gutters {
+  margin-right: 0;
+  margin-left: 0;
+}
+.no-gutters > [class*="col-"] {
+  padding-right: 0;
+  padding-left: 0;
+}
+
 .d-flex {
   display: flex !important;
 }

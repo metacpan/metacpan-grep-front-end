@@ -6974,7 +6974,7 @@ input#search-filetype-input-results{
   width: 60px;
 }
 
-input#search-ignore-files{
+.search-form input#ignore-files-input {
   font-size: 16px;
   padding: 4px 12px;
   height: 30px;

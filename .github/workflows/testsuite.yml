@@ -1,0 +1,31 @@
+name: Run testsuite for grep.metacpan
+
+on:
+  push:
+  #  branches: [ main ]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the main repo
+      - name: Checkout current repo
+        uses: actions/checkout@v4
+        with:
+          path: main-repo
+
+      # Checkout the metacpan-cpan-extracted-lite repo
+      - name: Checkout CPAN repo
+        uses: actions/checkout@v4
+        with:
+          repository: metacpan/metacpan-cpan-extracted-lite
+          path: metacpan-cpan-extracted-lite
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Set up Docker Compose
+      - name: Run tests
+        run: |
+            cd main-repo
+            make test

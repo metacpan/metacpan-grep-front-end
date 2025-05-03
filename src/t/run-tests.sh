@@ -13,6 +13,9 @@ cpm install -g \
     --with-develop \
     --cpanfile cpanfile
 
+## validate the git repository (for CI)
+git config --global --add safe.directory /metacpan-cpan-extracted
+
 ##
 ## run the tests
 ##

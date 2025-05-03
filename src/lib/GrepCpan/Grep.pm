@@ -585,6 +585,21 @@ sub _load_cache ( $self, $cache_file ) {
     return Sereal::read_sereal($cache_file);
 }
 
+sub _parse_query_filetype ( $self, $query_filetype ) {
+
+    return unless defined $query_filetype;
+    return unless length $query_filetype;
+
+    my @filetypes = split( /\s*,\s*/, $query_filetype );
+    @filetypes
+        = grep { length($_) && m{^ [a-zA-Z0-9_\-\.\*]+ $}x } @filetypes;
+
+    # ignore rules using '..'
+    return if grep {m{\.\.}} @filetypes;
+
+    return \@filetypes;
+}
+
 # convert a string of patterns (file to exclude) to a list of git rules to ignore the path
 # t/*, *.md, *.json, *.yaml, *.yml, *.conf, cpanfile, LICENSE, MANIFEST, INSTALL, Changes, Makefile.PL, Build.PL, Copying, *.SKIP, *.ini, README
 sub _parse_ignore_files ( $self, $ignore_files ) {
@@ -653,12 +668,21 @@ sub _get_match_cache(
     }
 
     # filter on some type files distro + query filetype
-    if (   defined $query_filetype
-        && length $query_filetype
-        && $query_filetype =~ qr{^[0-9\.\-\*_a-zA-Z]+$} )
-    {
-        # append to the distros search
-        $git_cmd[-1] .= '*' . $query_filetype;
+    if ( my $rules = $self->_parse_query_filetype($query_filetype) ) {
+        my $base_search   = $git_cmd[-1];
+        my $is_first_rule = 1;
+        foreach my $rule (@$rules) {
+
+            my $search = $base_search . '*' . $rule;
+
+            if ($is_first_rule) {
+                $git_cmd[-1] = $search;
+                $is_first_rule = 0;
+                next;
+            }
+
+            push @git_cmd, $search;
+        }
     }
 
     if ( my $rules = $self->_parse_ignore_files($ignore_files) ) {
@@ -868,7 +892,7 @@ sub run_git_cmd_limit ( $self, %opts ) {
             exit 42;
         }
 
-        note "Running in kid command: " . join( ' ', @$cmd );
+        note "Running in kid command: " . join( ' ', 'git', @$cmd );
         note "KID is caching to file ", $cache_file;
 
         my $to_cache;
@@ -898,7 +922,7 @@ sub run_git_cmd_limit ( $self, %opts ) {
         print {$to_cache} END_OF_FILE_MARKER() . qq{\n} if $cache_file;
         print {$CW} END_OF_FILE_MARKER() . qq{\n}       if $can_write_to_pipe;
         note "-- Request finished by kid: $counter lines - "
-            . join( ' ', @$cmd );
+            . join( ' ', 'git', @$cmd );
         exit $?;
     }
 

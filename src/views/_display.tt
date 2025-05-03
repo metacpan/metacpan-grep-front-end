@@ -1,4 +1,4 @@
-<%  IF query.time_elapsed %>
+<% IF query.time_elapsed %>
 <%
   SET gram_sec = 'second';# : 'second';
   SET gram_sec = 'seconds' IF query.time_elapsed >= 2;
@@ -55,6 +55,15 @@
   </div>
 </form>
 
+<% IF alert.danger %>
+  <div align="center" class="container">
+    <div class="row text-center justify-content-md-center">
+      <div class="alert alert-danger">
+      <% alert.danger %>
+      </div>
+    </div>
+  </div>
+<% END %>
 
     </div>
   </div>

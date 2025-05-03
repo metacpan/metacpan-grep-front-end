@@ -58,44 +58,63 @@ get '/source-code' => sub {
 };
 
 get '/search' => sub {
-    my $q            = param('q');         # FIXME clean query
-    my $filetype     = param('qft');
-    my $qdistro      = param('qd');
+    my %i = ( # input
+        q   => param('q'),      # search query
+        qft => param('qft'),    # filetype
+        qd  => param('qd'),     # distro
+        qls => param('qls'),    # only list files
+        qifl => param('qifl'),  # ignore files
+    );
+
     my $qci          = param('qci');       # case insensitive
-    my $qls          = param('qls');       # only list files
     my $page         = param('p') || 1;
     my $file         = param('f');
-    my $ignore_files = param('qifl');
+
     my $query        = $grep->do_search(
-        search          => $q,
+        search          => $i{'q'},
         page            => $page - 1,
-        search_distro   => $qdistro,  # filter on a distribution
+        search_distro   => $i{'qd'},  # filter on a distribution
         search_file     => $file,
-        filetype        => $filetype,
+        filetype        => $i{'qft'},
         caseinsensitive => $qci,
-        list_files      => $qls,      # not used for now, only impact the view
-        ignore_files    => $ignore_files
+        list_files      => $i{'qls'},      # not used for now, only impact the view
+        ignore_files    => $i{'qifl'},
     );
 
     my $nopagination = defined $file && length $file ? 1 : 0;
     my $show_sumup   = !$query->{is_a_known_distro}
         ;    #defined $distro && length $distro ? 0 : 1;
 
-    my $template = $qls ? 'list-files' : 'search';
+    my $template = $i{'qls'} ? 'list-files' : 'search';
+
+    my $alerts = {};
+
+    # check if some of the input parameters are invalid and updated
+    if ( my $adjustments = $query->{adjusted_request} ) {
+        foreach my $key ( keys $adjustments->%* ) {
+            my $adjustment = $adjustments->{$key} // {};
+            if ( $adjustment->{error} ) {
+                $alerts->{danger} //= '';
+                $alerts->{danger} .= $adjustment->{error};
+            }
+            $i{$key} = $adjustment->{value} if defined $adjustment->{value};
+        }
+    }
 
     return template $template => {
-        search        => $q,
-        search_distro => $qdistro,
+        search        => $i{'q'},
+        search_distro => $i{'qd'},
         query         => $query,
         page          => $page,
-        last_searches => _update_history_cookie($q),
+        last_searches => _update_history_cookie($i{'q'}),
         nopagination  => $nopagination,
         show_sumup    => $show_sumup,
-        qft           => $filetype // q{},
-        qd            => $qdistro,                     #$qdistro // q{},
-        qls           => $qls,
+        qft           => $i{'qft'} // '',
+        qd            => $i{'qd'} // '',
+        qls           => $i{'qls'},
         qci           => $qci,
-        qifl          => $ignore_files,
+        qifl          => $i{'qifl'},
+        alert         => $alerts // {},
     };
 };
 

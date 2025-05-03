@@ -29,7 +29,6 @@ use File::Path         ();
 use File::Slurp        ();
 use IO::Handle         ();
 use Fcntl              qw(:flock SEEK_END);
-use Test::More;
 
 use FindBin;
 use utf8;
@@ -264,6 +263,7 @@ sub do_search ( $self, %opts ) {
         is_incomplete      => $cache->{is_incomplete}      || 0,
         search_in_progress => $cache->{search_in_progress} || 0,
         match              => $cache->{match},
+        adjusted_request   => $cache->{adjusted_request} // {},
         results            => $output,
         time_elapsed       => $elapsed,
         is_a_known_distro  => $is_a_known_distro,
@@ -585,6 +585,23 @@ sub _load_cache ( $self, $cache_file ) {
     return Sereal::read_sereal($cache_file);
 }
 
+sub _parse_and_check_query_filetype ( $self, $query_filetype, $adjusted_request={} ) {
+
+    my $rules = $self->_parse_query_filetype($query_filetype);
+
+    my $r = $rules // [];
+    my $value = join( ',', @$r );
+    $query_filetype =~ s{\s+}{}g;
+    if ( $query_filetype ne $value ) {
+        $adjusted_request->{'qft'} = {
+            error => "Incorrect search filter: invalid characters - $query_filetype",
+            value  => $value,
+        }
+    }
+
+    return $rules;
+}
+
 sub _parse_query_filetype ( $self, $query_filetype ) {
 
     return unless defined $query_filetype;
@@ -599,6 +616,23 @@ sub _parse_query_filetype ( $self, $query_filetype ) {
 
     return \@filetypes;
 }
+
+sub _parse_and_check_ignore_files ( $self, $ignore_files, $adjusted_request={} ) {
+
+    return unless length $ignore_files;
+
+    my $rules = $self->_parse_ignore_files($ignore_files);
+
+    if ( ! $rules ) {
+        $adjusted_request->{'qifl'} = {
+            error => "Incorrect ignore files: invalid characters.",
+            value  => $ignore_files, # not updated
+        }
+    }
+
+    return $rules;
+}
+
 
 # convert a string of patterns (file to exclude) to a list of git rules to ignore the path
 # t/*, *.md, *.json, *.yaml, *.yml, *.conf, cpanfile, LICENSE, MANIFEST, INSTALL, Changes, Makefile.PL, Build.PL, Copying, *.SKIP, *.ini, README
@@ -652,6 +686,8 @@ sub _get_match_cache(
         return $load if $load;
     }
 
+    my $adjusted_request = {};
+
     $search_distro =~ s{::+}{-}g if defined $search_distro;
 
     # the distro can either come from url or the query with some glob
@@ -668,7 +704,7 @@ sub _get_match_cache(
     }
 
     # filter on some type files distro + query filetype
-    if ( my $rules = $self->_parse_query_filetype($query_filetype) ) {
+    if ( my $rules = $self->_parse_and_check_query_filetype($query_filetype, $adjusted_request) ) {
         my $base_search   = $git_cmd[-1];
         my $is_first_rule = 1;
         foreach my $rule (@$rules) {
@@ -685,7 +721,7 @@ sub _get_match_cache(
         }
     }
 
-    if ( my $rules = $self->_parse_ignore_files($ignore_files) ) {
+    if ( my $rules = $self->_parse_and_check_ignore_files($ignore_files, $adjusted_request) ) {
         push @git_cmd, $rules->@*;
     }
 
@@ -710,8 +746,8 @@ sub _get_match_cache(
     # remove the final marker if there
     my $search_in_progress = 1;
 
-    #note "LAST LINE .... " . $list_files->[-1];
-    #note " check  ? ", $list_files->[-1] eq END_OF_FILE_MARKER() ? 1 : 0;
+    #say "LAST LINE .... " . $list_files->[-1];
+    #say " check  ? ", $list_files->[-1] eq END_OF_FILE_MARKER() ? 1 : 0;
     if ( scalar @$list_files && $list_files->[-1] eq END_OF_FILE_MARKER() ) {
         pop @$list_files;
         $search_in_progress = 0;
@@ -744,10 +780,11 @@ sub _get_match_cache(
         files   => $match_files,
         distros => scalar keys $cache->{distros}->%*,
     };
+    $cache->{adjusted_request} = $adjusted_request;
 
     if ( !$search_in_progress ) {
 
-        #note "Search in progress..... done caching yaml file";
+        #say "Search in progress..... done caching yaml file";
         $self->_save_cache( $request_cache_file, $cache );
         $self->_save_cache( $cache_file,         $cache );
         unlink $raw_cache_file if -e $raw_cache_file;
@@ -794,7 +831,7 @@ sub run_git_cmd_limit ( $self, %opts ) {
         }
         else {
             # return the content of our current cache from previous run
-            #note "use our cache from previous run";
+            #say "use our cache from previous run";
             my @from_cache = File::Slurp::read_file($cache_file);
             chomp @from_cache;
             return \@from_cache;
@@ -829,7 +866,7 @@ sub run_git_cmd_limit ( $self, %opts ) {
                 push @lines, $line;
                 last if ++$c > $limit;
 
-                #note "GOT: $line ", $line eq END_OF_FILE_MARKER() ? 1 : 0;
+                #say "GOT: $line ", $line eq END_OF_FILE_MARKER() ? 1 : 0;
                 last if $line eq END_OF_FILE_MARKER();
             }
             alarm(0);
@@ -892,8 +929,8 @@ sub run_git_cmd_limit ( $self, %opts ) {
             exit 42;
         }
 
-        note "Running in kid command: " . join( ' ', 'git', @$cmd );
-        note "KID is caching to file ", $cache_file;
+        say "Running in kid command: " . join( ' ', 'git', @$cmd );
+        say "KID is caching to file ", $cache_file;
 
         my $to_cache;
 
@@ -921,7 +958,7 @@ sub run_git_cmd_limit ( $self, %opts ) {
             qq{\n};    # in case of the last line did not had a newline
         print {$to_cache} END_OF_FILE_MARKER() . qq{\n} if $cache_file;
         print {$CW} END_OF_FILE_MARKER() . qq{\n}       if $can_write_to_pipe;
-        note "-- Request finished by kid: $counter lines - "
+        say "-- Request finished by kid: $counter lines - "
             . join( ' ', 'git', @$cmd );
         exit $?;
     }

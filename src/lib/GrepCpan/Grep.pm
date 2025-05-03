@@ -25,6 +25,7 @@ use Simple::Accessor qw{
 use POSIX              qw{:sys_wait_h setsid};
 use Proc::ProcessTable ();
 use Time::HiRes        ();
+use File::Path         ();
 use File::Slurp        ();
 use IO::Handle         ();
 use Fcntl              qw(:flock SEEK_END);
@@ -95,28 +96,32 @@ sub _build_cpan_index_at($self) {
     chomp $out;
     $out =~ s{['"]}{}g;
 
-    return $out;    # . ' ' . $self->HEAD;
+    return $out;
 }
 
 sub _build_cache($self) {
 
-    # also use HEAD ?? FIXME
     my $dir
-        = ( $self->config()->{'cache'}->{'directory'} ) . '/'
-        . ( $self->config()->{'cache'}->{'version'} || 0 )
-        . '/HEAD-'
-        . $self->HEAD;
-    die unless $dir;
+        = $self->_current_cache_version_directory() . '/HEAD-' . $self->HEAD;
 
     $dir = $self->massage_path($dir);
-    local $ENV{PATH} = '/bin:' . ( $ENV{PATH} // '' );
-    qx{mkdir -p $dir};
+
+    return $dir if -d $dir;
+
+    File::Path::make_path( $dir, { mode => 0711, } )
+        or die "Failed to create $dir: $!";
     die unless -d $dir;
 
     # cleanup after directory structure creation
     $self->cache_cleanup($dir);
 
     return $dir;
+}
+
+sub _current_cache_version_directory($self) {
+
+    return ( $self->config()->{'cache'}->{'directory'} ) . '/'
+        . ( $self->config()->{'cache'}->{'version'} || 0 );
 }
 
 sub _build_root($self) {
@@ -133,11 +138,9 @@ sub cache_cleanup( $self, $current_cachedir = undef ) {    # aka tmpwatch
 
     my @path = split qr{/}, $current_cachedir;
 
-    {    # purge old cache versions
-        my @tmp = @path;
-        pop @tmp for 1 .. 2;
+    if ( my $cache_root = $self->config()->{'cache'}->{'directory'} ) {
 
-        my $cache_root = join '/', @tmp;
+        # purge old cache versions
         if ( opendir( my $tmp_dh, $cache_root ) ) {
             foreach my $dir ( readdir($tmp_dh) ) {
                 next if $dir eq '.' || $dir eq '..';
@@ -149,18 +152,16 @@ sub cache_cleanup( $self, $current_cachedir = undef ) {    # aka tmpwatch
                 next unless -d $fdir;
                 next unless length $fdir > 5;
 
-                local $ENV{PATH} = '/bin:' . ( $ENV{PATH} // '' );
-                qx{rm -rf $fdir}
-                    ; # kind of dangerous but should be ok, we are controlling these values
+         # kind of dangerous but should be ok, we are controlling these values
+                File::Path::remove_tree( $fdir, { safe => 1 } )
+                    or warn "Failed to remove $fdir: $!";
             }
-            close($tmp_dh);
         }
     }
 
-    {    # purge old HEAD directories for the same version
-        my @tmp = @path;
-        pop @tmp;
-        my $version_cache = join '/', @tmp;
+    if ( my $version_cache = $self->_current_cache_version_directory() ) {
+
+        # purge old HEAD directories for the same version
         if ( opendir( my $tmp_dh, $version_cache ) ) {
             foreach my $dir ( readdir($tmp_dh) ) {
                 next if $dir eq '.' || $dir eq '..';
@@ -169,8 +170,9 @@ sub cache_cleanup( $self, $current_cachedir = undef ) {    # aka tmpwatch
                 next unless -d $fdir;
                 next if $fdir eq $current_cachedir;
 
-                local $ENV{PATH} = '/bin:' . ( $ENV{PATH} // '' );
-                qx{rm -rf $fdir}; # purge old cache, in the same weird fashion
+                # purge old cache, in the same weird fashion
+                File::Path::remove_tree( $fdir, { safe => 1 } )
+                    or warn "Failed to remove $fdir: $!";
             }
         }
     }
@@ -180,7 +182,7 @@ sub cache_cleanup( $self, $current_cachedir = undef ) {    # aka tmpwatch
 
 sub massage_path ( $self, $s ) {
 
-    return unless defined $s;
+    return unless length $s;
 
     my $appdir = $self->root;
     $appdir =~ s{/(?:bin|t)/?$}{};
@@ -560,11 +562,11 @@ sub _save_cache ( $self, $cache_file, $cache ) {
 
 sub _get_cache_file ( $self, $keys, $type = undef ) {
 
-    $type //= q[/search-ls];
+    $type //= q[search-ls];
     $type .= '-';
 
     my $cache_file
-        = ( $self->cache() // '' )
+        = ( $self->cache() // '' ) . '/'
         . $type
         . md5_hex( join( q{|}, map { defined $_ ? $_ : '' } @$keys ) )
         . '.cache';
@@ -615,11 +617,6 @@ sub _get_match_cache(
 
     $caseinsensitive //= 0;
 
-    my @keys_for_cache = (
-        $search,          $search_distro, $query_filetype,
-        $caseinsensitive, $ignore_files // ''
-    );
-
     my $gitdir = $self->git()->work_tree;
     my $limit  = $self->config()->{limit}->{files_per_search} or die;
 
@@ -627,6 +624,12 @@ sub _get_match_cache(
     my @git_cmd = qw{grep -l};
     push @git_cmd, q{-i} if $caseinsensitive;
     push @git_cmd, $flavor, '-e', $search, q{--}, q{distros/};
+
+    my @keys_for_cache = (
+        $flavor,          $caseinsensitive ? 1 : 0,
+        $search,          $search_distro, $query_filetype,
+        $caseinsensitive, $ignore_files // ''
+    );
 
     # use the full cache when available -- need to filter it later
     my $request_cache_file = $self->_get_cache_file( \@keys_for_cache );

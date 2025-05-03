@@ -24,6 +24,11 @@ jobs:
           path: metacpan-cpan-extracted-lite
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Setup container
+        run: |
+            cd main-repo
+            make test-setup
+
       # Set up Docker Compose
       - name: Run tests
         run: |

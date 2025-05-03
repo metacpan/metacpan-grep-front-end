@@ -20,7 +20,5 @@ grepcpan:
    maxworkers: 256
    root_dir: '/metacpan-grep-front-end'
    gitrepo: '/shared/metacpan_git'
-#   binaries:
-#      git: '/usr/bin/git'
    cache:
       directory: '/var/tmp'

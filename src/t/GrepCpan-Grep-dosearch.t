@@ -104,7 +104,7 @@ my $query_looks_sane = validator(
                     field distro => D();
                     field files  => array {
                         all_items sub {
-                            like $_ => qr{^[/\w\-_\.]+$},
+                            like $_ => qr{^[/\w\-_\.\+]+$},
                                 'results/file: valid path file';
                         };
                     };

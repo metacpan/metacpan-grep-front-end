@@ -1144,12 +1144,15 @@ function doGrepping() { $('#firstcontainer').fadeOut(); $('#overlay').fadeIn(120
 // Define our own namespace
 var MetaCPANGrep = {
   // Shared default ignore list
-  defaultIgnoreList: "*.PL, ppport.h, META.*, /inc/*, /local/*, /t/*, *.md, *.json, *.ya?ml, *.conf, cpanfile*, LICENSE, MANIFEST*, INSTALL, Changes, Copying, *.SKIP, *.ini, *.pod, README, *.xml, *.js, .git*",
+  defaultIgnoreList: "*.PL, /t/*, ppport.h, META.*, /inc/*, /local/*, *.md, *.json, *.ya?ml, *.conf, cpanfile*, LICENSE, MANIFEST*, INSTALL, Changes, Copying, *.SKIP, *.ini, README, *.xml, *.js, .git*",
+  defaultFilterList: "*.pm, *.t",
 
   homepageSetup: function() {
     // On the HomePage always precheck the default values
-    MetaCPANGrep.setupIgnoreList();
-    MetaCPANGrep.updateIgnoreListCheckbox();
+    // MetaCPANGrep.setupIgnoreList();
+    // MetaCPANGrep.updateIgnoreListCheckbox();
+    $('#qft').val(MetaCPANGrep.defaultFilterList);
+    $('#ignore-files-input').attr('placeholder', this.defaultIgnoreList);
   },
 
   // Function to toggle the ignore list between default value and empty
@@ -1195,6 +1198,7 @@ var MetaCPANGrep = {
         spellcheck: 'false'
       });
     });
+    $('#qft').attr('placeholder', this.defaultFilterList);
   },
 };
 

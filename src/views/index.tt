@@ -15,7 +15,7 @@
       <!-- Only Search In Files -->
       <div class="form-row">
         <label for="only-files-input">Search only in files:</label>
-        <input type="text" id="qft" name="qft" placeholder="*.pl, *.pm">
+        <input type="text" id="qft" name="qft" placeholder="*.pm, *.t">
       </div>
 
       <!-- Only Search In Distro -->
@@ -27,7 +27,7 @@
       <!-- Ignore Files -->
       <div class="form-row">
         <label for="ignore-files-input">Ignore files:</label>
-        <input type="text" id="ignore-files-input" name="qifl" placeholder="*.PL, ppport.h, /lib/*" title="ignore filter">
+        <input type="text" id="ignore-files-input" name="qifl" placeholder="*.PL, ppport.h, ..." title="ignore filter">
       </div>
 
       <!-- Common exclude rules checkbox -->
@@ -36,7 +36,7 @@
         <div>
           <label for="ci-default-excludes" style="font-weight: normal;">
             <input type="checkbox" name="default-excludes" id="ci-default-excludes" onClick="MetaCPANGrep.setupIgnoreList(); false;">
-            <span>use common exclude rules <i>(default)</i></span>
+            <span>use common exclude rules</span>
           </label>
         </div>
       </div>

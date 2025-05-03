@@ -21,7 +21,7 @@
         <input type="text" name="q" autofocus="autofocus" id="search-input" class="form-control search-input-results w-100" value="<% search | html_entity %>" placeholder="search with Perl Compatible RegEx" title="search">
       </div>
       <div class="col-md-4 pl-0">
-        <input type="text" name="qft" id="search-filetype-input-results" class="form-control optional-input w-100" value="<% qft | html_entity %>" autocomplete="off" placeholder="*.pm" title="extension">
+        <input type="text" name="qft" id="search-filetype-input-results" class="form-control optional-input w-100" value="<% qft | html_entity %>" autocomplete="off" placeholder="*.pm, *.t" title="extension">
       </div>
     </div>
 

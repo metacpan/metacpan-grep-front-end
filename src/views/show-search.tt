@@ -42,11 +42,13 @@
   </p>
   <% END %>
 
+<% IF qd != item.distro %>
     <a href="<% link_to_distro %>"><i class="fa fa-list"></i>&nbsp;view all matches for this distribution</a><br>
   <% IF qd && qd.length && item.matches.size %>
     <a href="https://metacpan.org/release/<% item.distro | uri %>"><i class="fa fa-book"></i>&nbsp;<i>view release on metacpan</i></a>
     - <a href="https://metacpan.org/search?q=<% item.distro | uri %>"><i class="fa fa-search"></i>&nbsp;<i>search on metacpan</i></a>
   <% END %>
+<% END %>
 
   <span class="relatize"><% item.version %></span>
 <br>

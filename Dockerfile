@@ -5,7 +5,11 @@
 FROM metacpan/metacpan-base:latest AS builder
 SHELL [ "/bin/bash", "-eo", "pipefail", "-c" ]
 
-WORKDIR /metacpan-grep-front-end
+# copy the cpanfile and cpanfile.snapshot
+#   from the current directory to the /cpan directory in the image
+    # and install the dependencies using cpm
+# we could then reuse the cpanfile and cpanfile.snapshot for testing
+WORKDIR /cpan
 
 COPY cpanfile ./
 COPY cpanfile.snapshot ./
@@ -33,6 +37,7 @@ ARG APP_ENV=development
 # Runtime
 ENV APP_ENV=$APP_ENV
 
+# .dockerignore is used to exclude files from the build context
 COPY src/ ./
 
 # always expose a consistent port
@@ -45,3 +50,4 @@ RUN chmod +x docker-entrypoint.sh
 
 # Use the dynamic entrypoint
 ENTRYPOINT ["./docker-entrypoint.sh"]
+CMD ["serve"]

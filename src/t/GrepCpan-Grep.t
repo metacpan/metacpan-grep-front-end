@@ -31,7 +31,7 @@ my $config = {
         'history_size' => '20'
     },
     'demo'    => '0',
-    'gitrepo' => '~APPDIR~/../metacpan-cpan-extracted-lite',
+    'gitrepo' => '/metacpan-cpan-extracted',
     'limit'   => {
         'distros_per_page'      => '30',
         'files_git_run_bg'      => '2000',
@@ -65,7 +65,15 @@ foreach my $k ( sort keys %$test_methods ) {
 ok -x $grep->git_binary, "git is executable";
 
 like $grep->current_version,
-    qr{^[0-9]+\.[0-9_]+-cache-[0-9]+\.[0-9]+-grep-[0-9a-f]+-cpan-[0-9a-f]+$},
+    qr{^
+        [0-9]+\.[0-9_]+
+        -cache-
+        [0-9]+\.[0-9]+
+        -grep-
+        [0-9a-f]+
+        -cpan-
+        [0-9a-f]+
+    $}xs,
     "current_version";
 
 {

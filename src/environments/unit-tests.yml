@@ -25,6 +25,6 @@ startup_info: 1
 grepcpan:
    nocache: 0
    maxworkers: 2
-   gitrepo: '/metacpan-cpan-extracted-lite'
+   gitrepo: '/metacpan-cpan-extracted'
    cache:
       directory: '/tmp'

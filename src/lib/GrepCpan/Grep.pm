@@ -462,7 +462,7 @@ sub current_version($self) {
             'cache' => $self->config()->{'cache'}->{'version'},
             'grep'  => eval {
                 scalar Git::Repository->new(
-                    work_tree => $self->root,
+                    work_tree => $self->config()->{'gitrepo'},
                     { git => $self->git_binary }
                 )->run(qw{rev-parse --short HEAD});
             } // '',
@@ -586,6 +586,8 @@ sub _load_cache ( $self, $cache_file ) {
 }
 
 sub _parse_and_check_query_filetype ( $self, $query_filetype, $adjusted_request={} ) {
+
+    return unless length $query_filetype;
 
     my $rules = $self->_parse_query_filetype($query_filetype);
 

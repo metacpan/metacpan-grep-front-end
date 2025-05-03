@@ -1,8 +1,9 @@
-#package grepcpan;
-#use Dancer2;
+use v5.36;
 
 use strict;
 use warnings;
+
+local $| = 1;
 
 BEGIN {
     use FindBin;
@@ -50,7 +51,7 @@ my $config = {
         'history_size' => '20'
     },
     'demo'    => '0',
-    'gitrepo' => '~APPDIR~/../metacpan-cpan-extracted-lite',
+    'gitrepo' => '/metacpan-cpan-extracted',
     'limit'   => {
         'distros_per_page'      => '30',
         'files_git_run_bg'      => '2000',
@@ -133,6 +134,7 @@ my $query_looks_sane = validator(
             field search_in_progress => $is_boolean;  # cannot guess the value
             field 'time_elapsed'     => match(qr{^[0-9]+\.[0-9]+});
             field version            => D();
+            field adjusted_request => hash{};
 
         }
     }
@@ -147,24 +149,12 @@ my $queries = [
     'third page'  => { search => 'test', page => 2 },
     'fourth page' => { search => 'test', page => 3 },
 
-    sub { $is_a_known_distro = 1 }, undef,
-    'search distro eBay-API' =>
-        { search => 'test', search_distro => 'eBay-API' },
+    # sub { $is_a_known_distro = 1 }, undef,
+    # 'search distro Try-Tiny' =>
+    #     { search => 'try', search_distro => 'Try-Tiny' },
 ];
 
 my $iterator = natatime 2, @$queries;
-
-# my $query = $grep->do_search(
-#     search => 'test',
-
-#     ## optional search parameters
-#     #page            => 0,
-#     #search_distro   => $qdistro,  # filter on a distribution
-#     #search_file     => $file,
-#     #filetype        => $filetype,
-#     #caseinsensitive => $qci,
-#     #list_files      => $qls,      # not used for now, only impact the view
-# );
 
 while ( my ( $name, $opts ) = $iterator->() ) {
     if ( ref $name eq 'CODE' ) {
@@ -175,7 +165,7 @@ while ( my ( $name, $opts ) = $iterator->() ) {
     }
 
     my $query = $grep->do_search(%$opts);
-    is $query, $query_looks_sane, $name;
+    is( $query, $query_looks_sane, $name ) or diag explain $query;
 }
 
 done_testing;

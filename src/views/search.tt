@@ -1,0 +1,3 @@
+<% INCLUDE '_display.tt'
+  subview = 'show-search'
+%>

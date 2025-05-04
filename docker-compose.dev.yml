@@ -1,0 +1,6 @@
+# overload the default docker-compose.yml
+# to mount the source code into the container
+services:
+  grep:
+    volumes:
+      - ${SRC_VOLUME_PATH:-/not/there}:/metacpan-grep-front-end

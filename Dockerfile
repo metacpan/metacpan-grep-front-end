@@ -1,9 +1,53 @@
-FROM metacpan/metacpan-base:latest
+##
+##  Temporary image for installing metacpan packages
+##
 
-ADD . /metacpan-grep-front-end
+FROM metacpan/metacpan-base:latest AS builder
+SHELL [ "/bin/bash", "-eo", "pipefail", "-c" ]
+
+# copy the cpanfile and cpanfile.snapshot
+#   from the current directory to the /cpan directory in the image
+    # and install the dependencies using cpm
+# we could then reuse the cpanfile and cpanfile.snapshot for testing
+WORKDIR /cpan
+
+COPY cpanfile ./
+COPY cpanfile.snapshot ./
+
+RUN <<EOT
+    cpm install -g \
+               --without-test \
+               --with-recommends \
+               --with-develop \
+               --cpanfile cpanfile
+EOT
+
+##
+##  Runtime image for metacpan-grep-front-end
+##
+
+FROM builder AS runtime
+SHELL [ "/bin/bash", "-eo", "pipefail", "-c" ]
+
 WORKDIR /metacpan-grep-front-end
 
-RUN cpm install --without-test -g
+# Build arguments
+ARG APP_ENV=development
+
+# Runtime
+ENV APP_ENV=$APP_ENV
+
+# .dockerignore is used to exclude files from the build context
+COPY src/ ./
+
+# always expose a consistent port
 EXPOSE 3000
+# volume controlled by the docker-compose.yml
 VOLUME [ "/metacpan-cpan-extracted" ]
-CMD plackup -p 3000 ${GREP_PLACKUP_SERVER_ARGS} bin/app.psgi
+
+# Make the entrypoint script executable
+RUN chmod +x docker-entrypoint.sh
+
+# Use the dynamic entrypoint
+ENTRYPOINT ["./docker-entrypoint.sh"]
+CMD ["serve"]

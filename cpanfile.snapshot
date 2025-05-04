@@ -148,10 +148,10 @@ DISTRIBUTIONS
       Module::Build::Tiny 0.035
       URI::Escape 0
       perl 5.008001
-  Cpanel-JSON-XS-4.36
-    pathname: R/RU/RURBAN/Cpanel-JSON-XS-4.36.tar.gz
+  Cpanel-JSON-XS-4.39
+    pathname: R/RU/RURBAN/Cpanel-JSON-XS-4.39.tar.gz
     provides:
-      Cpanel::JSON::XS 4.36
+      Cpanel::JSON::XS 4.39
       Cpanel::JSON::XS::Type undef
     requirements:
       Carp 0
@@ -164,66 +164,66 @@ DISTRIBUTIONS
       overload 0
       strict 0
       warnings 0
-  Dancer2-0.400001
-    pathname: C/CR/CROMEDOME/Dancer2-0.400001.tar.gz
+  Dancer2-1.1.2
+    pathname: C/CR/CROMEDOME/Dancer2-1.1.2.tar.gz
     provides:
-      Dancer2 0.400001
-      Dancer2::CLI 0.400001
-      Dancer2::CLI::Gen 0.400001
-      Dancer2::CLI::Version 0.400001
-      Dancer2::Core 0.400001
-      Dancer2::Core::App 0.400001
-      Dancer2::Core::Cookie 0.400001
-      Dancer2::Core::DSL 0.400001
-      Dancer2::Core::Dispatcher 0.400001
-      Dancer2::Core::Error 0.400001
-      Dancer2::Core::Factory 0.400001
-      Dancer2::Core::HTTP 0.400001
-      Dancer2::Core::Hook 0.400001
-      Dancer2::Core::MIME 0.400001
-      Dancer2::Core::Request 0.400001
-      Dancer2::Core::Request::Upload 0.400001
-      Dancer2::Core::Response 0.400001
-      Dancer2::Core::Response::Delayed 0.400001
-      Dancer2::Core::Role::ConfigReader 0.400001
-      Dancer2::Core::Role::DSL 0.400001
-      Dancer2::Core::Role::Engine 0.400001
-      Dancer2::Core::Role::Handler 0.400001
-      Dancer2::Core::Role::HasLocation 0.400001
-      Dancer2::Core::Role::Hookable 0.400001
-      Dancer2::Core::Role::Logger 0.400001
-      Dancer2::Core::Role::Serializer 0.400001
-      Dancer2::Core::Role::SessionFactory 0.400001
-      Dancer2::Core::Role::SessionFactory::File 0.400001
-      Dancer2::Core::Role::StandardResponses 0.400001
-      Dancer2::Core::Role::Template 0.400001
-      Dancer2::Core::Route 0.400001
-      Dancer2::Core::Runner 0.400001
-      Dancer2::Core::Session 0.400001
-      Dancer2::Core::Time 0.400001
-      Dancer2::Core::Types 0.400001
-      Dancer2::FileUtils 0.400001
-      Dancer2::Handler::AutoPage 0.400001
-      Dancer2::Handler::File 0.400001
-      Dancer2::Logger::Capture 0.400001
-      Dancer2::Logger::Capture::Trap 0.400001
-      Dancer2::Logger::Console 0.400001
-      Dancer2::Logger::Diag 0.400001
-      Dancer2::Logger::File 0.400001
-      Dancer2::Logger::Note 0.400001
-      Dancer2::Logger::Null 0.400001
-      Dancer2::Plugin 0.400001
-      Dancer2::Serializer::Dumper 0.400001
-      Dancer2::Serializer::JSON 0.400001
-      Dancer2::Serializer::Mutable 0.400001
-      Dancer2::Serializer::YAML 0.400001
-      Dancer2::Session::Simple 0.400001
-      Dancer2::Session::YAML 0.400001
-      Dancer2::Template::Implementation::ForkedTiny 0.400001
-      Dancer2::Template::Simple 0.400001
-      Dancer2::Template::TemplateToolkit 0.400001
-      Dancer2::Template::Tiny 0.400001
-      Dancer2::Test 0.400001
+      Dancer2 v1.1.2
+      Dancer2::CLI v1.1.2
+      Dancer2::CLI::Gen v1.1.2
+      Dancer2::CLI::Version v1.1.2
+      Dancer2::Core v1.1.2
+      Dancer2::Core::App v1.1.2
+      Dancer2::Core::Cookie v1.1.2
+      Dancer2::Core::DSL v1.1.2
+      Dancer2::Core::Dispatcher v1.1.2
+      Dancer2::Core::Error v1.1.2
+      Dancer2::Core::Factory v1.1.2
+      Dancer2::Core::HTTP v1.1.2
+      Dancer2::Core::Hook v1.1.2
+      Dancer2::Core::MIME v1.1.2
+      Dancer2::Core::Request v1.1.2
+      Dancer2::Core::Request::Upload v1.1.2
+      Dancer2::Core::Response v1.1.2
+      Dancer2::Core::Response::Delayed v1.1.2
+      Dancer2::Core::Role::ConfigReader v1.1.2
+      Dancer2::Core::Role::DSL v1.1.2
+      Dancer2::Core::Role::Engine v1.1.2
+      Dancer2::Core::Role::Handler v1.1.2
+      Dancer2::Core::Role::HasLocation v1.1.2
+      Dancer2::Core::Role::Hookable v1.1.2
+      Dancer2::Core::Role::Logger v1.1.2
+      Dancer2::Core::Role::Serializer v1.1.2
+      Dancer2::Core::Role::SessionFactory v1.1.2
+      Dancer2::Core::Role::SessionFactory::File v1.1.2
+      Dancer2::Core::Role::StandardResponses v1.1.2
+      Dancer2::Core::Role::Template v1.1.2
+      Dancer2::Core::Route v1.1.2
+      Dancer2::Core::Runner v1.1.2
+      Dancer2::Core::Session v1.1.2
+      Dancer2::Core::Time v1.1.2
+      Dancer2::Core::Types v1.1.2
+      Dancer2::FileUtils v1.1.2
+      Dancer2::Handler::AutoPage v1.1.2
+      Dancer2::Handler::File v1.1.2
+      Dancer2::Logger::Capture v1.1.2
+      Dancer2::Logger::Capture::Trap v1.1.2
+      Dancer2::Logger::Console v1.1.2
+      Dancer2::Logger::Diag v1.1.2
+      Dancer2::Logger::File v1.1.2
+      Dancer2::Logger::Note v1.1.2
+      Dancer2::Logger::Null v1.1.2
+      Dancer2::Plugin v1.1.2
+      Dancer2::Serializer::Dumper v1.1.2
+      Dancer2::Serializer::JSON v1.1.2
+      Dancer2::Serializer::Mutable v1.1.2
+      Dancer2::Serializer::YAML v1.1.2
+      Dancer2::Session::Simple v1.1.2
+      Dancer2::Session::YAML v1.1.2
+      Dancer2::Template::Implementation::ForkedTiny v1.1.2
+      Dancer2::Template::Simple v1.1.2
+      Dancer2::Template::TemplateToolkit v1.1.2
+      Dancer2::Template::Tiny v1.1.2
+      Dancer2::Test v1.1.2
     requirements:
       Attribute::Handlers 0
       CLI::Osprey 0
@@ -254,6 +254,7 @@ DISTRIBUTIONS
       List::Util 1.29
       MIME::Base64 3.13
       Module::Metadata 0
+      Module::Pluggable 0
       Module::Runtime 0
       Moo 2.000000
       Moo::Role 0
@@ -275,7 +276,7 @@ DISTRIBUTIONS
       URI::Escape 0
       YAML 0.86
       parent 0
-      perl 5.012005
+      perl 5.014
   Data-Dump-1.25
     pathname: G/GA/GARU/Data-Dump-1.25.tar.gz
     provides:
@@ -635,19 +636,19 @@ DISTRIBUTIONS
       HTTP::Date 0
       Module::Build::Tiny 0.035
       perl 5.008001
-  HTTP-Message-6.44
-    pathname: O/OA/OALDERS/HTTP-Message-6.44.tar.gz
+  HTTP-Message-7.00
+    pathname: O/OA/OALDERS/HTTP-Message-7.00.tar.gz
     provides:
-      HTTP::Config 6.44
-      HTTP::Headers 6.44
-      HTTP::Headers::Auth 6.44
-      HTTP::Headers::ETag 6.44
-      HTTP::Headers::Util 6.44
-      HTTP::Message 6.44
-      HTTP::Request 6.44
-      HTTP::Request::Common 6.44
-      HTTP::Response 6.44
-      HTTP::Status 6.44
+      HTTP::Config 7.00
+      HTTP::Headers 7.00
+      HTTP::Headers::Auth 7.00
+      HTTP::Headers::ETag 7.00
+      HTTP::Headers::Util 7.00
+      HTTP::Message 7.00
+      HTTP::Request 7.00
+      HTTP::Request::Common 7.00
+      HTTP::Response 7.00
+      HTTP::Status 7.00
     requirements:
       Carp 0
       Clone 0.46
@@ -755,13 +756,13 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       perl 5.008001
-  JSON-MaybeXS-1.004004
-    pathname: E/ET/ETHER/JSON-MaybeXS-1.004004.tar.gz
+  JSON-MaybeXS-1.004008
+    pathname: E/ET/ETHER/JSON-MaybeXS-1.004008.tar.gz
     provides:
-      JSON::MaybeXS 1.004004
+      JSON::MaybeXS 1.004008
     requirements:
       Carp 0
-      Cpanel::JSON::XS 2.3310
+      Cpanel::JSON::XS 4.38
       ExtUtils::MakeMaker 0
       JSON::PP 2.27300
       Scalar::Util 0
@@ -1098,12 +1099,12 @@ DISTRIBUTIONS
       strict 0
       warnings 0
       warnings::register 0
-  Plack-1.0050
-    pathname: M/MI/MIYAGAWA/Plack-1.0050.tar.gz
+  Plack-1.0051
+    pathname: M/MI/MIYAGAWA/Plack-1.0051.tar.gz
     provides:
       HTTP::Message::PSGI undef
       HTTP::Server::PSGI undef
-      Plack 1.0050
+      Plack 1.0051
       Plack::App::CGIBin undef
       Plack::App::Cascade undef
       Plack::App::Directory undef
@@ -1162,9 +1163,9 @@ DISTRIBUTIONS
       Plack::Middleware::XFramework undef
       Plack::Middleware::XSendfile undef
       Plack::Recursive::ForwardRequest undef
-      Plack::Request 1.0050
+      Plack::Request 1.0051
       Plack::Request::Upload undef
-      Plack::Response 1.0050
+      Plack::Response 1.0051
       Plack::Runner undef
       Plack::TempBuffer undef
       Plack::Test undef
@@ -1196,15 +1197,16 @@ DISTRIBUTIONS
       URI 1.59
       WWW::Form::UrlEncoded 0.23
       parent 0
-      perl 5.008001
-  Plack-Middleware-Deflater-0.12
-    pathname: K/KA/KAZEBURO/Plack-Middleware-Deflater-0.12.tar.gz
+      perl 5.012000
+  Plack-Middleware-Deflater-0.14
+    pathname: M/MI/MIYAGAWA/Plack-Middleware-Deflater-0.14.tar.gz
     provides:
-      Plack::Middleware::Deflater 0.12
-      Plack::Middleware::Deflater::Encoder 0.12
+      Plack::Middleware::Deflater 0.14
+      Plack::Middleware::Deflater::Encoder 0.14
     requirements:
       Compress::Zlib 0
       ExtUtils::MakeMaker 6.59
+      Module::Build::Tiny 0.034
       Plack 0
       Test::More 0.96
       Test::Requires 0
@@ -1233,12 +1235,12 @@ DISTRIBUTIONS
       parent 0
       strict 0
       warnings 0
-  Proc-ProcessTable-0.634
-    pathname: J/JW/JWB/Proc-ProcessTable-0.634.tar.gz
+  Proc-ProcessTable-0.636
+    pathname: J/JW/JWB/Proc-ProcessTable-0.636.tar.gz
     provides:
       Proc::Killall 1.0
       Proc::Killfam 1.0
-      Proc::ProcessTable 0.634
+      Proc::ProcessTable 0.636
       Proc::ProcessTable::Process 0.02
     requirements:
       ExtUtils::MakeMaker 0
@@ -1510,10 +1512,11 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 0
       perl 5.006
       strict 0
-  Template-Toolkit-3.101
-    pathname: A/AB/ABW/Template-Toolkit-3.101.tar.gz
+  Template-Toolkit-3.102
+    pathname: T/TO/TODDR/Template-Toolkit-3.102.tar.gz
     provides:
-      Template 3.101
+      Template 3.102
+      Template::App::ttree 2.91
       Template::Base 3.100
       Template::Config 3.100
       Template::Constants 3.100
@@ -1718,6 +1721,220 @@ DISTRIBUTIONS
       Test::Builder::Module 0
       Test::More 0.88
       perl 5.008_001
+  Test-Simple-1.302210
+    pathname: E/EX/EXODIST/Test-Simple-1.302210.tar.gz
+    provides:
+      Test2 1.302210
+      Test2::API 1.302210
+      Test2::API::Breakage 1.302210
+      Test2::API::Context 1.302210
+      Test2::API::Instance 1.302210
+      Test2::API::InterceptResult 1.302210
+      Test2::API::InterceptResult::Event 1.302210
+      Test2::API::InterceptResult::Facet 1.302210
+      Test2::API::InterceptResult::Hub 1.302210
+      Test2::API::InterceptResult::Squasher 1.302210
+      Test2::API::Stack 1.302210
+      Test2::AsyncSubtest 1.302210
+      Test2::AsyncSubtest::Event::Attach 1.302210
+      Test2::AsyncSubtest::Event::Detach 1.302210
+      Test2::AsyncSubtest::Formatter 1.302210
+      Test2::AsyncSubtest::Hub 1.302210
+      Test2::Bundle 1.302210
+      Test2::Bundle::Extended 1.302210
+      Test2::Bundle::More 1.302210
+      Test2::Bundle::Simple 1.302210
+      Test2::Compare 1.302210
+      Test2::Compare::Array 1.302210
+      Test2::Compare::Bag 1.302210
+      Test2::Compare::Base 1.302210
+      Test2::Compare::Bool 1.302210
+      Test2::Compare::Custom 1.302210
+      Test2::Compare::DeepRef 1.302210
+      Test2::Compare::Delta 1.302210
+      Test2::Compare::Event 1.302210
+      Test2::Compare::EventMeta 1.302210
+      Test2::Compare::Float 1.302210
+      Test2::Compare::Hash 1.302210
+      Test2::Compare::Isa 1.302210
+      Test2::Compare::Meta 1.302210
+      Test2::Compare::Negatable 1.302210
+      Test2::Compare::Number 1.302210
+      Test2::Compare::Object 1.302210
+      Test2::Compare::OrderedSubset 1.302210
+      Test2::Compare::Pattern 1.302210
+      Test2::Compare::Ref 1.302210
+      Test2::Compare::Regex 1.302210
+      Test2::Compare::Scalar 1.302210
+      Test2::Compare::Set 1.302210
+      Test2::Compare::String 1.302210
+      Test2::Compare::Undef 1.302210
+      Test2::Compare::Wildcard 1.302210
+      Test2::Env 1.302210
+      Test2::Event 1.302210
+      Test2::Event::Bail 1.302210
+      Test2::Event::Diag 1.302210
+      Test2::Event::Encoding 1.302210
+      Test2::Event::Exception 1.302210
+      Test2::Event::Fail 1.302210
+      Test2::Event::Generic 1.302210
+      Test2::Event::Note 1.302210
+      Test2::Event::Ok 1.302210
+      Test2::Event::Pass 1.302210
+      Test2::Event::Plan 1.302210
+      Test2::Event::Skip 1.302210
+      Test2::Event::Subtest 1.302210
+      Test2::Event::TAP::Version 1.302210
+      Test2::Event::V2 1.302210
+      Test2::Event::Waiting 1.302210
+      Test2::EventFacet 1.302210
+      Test2::EventFacet::About 1.302210
+      Test2::EventFacet::Amnesty 1.302210
+      Test2::EventFacet::Assert 1.302210
+      Test2::EventFacet::Control 1.302210
+      Test2::EventFacet::Error 1.302210
+      Test2::EventFacet::Hub 1.302210
+      Test2::EventFacet::Info 1.302210
+      Test2::EventFacet::Info::Table 1.302210
+      Test2::EventFacet::Meta 1.302210
+      Test2::EventFacet::Parent 1.302210
+      Test2::EventFacet::Plan 1.302210
+      Test2::EventFacet::Render 1.302210
+      Test2::EventFacet::Trace 1.302210
+      Test2::Formatter 1.302210
+      Test2::Formatter::TAP 1.302210
+      Test2::Hub 1.302210
+      Test2::Hub::Interceptor 1.302210
+      Test2::Hub::Interceptor::Terminator 1.302210
+      Test2::Hub::Subtest 1.302210
+      Test2::IPC 1.302210
+      Test2::IPC::Driver 1.302210
+      Test2::IPC::Driver::Files 1.302210
+      Test2::Manual 1.302210
+      Test2::Manual::Anatomy 1.302210
+      Test2::Manual::Anatomy::API 1.302210
+      Test2::Manual::Anatomy::Context 1.302210
+      Test2::Manual::Anatomy::EndToEnd 1.302210
+      Test2::Manual::Anatomy::Event 1.302210
+      Test2::Manual::Anatomy::Hubs 1.302210
+      Test2::Manual::Anatomy::IPC 1.302210
+      Test2::Manual::Anatomy::Utilities 1.302210
+      Test2::Manual::Concurrency 1.302210
+      Test2::Manual::Contributing 1.302210
+      Test2::Manual::Testing 1.302210
+      Test2::Manual::Testing::Introduction 1.302210
+      Test2::Manual::Testing::Migrating 1.302210
+      Test2::Manual::Testing::Planning 1.302210
+      Test2::Manual::Testing::Todo 1.302210
+      Test2::Manual::Tooling 1.302210
+      Test2::Manual::Tooling::FirstTool 1.302210
+      Test2::Manual::Tooling::Formatter 1.302210
+      Test2::Manual::Tooling::Nesting 1.302210
+      Test2::Manual::Tooling::Plugin::TestExit 1.302210
+      Test2::Manual::Tooling::Plugin::TestingDone 1.302210
+      Test2::Manual::Tooling::Plugin::ToolCompletes 1.302210
+      Test2::Manual::Tooling::Plugin::ToolStarts 1.302210
+      Test2::Manual::Tooling::Subtest 1.302210
+      Test2::Manual::Tooling::TestBuilder 1.302210
+      Test2::Manual::Tooling::Testing 1.302210
+      Test2::Mock 1.302210
+      Test2::Plugin 1.302210
+      Test2::Plugin::BailOnFail 1.302210
+      Test2::Plugin::DieOnFail 1.302210
+      Test2::Plugin::ExitSummary 1.302210
+      Test2::Plugin::SRand 1.302210
+      Test2::Plugin::Times 1.302210
+      Test2::Plugin::UTF8 1.302210
+      Test2::Require 1.302210
+      Test2::Require::AuthorTesting 1.302210
+      Test2::Require::AutomatedTesting 1.302210
+      Test2::Require::EnvVar 1.302210
+      Test2::Require::ExtendedTesting 1.302210
+      Test2::Require::Fork 1.302210
+      Test2::Require::Module 1.302210
+      Test2::Require::NonInteractiveTesting 1.302210
+      Test2::Require::Perl 1.302210
+      Test2::Require::RealFork 1.302210
+      Test2::Require::ReleaseTesting 1.302210
+      Test2::Require::Threads 1.302210
+      Test2::Suite 1.302210
+      Test2::Todo 1.302210
+      Test2::Tools 1.302210
+      Test2::Tools::AsyncSubtest 1.302210
+      Test2::Tools::Basic 1.302210
+      Test2::Tools::Class 1.302210
+      Test2::Tools::ClassicCompare 1.302210
+      Test2::Tools::Compare 1.302210
+      Test2::Tools::Defer 1.302210
+      Test2::Tools::Encoding 1.302210
+      Test2::Tools::Event 1.302210
+      Test2::Tools::Exception 1.302210
+      Test2::Tools::Exports 1.302210
+      Test2::Tools::GenTemp 1.302210
+      Test2::Tools::Grab 1.302210
+      Test2::Tools::Mock 1.302210
+      Test2::Tools::Ref 1.302210
+      Test2::Tools::Refcount 1.302210
+      Test2::Tools::Spec 1.302210
+      Test2::Tools::Subtest 1.302210
+      Test2::Tools::Target 1.302210
+      Test2::Tools::Tester 1.302210
+      Test2::Tools::Tiny 1.302210
+      Test2::Tools::Warnings 1.302210
+      Test2::Util 1.302210
+      Test2::Util::ExternalMeta 1.302210
+      Test2::Util::Facets2Legacy 1.302210
+      Test2::Util::Grabber 1.302210
+      Test2::Util::Guard 1.302210
+      Test2::Util::HashBase 1.302210
+      Test2::Util::Importer 1.302210
+      Test2::Util::Ref 1.302210
+      Test2::Util::Sig 1.302210
+      Test2::Util::Stash 1.302210
+      Test2::Util::Sub 1.302210
+      Test2::Util::Table 1.302210
+      Test2::Util::Table::Cell 1.302210
+      Test2::Util::Table::LineBreak 1.302210
+      Test2::Util::Term 1.302210
+      Test2::Util::Times 1.302210
+      Test2::Util::Trace 1.302210
+      Test2::V0 1.302210
+      Test2::Workflow 1.302210
+      Test2::Workflow::BlockBase 1.302210
+      Test2::Workflow::Build 1.302210
+      Test2::Workflow::Runner 1.302210
+      Test2::Workflow::Task 1.302210
+      Test2::Workflow::Task::Action 1.302210
+      Test2::Workflow::Task::Group 1.302210
+      Test::Builder 1.302210
+      Test::Builder::Formatter 1.302210
+      Test::Builder::Module 1.302210
+      Test::Builder::Tester 1.302210
+      Test::Builder::Tester::Color 1.302210
+      Test::Builder::Tester::Tie 1.302210
+      Test::Builder::TodoDiag 1.302210
+      Test::More 1.302210
+      Test::Simple 1.302210
+      Test::Tester 1.302210
+      Test::Tester::Capture 1.302210
+      Test::Tester::CaptureRunner 1.302210
+      Test::Tester::Delegate 1.302210
+      Test::use::ok 1.302210
+      ok 1.302210
+    requirements:
+      B 0
+      Data::Dumper 0
+      Exporter 0
+      ExtUtils::MakeMaker 0
+      File::Spec 0
+      File::Temp 0
+      Scalar::Util 1.13
+      Storable 0
+      Term::Table 0.013
+      Time::HiRes 0
+      overload 0
+      perl 5.006002
+      utf8 0
   Test-TCP-2.22
     pathname: M/MI/MIYAGAWA/Test-TCP-2.22.tar.gz
     provides:
@@ -1743,11 +1960,11 @@ DISTRIBUTIONS
       Test::Builder 0.13
       Test::Builder::Tester 1.02
       perl 5.006
-  Test2-Plugin-NoWarnings-0.09
-    pathname: D/DR/DROLSKY/Test2-Plugin-NoWarnings-0.09.tar.gz
+  Test2-Plugin-NoWarnings-0.10
+    pathname: D/DR/DROLSKY/Test2-Plugin-NoWarnings-0.10.tar.gz
     provides:
-      Test2::Event::Warning 0.09
-      Test2::Plugin::NoWarnings 0.09
+      Test2::Event::Warning 0.10
+      Test2::Plugin::NoWarnings 0.10
     requirements:
       Carp 0
       ExtUtils::MakeMaker 0

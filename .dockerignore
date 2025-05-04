@@ -1,0 +1,24 @@
+# .dockerignore
+
+.git
+.gitignore
+
+README.md
+
+deploy/
+launcher/
+local/
+
+src/blib/
+src/environments/*docker*
+src/lib/
+src/public/
+src/t/
+src/var/
+src/views/
+
+tools/
+
+.env
+*.log
+*.swp

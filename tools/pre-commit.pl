@@ -12,6 +12,11 @@ exit( run() // 0 ) unless caller;
 
 sub run {
 
+    if ( -e '/tmp/nohook' ) {
+        note "skipping pre-commit hook: /tmp/nohook file exists";
+        return 0;
+    }
+
     note "1 - Trimming spaces";
     trim_spaces();
     note "done";

@@ -1,0 +1,5 @@
+services:
+  grep:
+    command: ["/usr/bin/true"]
+    environment:
+      - APP_ENV=test

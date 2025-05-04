@@ -1,0 +1,22 @@
+services:
+
+  grep:
+    build:
+      context: .
+      args:
+        APP_ENV: development
+    env_file:
+      - .env
+    environment:
+      - MY_SHARED_ENV=value
+    volumes:
+      - ./config:/app/config
+      - ${SRC_VOLUME_PATH:-}:/metacpan-grep-front-end
+      # mount the cpan repo as read-only to mimic production
+      - ${CPAN_VOLUME_PATH}:/metacpan-cpan-extracted:ro
+    ports:
+      - "${HOST_PORT:-8088}:3000"
+    container_name: grep-container
+
+volumes:
+  myapp-data:

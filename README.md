@@ -14,22 +14,8 @@ but it should be pretty straight forward to setup a development environment and 
 
 ## Requirements
 
-* a git client (should be compiled with libpcre)
-* perl 5.36 or later (5.36 is the recommended version, consider [using perlbrew](https://perlbrew.pl))
-* App::cpanminus (read manual on [metacpan](https://metacpan.org/pod/App::cpanminus) )
-
-### git with pcre support
-
-For macOS users, it's recommended to use [homebrew](https://brew.sh) to install git with pcre support
-
-	> brew install pcre
-	> export USE_LIBPCRE=yes
-	> brew reinstall --build-from-source git
-
-You can check if git support pcre by using the '-P' option
-
-	# example:
-	> git grep -c -P "\w"
+* docker & docker compose
+* checkout a version of `metacpan-extracted` view details after to use `metacpan-cpan-extracted-lite`
 
 ## Cloning repositories
 
@@ -56,39 +42,13 @@ It should be clone at the same level of *metacpan-grep-front-end* itself (do not
 	> ls -d metacpan-*
 	metacpan-cpan-extracted-lite metacpan-grep-front-end
 
-## Installing dependencies
-
-Now that you have the repository set, let's install all the perl modules required.
-
-You can check your perl version. ( 5.036000 is the recommended one for now )
-
-	perl -E 'say $]'
-
-All modules are listed in the `cpanfile` file itself.
-Running `install.sh` itself should do all the magic
-( which does more than only installing the perl modules )
-
-	./install.sh
-
-But if you prefer you can simply run manually:
-
-	> cpanm --installdeps --with-develop --with-recommends .
-
 ## Starting the development server
 
-Once you have installed all perl modules, you should be able to start
-the plack server by simply running:
-
-	> ./devel-server
+	> make # alias to `make up` or `make up-dev`
 	Watching . bin/lib bin/app.psgi for file updates.
 	HTTP::Server::PSGI: Accepting connections at http://0:5010/
 
-This would use plack to run the psgi app and listen by default on port 5010.
-Any change to any of the file, should automatically trigger a plack restart.
-
-You should let that plack server run in a dedicated terminal then use another
-terminal for your own development.
-Note: errors would be logged in the 'devel-server' terminal.
+This will start a docker container setup by `docker-compose.yml` using by default the `development` environment.
 
 You can now open your browser to this url, and you should be able to see the
 grep.metacpan.org homepage.
@@ -116,12 +76,3 @@ From there you should be ready to
 	-> Submit a Pull Request to GitHub
 	# continue to hack, hack, ...
 	have fun !
-
-## Travis CI
-
-The project comes with a basic `.travis.yml` file.
-
-If you want to start smoking your own branches, you simply need to link your [GitHub account](https://github.com/)
-to your [Travis CI account](https://travis-ci.org/), then enable the repository in your [Travis Dashboard](https://travis-ci.org/dashboard)
-
-Note that any Pull Request submitted via GitHub would trigger a Travis smoke without any settings required from your side :-)

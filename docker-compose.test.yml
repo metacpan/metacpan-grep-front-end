@@ -1,0 +1,5 @@
+services:
+  grep:
+    command: ["bash", "t/run-tests.sh"]
+    environment:
+      - APP_ENV=test

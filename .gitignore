@@ -1,8 +1,8 @@
 .DS_Store
+.env
 .tidyall.d
 MYMETA.json
 MYMETA.yml
-Makefile
 blib
 local
 pm_to_blib

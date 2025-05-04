@@ -1,0 +1,88 @@
+<% USE Math; %>
+<div align="center" class="home">
+  <a href="/" class="big-logo" alt="meta::cpan"></a>
+  <div class="form-section">
+    <form action="/search" onSubmit="doGrepping()" class="search-form">
+
+      <input type="hidden" name="size" id="search-size" value="20">
+      <input type="hidden" name="_bb" id="cache-buster" value="<% Math.int( Math.rand(999999999) ) %>">
+
+      <div class="form-row">
+        <label for="only-files-input">Search meta<b style="color:#c00;">::</b>cpan</label>
+        <input type="text" name="q" size="35" autofocus="autofocus" id="search-input" class="form-control home-search-input" placeholder="you can use Perl Compatible RegEx" title="search">
+      </div>
+
+      <!-- Only Search In Files -->
+      <div class="form-row">
+        <label for="only-files-input">Search only in files:</label>
+        <input type="text" id="qft" name="qft" placeholder="*.pm, *.t">
+      </div>
+
+      <!-- Only Search In Distro -->
+      <div class="form-row">
+        <label for="only-files-input">Search only in Distro:</label>
+        <input type="text" name="qd" size="35" id="qd" class="form-control home-search-distro-input optional-input" placeholder="MyDistro, ^App-.*" title="search in distro">
+      </div>
+
+      <!-- Ignore Files -->
+      <div class="form-row">
+        <label for="ignore-files-input">Ignore files:</label>
+        <input type="text" id="ignore-files-input" name="qifl" placeholder="*.PL, ppport.h, ..." title="ignore filter">
+      </div>
+
+      <!-- Common exclude rules checkbox -->
+      <div class="form-row">
+        <label></label> <!-- Empty label to maintain alignment -->
+        <div>
+          <label for="ci-default-excludes" style="font-weight: normal;">
+            <input type="checkbox" name="default-excludes" id="ci-default-excludes" onClick="MetaCPANGrep.setupIgnoreList(); false;">
+            <span>use common exclude rules</span>
+          </label>
+        </div>
+      </div>
+
+    <!-- Checkboxes -->
+
+    <!-- Case Insensitive Checkbox -->
+    <div class="form-row">
+      <label></label> <!-- Empty label to maintain alignment -->
+      <div class="checkbox-container">
+        <label for="ci-input" style="font-weight: normal;">
+          <input type="checkbox" name="qci" id="ci-input">
+          <span>use case insensitive search</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- List distro/files Checkbox -->
+    <div class="form-row">
+      <label></label> <!-- Empty label to maintain alignment -->
+      <div class="checkbox-container">
+        <label for="ls-input" style="font-weight: normal;">
+          <input type="checkbox" name="qls" <% qls ? 'checked' : '' %> id="ls-input">
+          <span>list distro/files</span>
+        </label>
+      </div>
+    </div>
+
+      <div class="form-group">
+        <button type="submit" class="btn search-btn">Grep the CPAN</button>
+      </div>
+    </form>
+  </div>
+
+  <div align="center" class="container">
+    <div class="row text-center justify-content-md-center">
+      <div class="alert alert-info">
+        Info: search is using a copy of <b>CPAN</b> from <b><% cpan_index_at | html %></b>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  MetaCPANGrep.homepageSetup();
+});
+</script>

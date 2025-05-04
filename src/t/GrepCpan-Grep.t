@@ -69,8 +69,6 @@ like $grep->current_version,
         [0-9]+\.[0-9_]+
         -cache-
         [0-9]+\.[0-9]+
-        -grep-
-        [0-9a-f]+
         -cpan-
         [0-9a-f]+
     $}xs,

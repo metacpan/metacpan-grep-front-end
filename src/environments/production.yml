@@ -19,7 +19,7 @@ grepcpan:
    nocache: 0
    maxworkers: 1000
    root_dir: '/metacpan-grep-front-end'
-   gitrepo: '/metacpan-cpan-extracted'
+   gitrepo: '/shared/metacpan_git'
    binaries:
       git: '/usr/bin/git'
    cache:

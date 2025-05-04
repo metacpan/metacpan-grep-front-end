@@ -1,4 +1,5 @@
 <% USE Math; %>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <div align="center" class="home">
   <a href="/" class="big-logo" alt="meta::cpan"></a>
   <div class="form-section">
@@ -21,7 +22,7 @@
       <!-- Only Search In Distro -->
       <div class="form-row">
         <label for="only-files-input">Search only in Distro:</label>
-        <input type="text" name="qd" size="35" id="qd" class="form-control home-search-distro-input optional-input" placeholder="MyDistro, ^App-.*" title="search in distro">
+        <input type="text" name="qd" id="qd" class="form-control home-search-distro-input optional-input" placeholder="MyDistro, ^App-.*" title="search in distro">
       </div>
 
       <!-- Ignore Files -->

@@ -6,17 +6,62 @@ on:
       - master
   workflow_dispatch:
 jobs:
-  docker:
+  docker-build:
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'build-container')
     runs-on: ubuntu-22.04
-    name: Docker Push
+    name: Docker Build and Push
     steps:
-      - uses: actions/checkout@v3
-      - name: docker build
-        run: docker build . -t metacpan/metacpan-grep-front-end:latest
+      - name: Generate Auth Token
+        uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: metacpan
       - name: Log in to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USER }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
-      - name: Push build to Docker hub
-        run: docker push metacpan/metacpan-grep-front-end:latest
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+      - name: Build test image
+        id: docker-build-test
+        uses: docker/build-push-action@v6
+        with:
+          target: test
+          push: false
+          load: true
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ github.repository }}
+          flavor: |
+            latest=false
+          tags: |
+            type=sha,format=long,priority=2000,enable={{is_default_branch}}
+            type=ref,event=branch
+            type=ref,event=pr
+            type=raw,value=latest,enable={{is_default_branch}}
+        env:
+          DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          annotations: ${{ steps.meta.outputs.annotations }}
+      - name: Update deployed image
+        if: ${{ contains( fromJSON(steps.meta.outputs.json).tags, format('{0}:latest', github.repository)) }}
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          repo: metacpan/metacpan-k8s
+          ref: main
+          workflow: set-image.yml
+          token: ${{ steps.app-token.outputs.token }}
+          inputs: '{ "app": "grep", "environment": "prod", "base-tag": "${{ github.repository }}:latest", "tag": "${{ fromJSON(steps.meta.outputs.json).tags[0] }}" }'

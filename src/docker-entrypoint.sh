@@ -4,7 +4,7 @@ if [ "$1" = "serve" ]; then
     echo "Starting the application..."
     echo "Environment: $APP_ENV"
     echo "Host Port: $HOST_PORT"
-    echo "Plackup Options: $PLACKUP_ARGS"
+    echo "Plackup Options: ${PLACKUP_ARGS}"
     echo "git binary: $(which git) - $(git --version)"
     echo "========================="
     echo "Access the application at http://localhost:${HOST_PORT}"

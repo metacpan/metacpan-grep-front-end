@@ -460,12 +460,6 @@ sub current_version($self) {
             '-',
             $grepcpan::VERSION,
             'cache' => $self->config()->{'cache'}->{'version'},
-            'grep'  => eval {
-                scalar Git::Repository->new(
-                    work_tree => $self->config()->{'gitrepo'},
-                    { git => $self->git_binary }
-                )->run(qw{rev-parse --short HEAD});
-            } // '',
             'cpan' =>
                 eval { scalar $self->git->run(qw{rev-parse --short HEAD}) }
                 // '',

@@ -33,9 +33,11 @@ WORKDIR /metacpan-grep-front-end
 
 # Build arguments
 ARG APP_ENV=development
+ARG PLACKUP_ARGS="--port 3000"
 
 # Runtime
 ENV APP_ENV=$APP_ENV
+ENV PLACKUP_ARGS=$PLACKUP_ARGS
 
 # .dockerignore is used to exclude files from the build context
 COPY src/ ./

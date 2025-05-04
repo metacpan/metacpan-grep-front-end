@@ -10,14 +10,14 @@
 		<title>Let's grep the CPAN together: search a pattern among all perl distributions</title>
 <% END %>
 		<link rel="alternate" type="application/rss+xml" title="RSS" href="/feed/recent" />
-		<link rel="stylesheet" type="text/css" href="/_assets/20250502123204-510a05c940bec575d4a5edfd45e2668f.css">
+		<link rel="stylesheet" type="text/css" href="/_assets/20250504161906-510a05c940bec575d4a5edfd45e2668f.css">
 		<link rel="stylesheet" type="text/css" href="/static/css/font-awesome.min.css">
 		<link rel="search" href="/static/opensearch.xml" type="application/opensearchdescription+xml" title="MetaCPAN">
 		<link rel="shortcut icon" href="/static/icons/favicon.ico">
 		<link rel="apple-touch-icon" sizes="152x152" href="/static/icons/apple-touch-icon.png">
 		<script src="/javascripts/jquery.js"></script>
 		<script src="/javascripts/mousetrap.min.js"></script>
-		<script src="/_assets/20250502123204-8ee3b0e7a6641aed845899d0645808f6.js" type="text/javascript"></script>
+		<script src="/_assets/20250504161906-8ee3b0e7a6641aed845899d0645808f6.js" type="text/javascript"></script>
 		<!-- google analytics -->
 		<!-- Global site tag (gtag.js) - Google Analytics -->
 		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-27829474-2"></script>

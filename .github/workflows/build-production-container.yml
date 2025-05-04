@@ -47,6 +47,7 @@ jobs:
         with:
           build-args: |
             APP_ENV=poduction
+            PLACKUP_ARGS='-E production -s Starman --workers=10 -l /tmp/app.sock'
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

@@ -321,7 +321,7 @@ sub _do_search ( $self, %opts ) {
         my $gitdir  = $self->git()->work_tree;
         my @rg_cmd  = ( $self->rg_binary );
         push @rg_cmd, '-i' if $caseinsensitive;
-        push @rg_cmd, '-n', '--heading', '-C', $context, $flavor;
+        push @rg_cmd, '-n', '--no-column', '--heading', '-C', $context, $flavor;
         push @rg_cmd, '-e', $search, '--';
         push @rg_cmd, map { "$gitdir/$_" } @$files_to_search;
         my @out;
@@ -395,7 +395,7 @@ sub _do_search ( $self, %opts ) {
             $current_file //= $previous_file;
         }
 
-        if ( $line eq '--' ) {
+        if ( $line eq '--' || $line eq '' ) {
 
         # we found a new block, it's either from the current file or a new one
             $process_file->();

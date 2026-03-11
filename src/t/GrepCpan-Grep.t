@@ -16,12 +16,13 @@ my $test_methods = {
     search_context_file   => 60,
     search_context_distro => 10,
     git_binary            => D(),
+    rg_binary             => D(),
     root                  => D(),
     HEAD                  => D(),    #qr{^[0-9a-f]+$},
 };
 
 my $config = {
-    'binaries' => { 'git' => '/home/atoomic/bin/git' },
+    'binaries' => { 'git' => '/home/atoomic/bin/git', 'rg' => '/usr/bin/rg' },
     'cache'    => {
         'directory' => '~APPDIR~/var/tmp',
         'version'   => '1.03'

@@ -29,6 +29,8 @@ EOT
 FROM builder AS runtime
 SHELL [ "/bin/bash", "-eo", "pipefail", "-c" ]
 
+RUN apt-get update && apt-get install -y --no-install-recommends ripgrep && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /metacpan-grep-front-end
 
 # Build arguments

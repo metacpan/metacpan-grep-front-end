@@ -73,6 +73,7 @@ grepcpan:
    gitrepo: '/home/toddr/metacpan-cpan-extracted'
    binaries:
       git: '/home/atoomic/bin/git'
+      rg: '/usr/bin/rg'
    cache:
       directory: '~APPDIR~/var/tmp'
       version: '2.11'

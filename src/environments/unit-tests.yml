@@ -28,3 +28,6 @@ grepcpan:
    gitrepo: '/metacpan-cpan-extracted'
    cache:
       directory: '/tmp'
+   binaries:
+      git: '/usr/bin/git'
+      rg: '/usr/bin/rg'

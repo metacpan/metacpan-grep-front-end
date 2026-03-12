@@ -17,12 +17,18 @@ my $test_methods = {
     search_context_distro => 10,
     git_binary            => D(),
     rg_binary             => D(),
+    zoekt_binary          => D(),
+    zoekt_index_dir       => D(),
     root                  => D(),
     HEAD                  => D(),    #qr{^[0-9a-f]+$},
 };
 
 my $config = {
     'binaries' => { 'git' => '/home/atoomic/bin/git', 'rg' => '/usr/bin/rg' },
+    'zoekt' => {
+        'index_dir' => '/tmp/zoekt-test-index',
+        'binary'    => '/usr/local/bin/zoekt',
+    },
     'cache'    => {
         'directory' => '~APPDIR~/var/tmp',
         'version'   => '1.03'

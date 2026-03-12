@@ -31,6 +31,17 @@
         <input type="text" id="ignore-files-input" name="qifl" placeholder="*.PL, ppport.h, ..." title="ignore filter">
       </div>
 
+      <!-- Perl files only checkbox -->
+      <div class="form-row">
+        <label></label> <!-- Empty label to maintain alignment -->
+        <div>
+          <label for="ci-perl-filter" style="font-weight: normal;">
+            <input type="checkbox" name="perl-filter" id="ci-perl-filter" onClick="MetaCPANGrep.setupPerlFilter(); false;">
+            <span>Perl files only</span>
+          </label>
+        </div>
+      </div>
+
       <!-- Common exclude rules checkbox -->
       <div class="form-row">
         <label></label> <!-- Empty label to maintain alignment -->

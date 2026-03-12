@@ -62,7 +62,7 @@
   <div align="center" class="container">
     <div class="row text-center justify-content-md-center">
       <div class="alert alert-danger">
-      <% alert.danger %>
+      <% alert.danger | html_entity %>
       </div>
     </div>
   </div>

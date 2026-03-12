@@ -19,7 +19,7 @@ grepcpan@grep.cpan.me [~/minicpan_grep.git]# time git grep -C15 -n xyz HEAD | he
 use Simple::Accessor qw{
     config git cache distros_per_page search_context
     search_context_file search_context_distro
-    git_binary rg_binary root HEAD
+    git_binary rg_binary zoekt_binary zoekt_index_dir root HEAD
 };
 
 use POSIX              qw{:sys_wait_h setsid};
@@ -70,6 +70,24 @@ sub _build_rg_binary($self) {
     chomp $rg;
 
     return $rg;
+}
+
+sub _build_zoekt_binary($self) {
+
+    my $z = $self->config()->{'zoekt'}->{'binary'};
+    return $z if $z && -x $z;
+    $z = qx{which zoekt};
+    chomp $z;
+
+    return $z;
+}
+
+sub _build_zoekt_index_dir($self) {
+
+    my $dir = $self->config()->{'zoekt'}->{'index_dir'};
+    return $dir if $dir && -d $dir;
+
+    return '';    # empty means Zoekt is not available
 }
 
 sub _build_HEAD($self) {

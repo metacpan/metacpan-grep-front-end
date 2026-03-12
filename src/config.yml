@@ -74,6 +74,9 @@ grepcpan:
    binaries:
       git: '/home/atoomic/bin/git'
       rg: '/usr/bin/rg'
+   zoekt:
+      index_dir: '/var/zoekt-index'
+      binary: '/usr/local/bin/zoekt'
    cache:
       directory: '~APPDIR~/var/tmp'
       version: '2.11'

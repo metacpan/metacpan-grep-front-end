@@ -5,6 +5,7 @@ use GrepCpan::std;
 
 use Git::Repository ();
 use Sereal          ();
+use GrepCpan::Grep::Zoekt ();
 
 =pod
 
@@ -88,6 +89,20 @@ sub _build_zoekt_index_dir($self) {
     return $dir if $dir && -d $dir;
 
     return '';    # empty means Zoekt is not available
+}
+
+sub _zoekt_available($self) {
+
+    return $self->{_zoekt_available} if defined $self->{_zoekt_available};
+
+    my $binary = $self->zoekt_binary;
+    my $dir    = $self->zoekt_index_dir;
+
+    $self->{_zoekt_available}
+        = ( defined $binary && length $binary && -x $binary
+            && defined $dir && length $dir && -d $dir ) ? 1 : 0;
+
+    return $self->{_zoekt_available};
 }
 
 sub _build_HEAD($self) {
@@ -311,9 +326,15 @@ sub _do_search ( $self, %opts ) {
     $page //= 0;
     $page = 0 if $page < 0;
 
-    #
-    my $cache = $self->_get_match_cache( $search, $search_distro, $filetype,
-        $caseinsensitive, $ignore_files );
+    my $cache;
+    if ( $self->_zoekt_available ) {
+        $cache = $self->_get_match_cache_zoekt( $search, $search_distro,
+            $filetype, $caseinsensitive, $ignore_files );
+    }
+    else {
+        $cache = $self->_get_match_cache( $search, $search_distro,
+            $filetype, $caseinsensitive, $ignore_files );
+    }
 
     my $is_a_known_distro
         = defined $search_distro
@@ -810,6 +831,141 @@ sub _get_match_cache(
         $self->_save_cache( $cache_file,         $cache );
         unlink $raw_cache_file if -e $raw_cache_file;
     }
+
+    return $cache;
+}
+
+sub _get_match_cache_zoekt(
+    $self, $search, $search_distro, $query_filetype,
+    $caseinsensitive = 0,
+    $ignore_files = undef
+    )
+{
+
+    $caseinsensitive //= 0;
+
+    my $flavor = _get_git_grep_flavor($search);
+
+    my @keys_for_cache = (
+        'zoekt',          $flavor,
+        $caseinsensitive ? 1 : 0,
+        $search,          $search_distro, $query_filetype,
+        $caseinsensitive, $ignore_files // ''
+    );
+
+    my $cache_file = $self->_get_cache_file( \@keys_for_cache );
+    if ( my $load = $self->_load_cache($cache_file) ) {
+        return $load if $load;
+    }
+
+    my $adjusted_request = {};
+    $search_distro =~ s{::+}{-}g if defined $search_distro;
+
+    # parse filetype and ignore rules for query building
+    my $filetypes_ref;
+    if ( my $rules = $self->_parse_and_check_query_filetype(
+            $query_filetype, $adjusted_request ) )
+    {
+        $filetypes_ref = $rules;
+    }
+
+    my $ignore_ref;
+    if ( length( $ignore_files // '' ) ) {
+        my $parsed = $self->_parse_ignore_files($ignore_files);
+        # _parse_ignore_files returns --glob pairs; extract just the patterns
+        if ($parsed) {
+            $ignore_ref = [];
+            for ( my $i = 1; $i < scalar @$parsed; $i += 2 ) {
+                # entries are '--glob', '!pattern' — extract pattern without !
+                my $p = $parsed->[$i];
+                $p =~ s{^!}{};
+                push @$ignore_ref, $p;
+            }
+        }
+    }
+
+    # validate distro filter
+    my $distro_for_query;
+    if (   defined $search_distro
+        && length($search_distro)
+        && $search_distro =~ qr{^[0-9a-zA-Z_\*][0-9a-zA-Z_\*\-]*$} )
+    {
+        $distro_for_query = $search_distro;
+    }
+
+    my $query = GrepCpan::Grep::Zoekt::build_query(
+        search          => $search,
+        flavor          => $flavor,
+        caseinsensitive => $caseinsensitive,
+        search_distro   => $distro_for_query,
+        filetypes       => $filetypes_ref,
+        ignore_files    => $ignore_ref,
+    );
+
+    # run zoekt -l
+    my $limit = $self->config()->{limit}->{files_git_run_bg} || 2000;
+    my @zoekt_cmd = (
+        $self->zoekt_binary,
+        '-index_dir', $self->zoekt_index_dir,
+        '-l',
+        $query,
+    );
+
+    my @list_files;
+    my $gitdir = $self->git()->work_tree;
+
+    alarm( $self->config->{timeout}->{user_search} || 18 );
+    eval {
+        if ( open( my $fh, '-|', @zoekt_cmd ) ) {
+            while ( my $line = <$fh> ) {
+                chomp $line;
+                # zoekt outputs paths relative to the indexed directory
+                # we need paths like distros/a/Foo/lib/Foo.pm
+                # strip any prefix up to and including 'distros/'
+                if ( $line =~ m{(distros/.+)} ) {
+                    push @list_files, $1;
+                }
+                last if scalar @list_files >= $limit;
+            }
+            close $fh;
+        }
+        alarm(0);
+        1;
+    } or do {
+        alarm(0);
+        warn "Zoekt search timed out or failed: $@";
+    };
+
+    my $cache = {
+        distros            => {},
+        search             => $search,
+        search_in_progress => 0,
+    };
+
+    my $match_files = scalar @list_files;
+    $cache->{is_incomplete} = 1 if $match_files >= $limit;
+
+    my $last_distro;
+    foreach my $line (@list_files) {
+        my ( $where, $distro, $shortpath ) = massage_filepath($line);
+        next unless defined $shortpath;
+        $last_distro = $distro;
+        my $prefix = join '/', $where, $distro;
+        $cache->{distros}->{$distro} //= { files => [], prefix => $prefix };
+        push @{ $cache->{distros}->{$distro}->{files} }, $shortpath;
+    }
+
+    if ( $cache->{is_incomplete} && $last_distro ) {
+        $cache->{distros}->{$last_distro}->{'is_incomplete'} = 1;
+    }
+
+    $cache->{match} = {
+        files   => $match_files,
+        distros => scalar keys $cache->{distros}->%*,
+    };
+    $cache->{adjusted_request} = $adjusted_request;
+
+    $self->_save_cache( $cache_file, $cache );
 
     return $cache;
 }

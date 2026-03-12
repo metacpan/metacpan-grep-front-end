@@ -215,11 +215,9 @@ BEGIN {
 sub _sanitize_search($s) {
 
     return undef unless defined $s;
-    $s =~ s{\n}{}g;
-    $s =~ s{'}{\'}g;
 
-    # whitelist possible characters ?
-    $s =~ s{[^\^a-zA-Z0-9\-\.\?\\*\&_'"~!\$\%()\[\]\{\}:;<>,/\@| =]}{.}g;
+    # strip characters not in the allowed set
+    $s =~ s{[^\^a-zA-Z0-9\-\.\?\+\\*\&_'"~!\$\%()\[\]\{\}:;<>,/\@| =]}{}g;
 
     return $s;
 }

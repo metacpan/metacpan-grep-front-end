@@ -8,11 +8,13 @@ use Test2::Plugin::NoWarnings;
 use GrepCpan::Grep;
 
 my @tests = (
-    [ qq{some\ttabs\t\t} => q{some.tabs..} ],
+    [ qq{some\ttabs\t\t} => q{sometabs} ],
     [
         q{somethïng diffêrènt with àccęnts} =>
-            q{someth.ng diff.r.nt with .cc.nts}
+            q{somethng diffrnt with ccnts}
     ],
+    [ q{foo+bar}         => q{foo+bar} ],
+    [ qq{line1\nline2}   => q{line1line2} ],
 );
 
 my @preserve = (

@@ -105,6 +105,37 @@ sub _zoekt_available($self) {
     return $self->{_zoekt_available};
 }
 
+sub _maybe_reindex_zoekt($self) {
+
+    return unless $self->_zoekt_available;
+
+    my $index_dir   = $self->zoekt_index_dir;
+    my $marker_file = "$index_dir/.indexed-head";
+    my $current_head = $self->HEAD;
+
+    # check if index matches current HEAD
+    if ( -f $marker_file ) {
+        my $indexed_head = File::Slurp::read_file($marker_file);
+        chomp $indexed_head;
+        return if $indexed_head eq $current_head;
+    }
+
+    # HEAD has changed — reindex in background
+    warn "Zoekt index stale (HEAD changed), rebuilding in background...";
+
+    my $pid = fork();
+    return unless defined $pid;
+
+    if ( $pid == 0 ) {
+        # child process
+        my $script = $self->root . '/scripts/reindex-zoekt.sh';
+        exec( 'bash', $script ) or die "Cannot exec reindex script: $!";
+    }
+
+    # parent continues — searches will use ripgrep fallback until reindex completes
+    return;
+}
+
 sub _build_HEAD($self) {
 
     my $head = $self->git()->run(qw{rev-parse --short HEAD});
@@ -156,6 +187,9 @@ sub _build_cache($self) {
 
     # cleanup after directory structure creation
     $self->cache_cleanup($dir);
+
+    # trigger Zoekt reindex if HEAD has changed
+    $self->_maybe_reindex_zoekt();
 
     return $dir;
 }

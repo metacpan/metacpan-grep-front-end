@@ -321,7 +321,7 @@ sub _do_search ( $self, %opts ) {
         my $gitdir  = $self->git()->work_tree;
         my @rg_cmd  = ( $self->rg_binary );
         push @rg_cmd, '-i' if $caseinsensitive;
-        push @rg_cmd, '-n', '--no-column', '--heading', '-C', $context, $flavor;
+        push @rg_cmd, '-n', '--no-column', '--no-ignore', '--heading', '-C', $context, $flavor;
         push @rg_cmd, '-e', $search, '--';
         push @rg_cmd, map { "$gitdir/$_" } @$files_to_search;
         my @out;
@@ -684,7 +684,7 @@ sub _get_match_cache(
     my $limit  = $self->config()->{limit}->{files_per_search} or die;
 
     my $flavor  = _get_git_grep_flavor($search);
-    my @rg_cmd  = ( '-l' );
+    my @rg_cmd  = ( '-l', '--no-ignore' );
     push @rg_cmd, q{-i} if $caseinsensitive;
     push @rg_cmd, $flavor, '-e', $search, '--', $gitdir . '/distros/';
 

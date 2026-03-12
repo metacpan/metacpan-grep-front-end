@@ -662,10 +662,13 @@ sub _get_match_cache(
 
     $search_distro =~ s{::+}{-}g if defined $search_distro;
 
+    # strip leading ^ anchor — the glob is already anchored by directory structure
+    $search_distro =~ s{^\^}{} if defined $search_distro;
+
     # the distro can either come from url or the query with some glob
     if (   defined $search_distro
         && length($search_distro)
-        && $search_distro =~ qr{^([0-9a-zA-Z_\*])[0-9a-zA-Z_\*\-]*$} )
+        && $search_distro =~ qr{^([0-9a-zA-Z_\*\.])[0-9a-zA-Z_\*\.\-]*$} )
     {
         # replace the disros search
         $git_cmd[-1]

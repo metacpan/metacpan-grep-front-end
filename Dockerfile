@@ -31,6 +31,12 @@ SHELL [ "/bin/bash", "-eo", "pipefail", "-c" ]
 
 RUN apt-get update && apt-get install -y --no-install-recommends ripgrep && rm -rf /var/lib/apt/lists/*
 
+RUN set -eux; \
+    apt-get update && apt-get install -y --no-install-recommends golang-go git ca-certificates && \
+    GOBIN=/usr/local/bin go install github.com/sourcegraph/zoekt/cmd/zoekt@latest && \
+    GOBIN=/usr/local/bin go install github.com/sourcegraph/zoekt/cmd/zoekt-index@latest && \
+    apt-get purge -y golang-go && apt-get autoremove -y && rm -rf /var/lib/apt/lists/* /root/go /tmp/*
+
 WORKDIR /metacpan-grep-front-end
 
 # Build arguments

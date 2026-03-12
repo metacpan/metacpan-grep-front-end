@@ -8,7 +8,7 @@ on:
 jobs:
   docker-build:
     if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'build-container')
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     name: Docker Build and Push
     steps:
       - name: Generate Auth Token
@@ -46,7 +46,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           build-args: |
-            APP_ENV=poduction
+            APP_ENV=production
             PLACKUP_ARGS=-E production -s Starman --workers=10
           push: true
           tags: ${{ steps.meta.outputs.tags }}

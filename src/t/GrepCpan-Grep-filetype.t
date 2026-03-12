@@ -42,6 +42,8 @@ is $grep->_parse_query_filetype('.pm,.pl'),  ['.pm', '.pl'], 'comma-separated ex
 is $grep->_parse_query_filetype('.pm, .pl'), ['.pm', '.pl'], 'comma-space separated';
 
 is $grep->_parse_query_filetype('*.pm'), ['*.pm'], 'glob pattern preserved';
+is $grep->_parse_query_filetype('*.p[ml]'), ['*.p[ml]'], 'glob with character class preserved';
+is $grep->_parse_query_filetype('*.p[ml],*.t'), ['*.p[ml]', '*.t'], 'character class with other extensions';
 
 # directory traversal blocked
 is $grep->_parse_query_filetype('..'), undef, 'double dots rejected';
@@ -95,6 +97,11 @@ is $grep->_parse_ignore_files(''), undef, 'empty returns undef';
     is $result->[0], ':!*.md',   'first pattern (starts with *, no prefix)';
     is $result->[1], ':!/*t/*',  'second pattern (no leading *, gets /* prefix)';
     is $result->[2], ':!*.json', 'third pattern (starts with *, no prefix)';
+}
+
+{
+    my $result = $grep->_parse_ignore_files('*.p[ml]');
+    is $result, [':!*.p[ml]'], 'ignore with character class preserved';
 }
 
 # directory traversal blocked

@@ -1,5 +1,5 @@
 <div class="content about anchors">
-<h1 id="aboutmetacpan"><a href="#aboutmetacpan" class="anchor"><span class="fa fa-bookmark black"></span></a>Where to find the source code of grep::metacpan ?</h1>
+<h1 id="aboutmetacpan"><a href="#aboutmetacpan" class="anchor"><span class="fa-solid fa-bookmark"></span></a>Where to find the source code of grep::metacpan ?</h1>
 
 <p><b>grep::metacpan</b> is an open source experimental project developped by the <a href="http://perl.org">Perl Community</a>.
 
@@ -7,9 +7,9 @@
 
 <%
 
-SET gh_metacpan_grep_front_end = '<a href="https://github.com/metacpan/metacpan-grep-front-end"><i class="fa fa-github-alt"></i>&nbsp;metacpan-grep-front-end</a>';
-SET gh_metacpan_grep_builder   = '<a href="https://github.com/metacpan/metacpan-grep-builder"><i class="fa fa-github-alt"></i>&nbsp;metacpan-grep-builder</a>';
-SET gh_metacpan_cpan_extracted = '<a href="https://github.com/metacpan/metacpan-cpan-extracted"><i class="fa fa-github-alt"></i>&nbsp;metacpan-cpan-extracted</a>';
+SET gh_metacpan_grep_front_end = '<a href="https://github.com/metacpan/metacpan-grep-front-end"><i class="fa-brands fa-github"></i>&nbsp;metacpan-grep-front-end</a>';
+SET gh_metacpan_grep_builder   = '<a href="https://github.com/metacpan/metacpan-grep-builder"><i class="fa-brands fa-github"></i>&nbsp;metacpan-grep-builder</a>';
+SET gh_metacpan_cpan_extracted = '<a href="https://github.com/metacpan/metacpan-cpan-extracted"><i class="fa-brands fa-github"></i>&nbsp;metacpan-cpan-extracted</a>';
 
 %>
 

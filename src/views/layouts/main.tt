@@ -1,33 +1,42 @@
-<!DOCTYPE HTML>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 	<head>
-		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 <% IF search; THEN %>
-		<title><% search | html %> results from the CPAN </title>
-<% ELSIF title %>		
-		<title><% title %> - Let's grep the CPAN together</title>
-<% ELSE %>		
-		<title>Let's grep the CPAN together: search a pattern among all perl distributions</title>
+		<title><% search | html %> results from the CPAN</title>
+<% ELSIF title %>
+		<title><% title %> - grep the CPAN</title>
+<% ELSE %>
+		<title>grep the CPAN — search Perl distributions with regex</title>
 <% END %>
 		<link rel="alternate" type="application/rss+xml" title="RSS" href="/feed/recent" />
-		<link rel="stylesheet" type="text/css" href="/_assets/20250504161906-510a05c940bec575d4a5edfd45e2668f.css">
-		<link rel="stylesheet" type="text/css" href="/static/css/font-awesome.min.css">
 		<link rel="search" href="/static/opensearch.xml" type="application/opensearchdescription+xml" title="MetaCPAN">
 		<link rel="shortcut icon" href="/static/icons/favicon.ico">
 		<link rel="apple-touch-icon" sizes="152x152" href="/static/icons/apple-touch-icon.png">
-		<script src="/javascripts/jquery.js"></script>
-		<script src="/javascripts/mousetrap.min.js"></script>
-		<script src="/_assets/20250504161906-8ee3b0e7a6641aed845899d0645808f6.js" type="text/javascript"></script>
-		<!-- google analytics -->
-		<!-- Global site tag (gtag.js) - Google Analytics -->
-		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-27829474-2"></script>
-		<script>
-		  window.dataLayer = window.dataLayer || [];
-		  function gtag(){dataLayer.push(arguments);}
-		  gtag('js', new Date());
 
-		  gtag('config', 'UA-27829474-2');
-		</script>
+		<!-- Bootstrap 3 grid & base (CDN) -->
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+
+		<!-- Font Awesome 6 (CDN, replaces local FA4) -->
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css" crossorigin="anonymous">
+
+		<!-- Prism.js syntax highlighting (CDN, replaces SyntaxHighlighter) -->
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/themes/prism.min.css">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/plugins/line-numbers/prism-line-numbers.min.css">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/plugins/line-highlight/prism-line-highlight.min.css">
+
+		<!-- App styles -->
+		<link rel="stylesheet" href="/css/grepcpan.css">
+
+		<!-- App JS (no jQuery dependency) -->
+		<script src="/javascripts/grepcpan.js" defer></script>
+
+		<!-- Prism.js core + Perl language + plugins -->
+		<script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/prism.min.js" defer></script>
+		<script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-perl.min.js" defer></script>
+		<script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/plugins/line-numbers/prism-line-numbers.min.js" defer></script>
+		<script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/plugins/line-highlight/prism-line-highlight.min.js" defer></script>
 	</head>
 	<body>
 		<% INCLUDE main/_header.tt %>
@@ -39,13 +48,12 @@
 			</div>
 		</div>
 		<div id="overlay" style="display:none;">
-			<div align="center" class="home">
-  				<a href="/" class="big-logo" alt="meta::cpan"></a>
-  			</div>
-			<i class="fa fa-refresh fa-spin fa-3x fa-fw margin-bottom"></i>
+			<div class="home" style="text-align:center;">
+				<a href="/" class="big-logo"></a>
+			</div>
+			<i class="fa-solid fa-arrows-rotate fa-spin fa-3x"></i>
 			<span class="sr-only">Loading...</span>
 			Grepping...
 		</div>
-
 	</body>
 </html>

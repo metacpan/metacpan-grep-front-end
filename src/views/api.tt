@@ -1,5 +1,5 @@
 <div class="content about anchors">
-<h1 id="aboutmetacpan"><a href="#aboutmetacpan" class="anchor"><span class="fa fa-bookmark black"></span></a>API 101</h1>
+<h1 id="aboutmetacpan"><a href="#aboutmetacpan" class="anchor"><span class="fa-solid fa-bookmark"></span></a>API 101</h1>
 
 <p>
 The API is currently in its first version and very naive / limited, but it exists...

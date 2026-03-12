@@ -581,7 +581,7 @@ sub _parse_query_filetype ( $self, $query_filetype ) {
 
     my @filetypes = split( /\s*,\s*/, $query_filetype );
     @filetypes
-        = grep { length($_) && m{^ [a-zA-Z0-9_\-\.\*]+ $}x } @filetypes;
+        = grep { length($_) && m{^ [a-zA-Z0-9_\-\.\*\[\]]+ $}x } @filetypes;
 
     # ignore rules using '..'
     return if grep {m{\.\.}} @filetypes;
@@ -612,7 +612,7 @@ sub _parse_ignore_files ( $self, $ignore_files ) {
 
     return unless length $ignore_files;
 
-    my @ignorelist = grep { length($_) && m{^ [a-zA-Z0-9_\-\.\*/]+ $}x }
+    my @ignorelist = grep { length($_) && m{^ [a-zA-Z0-9_\-\.\*/\[\]]+ $}x }
         split( /\s*,\s*/, $ignore_files );
 
     # ignore rules using '..'

@@ -1,6 +1,5 @@
-package grepcpan;    # the dancer app
+package grepcpan;
 
-# smoke one more time
 use Dancer2;
 use Dancer2::Serializer::JSON;
 use Encode;
@@ -82,8 +81,7 @@ get '/search' => sub {
     );
 
     my $nopagination = defined $file && length $file ? 1 : 0;
-    my $show_sumup   = !$query->{is_a_known_distro}
-        ;    #defined $distro && length $distro ? 0 : 1;
+    my $show_sumup = !$query->{is_a_known_distro};
 
     my $template = $i{'qls'} ? 'list-files' : 'search';
 
@@ -141,9 +139,7 @@ get '/api/search' => sub {
     return to_json $query;
 };
 
-###
-### dummies helpers
-###
+### helpers
 
 sub _update_history_cookie ($search)
 {    # and return the human version list in all cases...

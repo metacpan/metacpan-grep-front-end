@@ -6,16 +6,6 @@ use GrepCpan::std;
 use Git::Repository ();
 use Sereal          ();
 
-=pod
-
-git grep -l to a file to cache the result ( limit it to 200 files and run it in background after ?? )
-use this list for pagination
-then do a query for a set of files with context
-
-grepcpan@grep.cpan.me [~/minicpan_grep.git]# time git grep -C15 -n xyz HEAD | head -n 200
-
-=cut
-
 use Simple::Accessor qw{
     config git cache distros_per_page search_context
     search_context_file search_context_distro
@@ -23,7 +13,6 @@ use Simple::Accessor qw{
 };
 
 use POSIX              qw{:sys_wait_h setsid};
-use Proc::ProcessTable ();
 use Time::HiRes        ();
 use File::Path         ();
 use File::Slurp        ();
@@ -135,8 +124,6 @@ sub cache_cleanup( $self, $current_cachedir = undef ) {    # aka tmpwatch
 
     return unless $current_cachedir;
 
-    my @path = split qr{/}, $current_cachedir;
-
     if ( my $cache_root = $self->config()->{'cache'}->{'directory'} ) {
 
         # purge old cache versions
@@ -191,8 +178,6 @@ sub massage_path ( $self, $s ) {
     return $s;
 }
 
-## TODO factorize
-# Define builder methods for integer configuration values
 BEGIN {
     # initialize (integer) value from config
     foreach my $key (
@@ -232,23 +217,11 @@ sub _get_git_grep_flavor($s) {
     return q{-P};
 }
 
-# idea use git rev-parse HEAD to include it in the cache name
-
 sub do_search ( $self, %opts ) {
-
-    my ( $search, $search_distro, $search_file, $filetype,
-        $caseinsensitive, $ignore_files, )
-        = (
-        $opts{search},          $opts{search_distro},
-        $opts{search_file},     $opts{filetype},
-        $opts{caseinsensitive}, $opts{ignore_files},
-        );
 
     my $t0 = [Time::HiRes::gettimeofday];
 
-    my $gitdir = $self->git()->work_tree;
-
-    $search = _sanitize_search($search);
+    $opts{search} = _sanitize_search($opts{search});
 
     my $results = $self->_do_search(%opts);
 
@@ -283,7 +256,6 @@ sub _do_search ( $self, %opts ) {
     $page //= 0;
     $page = 0 if $page < 0;
 
-    #
     my $cache = $self->_get_match_cache( $search, $search_distro, $filetype,
         $caseinsensitive, $ignore_files );
 
@@ -304,7 +276,6 @@ sub _do_search ( $self, %opts ) {
         = $self->get_list_of_files_to_search( $cache, $search, $page,
         $search_distro, $search_file, $filetype );    ## notidy
 
-    # can also probably simply use Git::Repo there
     my $matches;
 
     if ( scalar @$files_to_search ) {
@@ -320,7 +291,17 @@ sub _do_search ( $self, %opts ) {
         $matches = \@out;
     }
 
-    # now format the output in order to be able to use it
+    my $output = $self->_parse_git_grep_output( $matches, $cache );
+
+    return {
+        cache             => $cache,
+        output            => $output,
+        is_a_known_distro => $is_a_known_distro
+    };
+}
+
+sub _parse_git_grep_output ( $self, $matches, $cache ) {
+
     my @output;
     my $current_file;
     my @diffblocks;
@@ -342,23 +323,20 @@ sub _do_search ( $self, %opts ) {
 
     my $process_file = sub {
         return unless defined $current_file;
-        $add_block->();    # push the last block
+        $add_block->();
 
         my ( $where, $distro, $shortpath ) = massage_filepath($current_file);
         return unless length $shortpath;
-        my $prefix = join '/', $where, $distro;
 
         my $result = $cache->{distros}->{$distro} // {};
         $result->{distro}  //= $distro;
         $result->{matches} //= [];
 
-        #@diffblocks = scalar @diffblocks; # debugging clear the blocks
         push @{ $result->{matches} },
             { file => $shortpath, blocks => [@diffblocks] };
         return
             if scalar @output
-            && $output[-1] eq
-            $result;    # same hash do not add it more than once
+            && $output[-1] eq $result;
         push @output, $result;
 
         return;
@@ -369,8 +347,6 @@ sub _do_search ( $self, %opts ) {
 
     foreach my $line (@$matches) {
         if ( !defined $current_file ) {
-
-     # when more than one block match we are just going to have a -- separator
             if ( $line =~ m{^distros/} ) {
                 $previous_file = $current_file = $line;
                 next;
@@ -379,10 +355,8 @@ sub _do_search ( $self, %opts ) {
         }
 
         if ( $line eq '--' ) {
-
-        # we found a new block, it's either from the current file or a new one
             $process_file->();
-            undef $current_file;    # reset: could use previous or next file
+            undef $current_file;
             $diff       = '';
             @diffblocks = ();
             undef $start_line;
@@ -391,59 +365,26 @@ sub _do_search ( $self, %opts ) {
             next;
         }
 
-        # matching the main part
         next unless $line =~ s/$qr_match_line//;
         my ( $new_line, $prefix ) = ( $1, $2 );
 
         $start_line //= $new_line;
-        if ( length($line) > 250 )
-        {    # max length autorized ( js minified & co )
+        if ( length($line) > 250 ) {
             $line = substr( $line, 0, 250 ) . '...';
         }
         if ( !defined $line_number || $new_line == $line_number + 1 ) {
-
-            # same block
             push @matching_lines, $new_line if $prefix eq ':';
             $diff .= $line . "\n";
         }
         else {
-            # new block
             $add_block->();
-            $diff = $line . "\n";    # reset the block
+            $diff = $line . "\n";
         }
         $line_number = $new_line;
-
     }
-    $process_file->();    # process the last block
+    $process_file->();
 
-    # update results...
-    #update_match_counter( $cache );
-
-    return {
-        cache             => $cache,
-        output            => \@output,
-        is_a_known_distro => $is_a_known_distro
-    };
-}
-
-sub update_match_counter($cache) {    # dead
-
-    my ( $count_distro, $count_files ) = ( 0, 0 );
-    foreach my $distro ( sort keys %{ $cache->{distros} } ) {
-        my $c
-            = eval { scalar @{ $cache->{distros}->{$distro}->{matches} } }
-            // 0;
-        next unless $c;
-        ++$count_distro;
-        $count_files += $c;
-    }
-
-    $cache->{match} = {
-        files   => $count_files,
-        distros => $count_distro
-    };
-
-    return;
+    return \@output;
 }
 
 sub current_version($self) {
@@ -475,17 +416,11 @@ sub get_list_of_files_to_search( $self, $cache, $search, $page, $distro,
     $search_file, $filetype )
 {
 
-# try to get one file per distro except if we do not have enough distros matching
-# maybe sort the files by distros having the most matches ??
-
     my @flat_list;    # full flat list before pagination
 
     # if we have enough distros
     my $limit = $self->distros_per_page;
     if ( defined $distro && exists $cache->{distros}->{$distro} ) {
-
-        # let's pick all the files for this distro: as we are looking for it
-        return [] unless exists $cache->{distros}->{$distro};
         my $prefix = $cache->{distros}->{$distro}->{prefix};
         @flat_list = map { $prefix . '/' . $_ }
             @{ $cache->{distros}->{$distro}->{files} };    # all the files
@@ -496,10 +431,10 @@ sub get_list_of_files_to_search( $self, $cache, $search, $page, $distro,
     }
     else {                     # pick one single file per distro
         @flat_list = map {
-            my $distro = $_;  # warning this is over riding the input variable
-            my $prefix        = $cache->{distros}->{$distro}->{prefix};
-            my $list_of_files = $cache->{distros}->{$distro}->{files};
-            my $candidate     = $list_of_files->[0];    # only the first file
+            my $dist_name     = $_;
+            my $prefix        = $cache->{distros}->{$dist_name}->{prefix};
+            my $list_of_files = $cache->{distros}->{$dist_name}->{files};
+            my $candidate     = $list_of_files->[0];
             if ( scalar @$list_of_files > 1 ) {
 
                 # try to find a more perlish file first
@@ -662,8 +597,7 @@ sub _get_match_cache(
 
     $caseinsensitive //= 0;
 
-    my $gitdir = $self->git()->work_tree;
-    my $limit  = $self->config()->{limit}->{files_per_search} or die;
+    my $limit = $self->config()->{limit}->{files_per_search} or die;
 
     my $flavor  = _get_git_grep_flavor($search);
     my @git_cmd = qw{grep -l};
@@ -705,15 +639,15 @@ sub _get_match_cache(
         my $is_first_rule = 1;
         foreach my $rule (@$rules) {
 
-            my $search = $base_search . '*' . $rule;
+            my $path_pattern = $base_search . '*' . $rule;
 
             if ($is_first_rule) {
-                $git_cmd[-1] = $search;
+                $git_cmd[-1] = $path_pattern;
                 $is_first_rule = 0;
                 next;
             }
 
-            push @git_cmd, $search;
+            push @git_cmd, $path_pattern;
         }
     }
 
@@ -735,15 +669,10 @@ sub _get_match_cache(
         cache_file       => $raw_cache_file,
         cmd              => [@git_cmd],     # git command
         limit            => $limit,
-        limit_bg_process => $raw_limit,     #files_git_run_bg
-                                            #pre_run => sub { chdir($gitdir) }
+        limit_bg_process => $raw_limit,
     );
 
-    # remove the final marker if there
     my $search_in_progress = 1;
-
-    #say "LAST LINE .... " . $list_files->[-1];
-    #say " check  ? ", $list_files->[-1] eq END_OF_FILE_MARKER() ? 1 : 0;
     if ( scalar @$list_files && $list_files->[-1] eq END_OF_FILE_MARKER() ) {
         pop @$list_files;
         $search_in_progress = 0;
@@ -779,8 +708,6 @@ sub _get_match_cache(
     $cache->{adjusted_request} = $adjusted_request;
 
     if ( !$search_in_progress ) {
-
-        #say "Search in progress..... done caching yaml file";
         $self->_save_cache( $request_cache_file, $cache );
         $self->_save_cache( $cache_file,         $cache );
         unlink $raw_cache_file if -e $raw_cache_file;
@@ -826,8 +753,6 @@ sub run_git_cmd_limit ( $self, %opts ) {
             # give it a second try after some time...
         }
         else {
-            # return the content of our current cache from previous run
-            #say "use our cache from previous run";
             my @from_cache = File::Slurp::read_file($cache_file);
             chomp @from_cache;
             return \@from_cache;
@@ -836,9 +761,6 @@ sub run_git_cmd_limit ( $self, %opts ) {
 
     local $| = 1;
     local $SIG{'USR1'} = sub {exit}; # avoid a race condition and exit cleanly
-
-    #my $child_pid = open( my $from_kid, "-|" ) // die "Can't fork: $!";
-
     local $SIG{'CHLD'} = 'DEFAULT';
 
     my ( $from_kid, $CW ) = ( IO::Handle->new(), IO::Handle->new() );
@@ -861,8 +783,6 @@ sub run_git_cmd_limit ( $self, %opts ) {
                 }
                 push @lines, $line;
                 last if ++$c > $limit;
-
-                #say "GOT: $line ", $line eq END_OF_FILE_MARKER() ? 1 : 0;
                 last if $line eq END_OF_FILE_MARKER();
             }
             alarm(0);
@@ -875,91 +795,96 @@ sub run_git_cmd_limit ( $self, %opts ) {
         };    # catch what we can at this step... the process is running in bg
     }
     else {
-        # in kid process
-        local $| = 1;
-        my $current_pid       = $$;
-        my $can_write_to_pipe = 1;
-        local $SIG{'USR1'} = sub {    # not really used anymore
-                                      #warn "SIGUSR1.... start";
-            $can_write_to_pipe = 0;
-            close($CW);
-            open STDIN,  '>', '/dev/null';
-            open STDOUT, '>', '/dev/null';
-            open STDERR, '>', '/dev/null';
-            setsid();
-
-            return;
-        };
-
-        #kill 'USR1' => $$; # >>>>
-        my $run;
-
-        local $SIG{'ALRM'} = sub {
-            warn "alarm triggered while running git command";
-
-            if ( ref $run ) {
-                my $pid;
-                local $@;
-                $pid = eval { $run->pid };
-                if ($pid) {
-                    warn "killing 'git' process $pid...";
-                    if ( kill( 0, $pid ) ) {
-                        sleep 2;
-                        kill( 9, $pid );
-                    }
-                }
-            }
-
-            die
-                "alarm triggered while running git command: git grep too long...";
-        };
-
-        # limit our search in time...
-        alarm( $self->config->{timeout}->{grep_search} // 600 )
-            ;    # make sure we always have a value set
-        $opts{pre_run}->() if ref $opts{pre_run} eq 'CODE';
-
-        my $lock = $self->check_if_a_worker_is_available();
-        if ( !$lock ) {
-            print {$CW} TOO_BUSY_MARKER() . "\n";
-            exit 42;
-        }
-
-        say "Running in kid command: " . join( ' ', 'git', @$cmd );
-        say "KID is caching to file ", $cache_file;
-
-        my $to_cache;
-
-        if ($cache_file) {
-            $to_cache = IO::Handle->new;
-            open( $to_cache, q{>}, $cache_file )
-                or die "Cannot open cache file: $!";
-            $to_cache->autoflush(1);
-        }
-
-        $run = $self->git->command(@$cmd);
-        my $log     = $run->stdout;
-        my $counter = 1;
-
-        while ( readline $log ) {
-            print {$CW} $_
-                if $can_write_to_pipe;    # return the line to our parent
-            if ($cache_file) {
-                print {$to_cache} $_ or die;    # if file is removed
-            }
-            last if ++$counter > $limit_bg_process;
-        }
-        $run->close;
-        print {$to_cache}
-            qq{\n};    # in case of the last line did not had a newline
-        print {$to_cache} END_OF_FILE_MARKER() . qq{\n} if $cache_file;
-        print {$CW} END_OF_FILE_MARKER() . qq{\n}       if $can_write_to_pipe;
-        say "-- Request finished by kid: $counter lines - "
-            . join( ' ', 'git', @$cmd );
-        exit $?;
+        $self->_run_child_git_grep(
+            pipe_write       => $CW,
+            cmd              => $cmd,
+            cache_file       => $cache_file,
+            limit_bg_process => $limit_bg_process,
+            pre_run          => $opts{pre_run},
+        );
     }
 
     return \@lines;
+}
+
+sub _run_child_git_grep ( $self, %opts ) {
+
+    my $CW               = $opts{pipe_write};
+    my $cmd              = $opts{cmd};
+    my $cache_file       = $opts{cache_file};
+    my $limit_bg_process = $opts{limit_bg_process};
+
+    local $| = 1;
+    my $can_write_to_pipe = 1;
+    local $SIG{'USR1'} = sub {
+        $can_write_to_pipe = 0;
+        close($CW);
+        open STDIN,  '>', '/dev/null';
+        open STDOUT, '>', '/dev/null';
+        open STDERR, '>', '/dev/null';
+        setsid();
+        return;
+    };
+
+    my $run;
+
+    local $SIG{'ALRM'} = sub {
+        warn "alarm triggered while running git command";
+
+        if ( ref $run ) {
+            my $pid;
+            local $@;
+            $pid = eval { $run->pid };
+            if ($pid) {
+                warn "killing 'git' process $pid...";
+                if ( kill( 0, $pid ) ) {
+                    sleep 2;
+                    kill( 9, $pid );
+                }
+            }
+        }
+
+        die "alarm triggered while running git command: git grep too long...";
+    };
+
+    alarm( $self->config->{timeout}->{grep_search} // 600 );
+    $opts{pre_run}->() if ref $opts{pre_run} eq 'CODE';
+
+    my $lock = $self->check_if_a_worker_is_available();
+    if ( !$lock ) {
+        print {$CW} TOO_BUSY_MARKER() . "\n";
+        exit 42;
+    }
+
+    say "Running in kid command: " . join( ' ', 'git', @$cmd );
+    say "KID is caching to file ", $cache_file;
+
+    my $to_cache;
+    if ($cache_file) {
+        $to_cache = IO::Handle->new;
+        open( $to_cache, q{>}, $cache_file )
+            or die "Cannot open cache file: $!";
+        $to_cache->autoflush(1);
+    }
+
+    $run = $self->git->command(@$cmd);
+    my $log     = $run->stdout;
+    my $counter = 1;
+
+    while ( readline $log ) {
+        print {$CW} $_ if $can_write_to_pipe;
+        if ($cache_file) {
+            print {$to_cache} $_ or die;
+        }
+        last if ++$counter > $limit_bg_process;
+    }
+    $run->close;
+    print {$to_cache} qq{\n};
+    print {$to_cache} END_OF_FILE_MARKER() . qq{\n} if $cache_file;
+    print {$CW} END_OF_FILE_MARKER() . qq{\n}       if $can_write_to_pipe;
+    say "-- Request finished by kid: $counter lines - "
+        . join( ' ', 'git', @$cmd );
+    exit $?;
 }
 
 sub check_if_a_worker_is_available($self) {

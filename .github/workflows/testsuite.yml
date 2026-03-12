@@ -2,8 +2,12 @@ name: Run testsuite for grep.metacpan
 
 on:
   push:
-  #  branches: [ main ]
+    branches: [master]
   pull_request:
+
+concurrency:
+  group: testsuite-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:

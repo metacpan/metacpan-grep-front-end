@@ -1,6 +1,5 @@
 <% USE Math; %>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<div align="center" class="home">
+<div class="home" style="text-align:center;">
   <a href="/" class="big-logo" alt="meta::cpan"></a>
   <div class="form-section">
     <form action="/search" onSubmit="doGrepping()" class="search-form">
@@ -82,8 +81,8 @@
 
 </div>
 
-<script type="text/javascript">
-$(document).ready(function() {
+<script>
+document.addEventListener('DOMContentLoaded', function() {
   MetaCPANGrep.homepageSetup();
 });
 </script>

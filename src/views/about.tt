@@ -1,5 +1,5 @@
 <div class="content about anchors">
-<h1 id="aboutmetacpan"><a href="#aboutmetacpan" class="anchor"><span class="fa fa-bookmark black"></span></a>About grep::metacpan</h1>
+<h1 id="aboutmetacpan"><a href="#aboutmetacpan" class="anchor"><span class="fa-solid fa-bookmark"></span></a>About grep::metacpan</h1>
 
 <p><b>grep::metacpan</b> is an open source search engine for the Comprehensive Perl Archive
 Network (<a href="http://www.cpan.org/">CPAN</a>), an ever growing archive of code and
@@ -21,7 +21,7 @@ The more frequently a term is searched for, the faster the grep for that term ge
 </p>
 
 
-<h2 id="usingtheapi"><a href="#usingtheapi" class="anchor"><span class="fa fa-bookmark black"></span></a>Using grep::metacpan</h2>
+<h2 id="usingtheapi"><a href="#usingtheapi" class="anchor"><span class="fa-solid fa-bookmark"></span></a>Using grep::metacpan</h2>
 
 <p>You can consume grep::metacpan in two different ways:</p>
 
@@ -35,11 +35,11 @@ The more frequently a term is searched for, the faster the grep for that term ge
 <p>(grep::)?MetaCPAN is <a href="/about/contributors">a community effort</a>. The original idea came about when  <a href="https://metacpan.org/author/TODDR">Todd R.</a> was working on the 'dot removal from @INC' (and <a href="http://grep.cpan.me">grep.cpan.me</a> wasn't available at that particular time).</p>
 
 
-<h2 id="helpwanted"><a href="#helpwanted" class="anchor"><span class="fa fa-bookmark black"></span></a>Help wanted</h2>
+<h2 id="helpwanted"><a href="#helpwanted" class="anchor"><span class="fa-solid fa-bookmark"></span></a>Help wanted</h2>
 
 <p>We are always in need of more contributors, so feel free to submit merge request to one of our <a href="/source-code">source code repositories</a>.</p>
 
-<h2 id="wheredidyougetthatgreatlogo"><a href="#wheredidyougetthatgreatlogo" class="anchor"><span class="fa fa-bookmark black"></span></a>Where did you get that great logo?</h2>
+<h2 id="wheredidyougetthatgreatlogo"><a href="#wheredidyougetthatgreatlogo" class="anchor"><span class="fa-solid fa-bookmark"></span></a>Where did you get that great logo?</h2>
 
 <p>
 The logo was stolen from metacpan, which came from <b>Raul Matei</b> who won the MetaCPAN <a href="http://entries.contest.metacpan.org/">logo competition</a>

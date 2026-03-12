@@ -87,7 +87,7 @@
         <div style="display: inline;">
 
         <% IF query.search_in_progress %>
-          <i class="fa fa-cog fa-spin fa-2x fa-fw margin-bottom"></i>
+          <i class="fa-solid fa-gear fa-spin fa-2x"></i>
           <span class="sr-only">Your query is still running in background...</span>Search in progress...
           at this time found <b><% query.match.distros %></b> distributions and <b><% query.match.files %></b> files matching your query.
           <br>Next refresh should show more results.

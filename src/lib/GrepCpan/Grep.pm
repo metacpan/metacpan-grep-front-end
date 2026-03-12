@@ -5,6 +5,7 @@ use GrepCpan::std;
 
 use Git::Repository ();
 use Sereal          ();
+use GrepCpan::Grep::Zoekt ();
 
 =pod
 
@@ -19,7 +20,7 @@ grepcpan@grep.cpan.me [~/minicpan_grep.git]# time git grep -C15 -n xyz HEAD | he
 use Simple::Accessor qw{
     config git cache distros_per_page search_context
     search_context_file search_context_distro
-    git_binary root HEAD
+    git_binary rg_binary zoekt_binary zoekt_index_dir root HEAD
 };
 
 use POSIX              qw{:sys_wait_h setsid};
@@ -60,6 +61,81 @@ sub _build_git_binary($self) {
     chomp $git;
 
     return $git;
+}
+
+sub _build_rg_binary($self) {
+
+    my $rg = $self->config()->{'binaries'}->{'rg'};
+    return $rg if $rg && -x $rg;
+    $rg = qx{which rg};
+    chomp $rg;
+
+    return $rg;
+}
+
+sub _build_zoekt_binary($self) {
+
+    my $z = $self->config()->{'zoekt'}->{'binary'};
+    return $z if $z && -x $z;
+    $z = qx{which zoekt};
+    chomp $z;
+
+    return $z;
+}
+
+sub _build_zoekt_index_dir($self) {
+
+    my $dir = $self->config()->{'zoekt'}->{'index_dir'};
+    return $dir if $dir && -d $dir;
+
+    return '';    # empty means Zoekt is not available
+}
+
+sub _zoekt_available($self) {
+
+    # Check dynamically — don't cache. The index dir may appear after
+    # background indexing completes, and the builder for zoekt_index_dir
+    # returns '' when the dir doesn't exist yet (cached by Simple::Accessor).
+    my $binary = $self->zoekt_binary;
+    return 0 unless defined $binary && length $binary && -x $binary;
+
+    # Check the configured dir directly instead of using the accessor,
+    # since the accessor caches '' if the dir didn't exist at startup.
+    my $dir = $self->config()->{'zoekt'}->{'index_dir'};
+    return 0 unless defined $dir && length $dir && -d $dir;
+
+    return 1;
+}
+
+sub _maybe_reindex_zoekt($self) {
+
+    return unless $self->_zoekt_available;
+
+    my $index_dir   = $self->config()->{'zoekt'}->{'index_dir'};
+    my $marker_file = "$index_dir/.indexed-head";
+    my $current_head = $self->HEAD;
+
+    # check if index matches current HEAD
+    if ( -f $marker_file ) {
+        my $indexed_head = File::Slurp::read_file($marker_file);
+        chomp $indexed_head;
+        return if $indexed_head eq $current_head;
+    }
+
+    # HEAD has changed — reindex in background
+    warn "Zoekt index stale (HEAD changed), rebuilding in background...";
+
+    my $pid = fork();
+    return unless defined $pid;
+
+    if ( $pid == 0 ) {
+        # child process
+        my $script = $self->root . '/scripts/reindex-zoekt.sh';
+        exec( 'bash', $script ) or die "Cannot exec reindex script: $!";
+    }
+
+    # parent continues — searches will use ripgrep fallback until reindex completes
+    return;
 }
 
 sub _build_HEAD($self) {
@@ -113,6 +189,9 @@ sub _build_cache($self) {
 
     # cleanup after directory structure creation
     $self->cache_cleanup($dir);
+
+    # trigger Zoekt reindex if HEAD has changed
+    $self->_maybe_reindex_zoekt();
 
     return $dir;
 }
@@ -227,7 +306,7 @@ sub _sanitize_search($s) {
 sub _get_git_grep_flavor($s) {
 
     # regular characters
-    return q{--fixed-string}
+    return q{-F}
         if !defined $s || $s =~ qr{^[a-zA-Z0-9&_'"~:;<>,/ =]+$};
     return q{-P};
 }
@@ -283,9 +362,18 @@ sub _do_search ( $self, %opts ) {
     $page //= 0;
     $page = 0 if $page < 0;
 
-    #
-    my $cache = $self->_get_match_cache( $search, $search_distro, $filetype,
-        $caseinsensitive, $ignore_files );
+    # Use Zoekt for file listing when available, but fall back to ripgrep
+    # for PCRE patterns (Zoekt uses RE2 which lacks lookbehinds/backreferences)
+    my $cache;
+    my $flavor = _get_git_grep_flavor($search);
+    if ( $self->_zoekt_available && $flavor ne '-P' ) {
+        $cache = $self->_get_match_cache_zoekt( $search, $search_distro,
+            $filetype, $caseinsensitive, $ignore_files );
+    }
+    else {
+        $cache = $self->_get_match_cache( $search, $search_distro,
+            $filetype, $caseinsensitive, $ignore_files );
+    }
 
     my $is_a_known_distro
         = defined $search_distro
@@ -304,19 +392,26 @@ sub _do_search ( $self, %opts ) {
         = $self->get_list_of_files_to_search( $cache, $search, $page,
         $search_distro, $search_file, $filetype );    ## notidy
 
-    # can also probably simply use Git::Repo there
     my $matches;
 
     if ( scalar @$files_to_search ) {
         my $flavor  = _get_git_grep_flavor($search);
-        my @git_cmd = ('grep');
-        push @git_cmd, '-i' if $caseinsensitive;
-        push @git_cmd,
-            (
-            '-n', '--heading', '-C', $context, $flavor, '-e', $search, '--',
-            @$files_to_search
-            );
-        my @out = $self->git->run(@git_cmd);
+        my $gitdir  = $self->git()->work_tree;
+        my @rg_cmd  = ( $self->rg_binary );
+        push @rg_cmd, '-i' if $caseinsensitive;
+        push @rg_cmd, '-n', '--no-column', '--no-ignore', '--heading', '-C', $context, $flavor;
+        push @rg_cmd, '-e', $search, '--';
+        push @rg_cmd, map { "$gitdir/$_" } @$files_to_search;
+        my @out;
+        if ( open( my $fh, '-|', @rg_cmd ) ) {
+            while ( my $line = <$fh> ) {
+                chomp $line;
+                # strip the gitdir prefix from file heading lines
+                $line =~ s{^\Q$gitdir/\E}{};
+                push @out, $line;
+            }
+            close $fh;
+        }
         $matches = \@out;
     }
 
@@ -378,7 +473,7 @@ sub _do_search ( $self, %opts ) {
             $current_file //= $previous_file;
         }
 
-        if ( $line eq '--' ) {
+        if ( $line eq '--' || $line eq '' ) {
 
         # we found a new block, it's either from the current file or a new one
             $process_file->();
@@ -646,8 +741,9 @@ sub _parse_ignore_files ( $self, $ignore_files ) {
 
     my @rules;
     foreach my $ignore (@ignorelist) {
-        $ignore = '/*' . $ignore unless $ignore =~ m{^\*};
-        push @rules, qq[:!$ignore];
+        # ripgrep uses --glob with ! prefix for excludes
+        $ignore = '*' . $ignore unless $ignore =~ m{^\*};
+        push @rules, '--glob', "!$ignore";
     }
 
     return \@rules;
@@ -666,9 +762,9 @@ sub _get_match_cache(
     my $limit  = $self->config()->{limit}->{files_per_search} or die;
 
     my $flavor  = _get_git_grep_flavor($search);
-    my @git_cmd = qw{grep -l};
-    push @git_cmd, q{-i} if $caseinsensitive;
-    push @git_cmd, $flavor, '-e', $search, q{--}, q{distros/};
+    my @rg_cmd  = ( '-l', '--no-ignore' );
+    push @rg_cmd, q{-i} if $caseinsensitive;
+    push @rg_cmd, $flavor, '-e', $search, '--', $gitdir . '/distros/';
 
     my @keys_for_cache = (
         $flavor,          $caseinsensitive ? 1 : 0,
@@ -691,38 +787,27 @@ sub _get_match_cache(
         && length($search_distro)
         && $search_distro =~ qr{^([0-9a-zA-Z_\*])[0-9a-zA-Z_\*\-]*$} )
     {
-        # replace the disros search
-        $git_cmd[-1]
-            = q{distros/}
+        # replace the distros search path
+        $rg_cmd[-1]
+            = $gitdir . '/distros/'
             . $1 . '/'
             . $search_distro
-            . '/*';    # add a / to do not match some other distro
+            . '/';
     }
 
     # filter on some type files distro + query filetype
     if ( my $rules = $self->_parse_and_check_query_filetype($query_filetype, $adjusted_request) ) {
-        my $base_search   = $git_cmd[-1];
-        my $is_first_rule = 1;
         foreach my $rule (@$rules) {
-
-            my $search = $base_search . '*' . $rule;
-
-            if ($is_first_rule) {
-                $git_cmd[-1] = $search;
-                $is_first_rule = 0;
-                next;
-            }
-
-            push @git_cmd, $search;
+            push @rg_cmd, '--glob', "*$rule";
         }
     }
 
     if ( my $rules = $self->_parse_and_check_ignore_files($ignore_files, $adjusted_request) ) {
-        push @git_cmd, $rules->@*;
+        push @rg_cmd, $rules->@*;
     }
 
     # fallback to a shorter search ( and a different cache )
-    my $cache_file = $self->_get_cache_file( [@git_cmd] );
+    my $cache_file = $self->_get_cache_file( [@rg_cmd] );
     if ( my $load = $self->_load_cache($cache_file) ) {
         return $load if $load;
     }
@@ -733,7 +818,7 @@ sub _get_match_cache(
 
     my $list_files = $self->run_git_cmd_limit(
         cache_file       => $raw_cache_file,
-        cmd              => [@git_cmd],     # git command
+        cmd              => [@rg_cmd],
         limit            => $limit,
         limit_bg_process => $raw_limit,     #files_git_run_bg
                                             #pre_run => sub { chdir($gitdir) }
@@ -785,6 +870,142 @@ sub _get_match_cache(
         $self->_save_cache( $cache_file,         $cache );
         unlink $raw_cache_file if -e $raw_cache_file;
     }
+
+    return $cache;
+}
+
+sub _get_match_cache_zoekt(
+    $self, $search, $search_distro, $query_filetype,
+    $caseinsensitive = 0,
+    $ignore_files = undef
+    )
+{
+
+    $caseinsensitive //= 0;
+
+    my $flavor = _get_git_grep_flavor($search);
+
+    my @keys_for_cache = (
+        'zoekt',          $flavor,
+        $caseinsensitive ? 1 : 0,
+        $search,          $search_distro, $query_filetype,
+        $caseinsensitive, $ignore_files // ''
+    );
+
+    my $cache_file = $self->_get_cache_file( \@keys_for_cache );
+    if ( my $load = $self->_load_cache($cache_file) ) {
+        return $load if $load;
+    }
+
+    my $adjusted_request = {};
+    $search_distro =~ s{::+}{-}g if defined $search_distro;
+
+    # parse filetype and ignore rules for query building
+    my $filetypes_ref;
+    if ( my $rules = $self->_parse_and_check_query_filetype(
+            $query_filetype, $adjusted_request ) )
+    {
+        $filetypes_ref = $rules;
+    }
+
+    my $ignore_ref;
+    if ( length( $ignore_files // '' ) ) {
+        my $parsed = $self->_parse_ignore_files($ignore_files);
+        # _parse_ignore_files returns --glob pairs; extract just the patterns
+        if ($parsed) {
+            $ignore_ref = [];
+            for ( my $i = 1; $i < scalar @$parsed; $i += 2 ) {
+                # entries are '--glob', '!pattern' — extract pattern without !
+                my $p = $parsed->[$i];
+                $p =~ s{^!}{};
+                push @$ignore_ref, $p;
+            }
+        }
+    }
+
+    # validate distro filter
+    my $distro_for_query;
+    if (   defined $search_distro
+        && length($search_distro)
+        && $search_distro =~ qr{^[0-9a-zA-Z_\*][0-9a-zA-Z_\*\-]*$} )
+    {
+        $distro_for_query = $search_distro;
+    }
+
+    my $query = GrepCpan::Grep::Zoekt::build_query(
+        search          => $search,
+        flavor          => $flavor,
+        caseinsensitive => $caseinsensitive,
+        search_distro   => $distro_for_query,
+        filetypes       => $filetypes_ref,
+        ignore_files    => $ignore_ref,
+    );
+
+    # run zoekt -l
+    my $limit = $self->config()->{limit}->{files_git_run_bg} || 2000;
+    my @zoekt_cmd = (
+        $self->zoekt_binary,
+        '-index_dir', $self->config()->{'zoekt'}->{'index_dir'},
+        '-l',
+        $query,
+    );
+
+    my @list_files;
+    my $gitdir = $self->git()->work_tree;
+
+    local $SIG{'ALRM'} = sub { die "Zoekt search timeout" };
+    alarm( $self->config->{timeout}->{user_search} || 18 );
+    eval {
+        if ( open( my $fh, '-|', @zoekt_cmd ) ) {
+            while ( my $line = <$fh> ) {
+                chomp $line;
+                # zoekt outputs paths relative to the indexed directory
+                # we need paths like distros/a/Foo/lib/Foo.pm
+                # strip any prefix up to and including 'distros/'
+                if ( $line =~ m{(distros/.+)} ) {
+                    push @list_files, $1;
+                }
+                last if scalar @list_files >= $limit;
+            }
+            close $fh;
+        }
+        alarm(0);
+        1;
+    } or do {
+        alarm(0);
+        warn "Zoekt search timed out or failed: $@";
+    };
+
+    my $cache = {
+        distros            => {},
+        search             => $search,
+        search_in_progress => 0,
+    };
+
+    my $match_files = scalar @list_files;
+    $cache->{is_incomplete} = 1 if $match_files >= $limit;
+
+    my $last_distro;
+    foreach my $line (@list_files) {
+        my ( $where, $distro, $shortpath ) = massage_filepath($line);
+        next unless defined $shortpath;
+        $last_distro = $distro;
+        my $prefix = join '/', $where, $distro;
+        $cache->{distros}->{$distro} //= { files => [], prefix => $prefix };
+        push @{ $cache->{distros}->{$distro}->{files} }, $shortpath;
+    }
+
+    if ( $cache->{is_incomplete} && $last_distro ) {
+        $cache->{distros}->{$last_distro}->{'is_incomplete'} = 1;
+    }
+
+    $cache->{match} = {
+        files   => $match_files,
+        distros => scalar keys $cache->{distros}->%*,
+    };
+    $cache->{adjusted_request} = $adjusted_request;
+
+    $self->_save_cache( $cache_file, $cache );
 
     return $cache;
 }
@@ -894,15 +1115,16 @@ sub run_git_cmd_limit ( $self, %opts ) {
         #kill 'USR1' => $$; # >>>>
         my $run;
 
-        local $SIG{'ALRM'} = sub {
-            warn "alarm triggered while running git command";
+        my $rg_binary = $self->rg_binary;
+        my $gitdir    = $self->git()->work_tree;
 
-            if ( ref $run ) {
-                my $pid;
-                local $@;
-                $pid = eval { $run->pid };
+        local $SIG{'ALRM'} = sub {
+            warn "alarm triggered while running rg command";
+
+            if ( ref $run eq 'HASH' && ref $run->{pid} eq 'CODE' ) {
+                my $pid = $run->{pid}->();
                 if ($pid) {
-                    warn "killing 'git' process $pid...";
+                    warn "killing 'rg' process $pid...";
                     if ( kill( 0, $pid ) ) {
                         sleep 2;
                         kill( 9, $pid );
@@ -911,12 +1133,11 @@ sub run_git_cmd_limit ( $self, %opts ) {
             }
 
             die
-                "alarm triggered while running git command: git grep too long...";
+                "alarm triggered while running rg command: search too long...";
         };
 
         # limit our search in time...
-        alarm( $self->config->{timeout}->{grep_search} // 600 )
-            ;    # make sure we always have a value set
+        alarm( $self->config->{timeout}->{grep_search} // 600 );
         $opts{pre_run}->() if ref $opts{pre_run} eq 'CODE';
 
         my $lock = $self->check_if_a_worker_is_available();
@@ -925,7 +1146,7 @@ sub run_git_cmd_limit ( $self, %opts ) {
             exit 42;
         }
 
-        say "Running in kid command: " . join( ' ', 'git', @$cmd );
+        say "Running in kid command: " . join( ' ', $rg_binary, @$cmd );
         say "KID is caching to file ", $cache_file;
 
         my $to_cache;
@@ -937,11 +1158,15 @@ sub run_git_cmd_limit ( $self, %opts ) {
             $to_cache->autoflush(1);
         }
 
-        $run = $self->git->command(@$cmd);
-        my $log     = $run->stdout;
+        my $child_rg_pid = open( my $log, '-|', $rg_binary, @$cmd )
+            or die "Cannot run rg: $!";
+        $run = { pid => sub { $child_rg_pid } };
+
         my $counter = 1;
 
         while ( readline $log ) {
+            # strip absolute path prefix — rg outputs full paths
+            s{^\Q$gitdir/\E}{};
             print {$CW} $_
                 if $can_write_to_pipe;    # return the line to our parent
             if ($cache_file) {
@@ -949,13 +1174,14 @@ sub run_git_cmd_limit ( $self, %opts ) {
             }
             last if ++$counter > $limit_bg_process;
         }
-        $run->close;
+        close $log;
+        waitpid($child_rg_pid, 0);
         print {$to_cache}
             qq{\n};    # in case of the last line did not had a newline
         print {$to_cache} END_OF_FILE_MARKER() . qq{\n} if $cache_file;
         print {$CW} END_OF_FILE_MARKER() . qq{\n}       if $can_write_to_pipe;
         say "-- Request finished by kid: $counter lines - "
-            . join( ' ', 'git', @$cmd );
+            . join( ' ', 'rg', @$cmd );
         exit $?;
     }
 

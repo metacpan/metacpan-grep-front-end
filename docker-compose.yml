@@ -14,9 +14,11 @@ services:
       - ${SRC_VOLUME_PATH:-}:/metacpan-grep-front-end
       # mount the cpan repo as read-only to mimic production
       - ${CPAN_VOLUME_PATH}:/metacpan-cpan-extracted:ro
+      - zoekt-index:/var/zoekt-index
     ports:
       - "${HOST_PORT:-8088}:3000"
     container_name: grep-container
 
 volumes:
   myapp-data:
+  zoekt-index:

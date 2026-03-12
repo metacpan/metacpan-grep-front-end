@@ -28,3 +28,9 @@ grepcpan:
    gitrepo: '/metacpan-cpan-extracted'
    cache:
       directory: '/tmp'
+   binaries:
+      git: '/usr/bin/git'
+      rg: '/usr/bin/rg'
+   zoekt:
+      index_dir: '/tmp/zoekt-test-index'
+      binary: '/usr/local/bin/zoekt'

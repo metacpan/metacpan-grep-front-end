@@ -42,6 +42,10 @@ die "missing git binary" unless length $git;
 ### probably move to a test helper somewhere
 my $config = {
     'binaries' => { 'git' => $git },
+    'zoekt' => {
+        'index_dir' => '/tmp/zoekt-test-index',
+        'binary'    => '/usr/local/bin/zoekt',
+    },
     'cache'    => {
         'directory' => $tmpdir,
         'version'   => "0.$$"

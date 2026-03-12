@@ -18,6 +18,7 @@ requires "FindBin"                     => 0;
 requires "Cpanel::JSON::XS"            => 0;
 requires "JSON::MaybeXS"               => 0;
 requires "HTTP::Entity::Parser"        => 0;
+requires "URI::Escape"                 => 0;
 requires "Sereal"                      => 0;
 requires "Sereal::Encoder"             => 0;
 requires "Sereal::Decoder"             => 0;

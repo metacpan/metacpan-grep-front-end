@@ -1124,7 +1124,7 @@ else if(lineMatch=document.location.hash.match(hashLines)){source.attr('data-lin
 else if(packageMatch=document.location.hash.match(/^#P(\S+)$/)){var decodedPackageMatch=decodeURIComponent(packageMatch[1]);var leadingSource=source.text().split("package "+decodedPackageMatch+";");var lineCount=leadingSource[0].split("\n").length;if(leadingSource.length>1&&lineCount>1){source.attr('data-line',lineCount);document.location.hash="#L"+lineCount;}
 else{document.location.hash='';}}}
 $(".pod pre > code").each(function(index,code){var have_lang;if(code.className&&code.className.match(/(?:\s|^)language-\S+/)){return;}
-$(code).addClass('language-perl');});$(".content pre > code").each(function(index,code){var pre=$(code).parent();var config={'gutter':false,'toolbar':false,'quick-code':false,'tab-size':8};if(code.className){var res=code.className.match(/(?:\s|^)language-(\S+)/);if(res){config.brush=res[1];}}
+$(code).addClass('language-perl');});$(".content pre > code").each(function(index,code){var pre=$(code).parent();var config={'gutter':false,'toolbar':false,'quick-code':false,'tab-size':8,'auto-links':false};if(code.className){var res=code.className.match(/(?:\s|^)language-(\S+)/);if(res){config.brush=res[1];}}
 if(!config.brush){return;}
 if(pre.hasClass('line-numbers')){config.gutter=true;}
 var first_line=pre.attr('data-start');if(first_line){config['first-line']=first_line;}

@@ -49,6 +49,7 @@ ENV PLACKUP_ARGS=$PLACKUP_ARGS
 
 # .dockerignore is used to exclude files from the build context
 COPY src/ ./
+COPY scripts/ ./scripts/
 
 # always expose a consistent port
 EXPOSE 3000

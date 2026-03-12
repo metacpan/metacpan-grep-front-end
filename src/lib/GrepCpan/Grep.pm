@@ -93,23 +93,25 @@ sub _build_zoekt_index_dir($self) {
 
 sub _zoekt_available($self) {
 
-    return $self->{_zoekt_available} if defined $self->{_zoekt_available};
-
+    # Check dynamically — don't cache. The index dir may appear after
+    # background indexing completes, and the builder for zoekt_index_dir
+    # returns '' when the dir doesn't exist yet (cached by Simple::Accessor).
     my $binary = $self->zoekt_binary;
-    my $dir    = $self->zoekt_index_dir;
+    return 0 unless defined $binary && length $binary && -x $binary;
 
-    $self->{_zoekt_available}
-        = ( defined $binary && length $binary && -x $binary
-            && defined $dir && length $dir && -d $dir ) ? 1 : 0;
+    # Check the configured dir directly instead of using the accessor,
+    # since the accessor caches '' if the dir didn't exist at startup.
+    my $dir = $self->config()->{'zoekt'}->{'index_dir'};
+    return 0 unless defined $dir && length $dir && -d $dir;
 
-    return $self->{_zoekt_available};
+    return 1;
 }
 
 sub _maybe_reindex_zoekt($self) {
 
     return unless $self->_zoekt_available;
 
-    my $index_dir   = $self->zoekt_index_dir;
+    my $index_dir   = $self->config()->{'zoekt'}->{'index_dir'};
     my $marker_file = "$index_dir/.indexed-head";
     my $current_head = $self->HEAD;
 
@@ -360,8 +362,11 @@ sub _do_search ( $self, %opts ) {
     $page //= 0;
     $page = 0 if $page < 0;
 
+    # Use Zoekt for file listing when available, but fall back to ripgrep
+    # for PCRE patterns (Zoekt uses RE2 which lacks lookbehinds/backreferences)
     my $cache;
-    if ( $self->_zoekt_available ) {
+    my $flavor = _get_git_grep_flavor($search);
+    if ( $self->_zoekt_available && $flavor ne '-P' ) {
         $cache = $self->_get_match_cache_zoekt( $search, $search_distro,
             $filetype, $caseinsensitive, $ignore_files );
     }
@@ -940,7 +945,7 @@ sub _get_match_cache_zoekt(
     my $limit = $self->config()->{limit}->{files_git_run_bg} || 2000;
     my @zoekt_cmd = (
         $self->zoekt_binary,
-        '-index_dir', $self->zoekt_index_dir,
+        '-index_dir', $self->config()->{'zoekt'}->{'index_dir'},
         '-l',
         $query,
     );
@@ -948,6 +953,7 @@ sub _get_match_cache_zoekt(
     my @list_files;
     my $gitdir = $self->git()->work_tree;
 
+    local $SIG{'ALRM'} = sub { die "Zoekt search timeout" };
     alarm( $self->config->{timeout}->{user_search} || 18 );
     eval {
         if ( open( my $fh, '-|', @zoekt_cmd ) ) {

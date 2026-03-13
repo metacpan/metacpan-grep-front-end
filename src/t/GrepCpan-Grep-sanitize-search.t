@@ -1,5 +1,6 @@
 use strict;
 use warnings;
+use utf8;
 
 use Test2::Bundle::Extended;
 use Test2::Tools::Explain;
@@ -11,7 +12,7 @@ my @tests = (
     [ qq{some\ttabs\t\t} => q{some.tabs..} ],
     [
         q{somethïng diffêrènt with àccęnts} =>
-            q{someth.ng diff.r.nt with .cc.nts}
+            q{somethïng diffêrènt with àccęnts}
     ],
 );
 
@@ -20,6 +21,7 @@ my @preserve = (
     "Something to drink",           "with some 123456789 numbers",
     q{and now some quotes '"' <--}, q{some\tescaped\ttabs\t\t},
     q[.*:;{}&-?()<>()@$|=],         q{()},
+    q{日本語テスト},                  q{café résumé naïve},
 );
 
 push @tests, map { [ $_, $_ ] } @preserve;

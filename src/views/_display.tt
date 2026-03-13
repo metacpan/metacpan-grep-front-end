@@ -41,6 +41,9 @@
     <!-- Checkboxes row -->
     <div class="row mt-2">
       <div class="col-md-12">
+        <label for="ci-perl-filter" class="mr-3" style="font-weight: normal;">
+          <input type="checkbox" name="perl-filter" id="ci-perl-filter" onClick="MetaCPANGrep.setupPerlFilter(); false;">&nbsp;Perl&nbsp;files&nbsp;only
+        </label>
         <label for="ci-default-excludes" class="mr-3" style="font-weight: normal;">
           <input type="checkbox" name="default-excludes" id="ci-default-excludes" onClick="MetaCPANGrep.setupIgnoreList(); false;">&nbsp;common&nbsp;exclude&nbsp;rules
         </label>
@@ -59,7 +62,7 @@
   <div align="center" class="container">
     <div class="row text-center justify-content-md-center">
       <div class="alert alert-danger">
-      <% alert.danger %>
+      <% alert.danger | html_entity %>
       </div>
     </div>
   </div>

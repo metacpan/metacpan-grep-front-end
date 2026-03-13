@@ -1146,6 +1146,7 @@ var MetaCPANGrep = {
   // Shared default ignore list
   defaultIgnoreList: "*.PL, /t/*, ppport.h, META.*, /inc/*, /local/*, *.md, *.json, *.ya?ml, *.conf, cpanfile*, LICENSE, MANIFEST*, INSTALL, Changes, Copying, *.SKIP, *.ini, README, *.xml, *.js, .git*",
   defaultFilterList: "*.pm, *.t",
+  perlFilterList: "*.pm, *.pl, *.t, *.pod, *.PL",
 
   homepageSetup: function() {
     // On the HomePage always precheck the default values
@@ -1176,6 +1177,31 @@ var MetaCPANGrep = {
 
   isDefaultIgnoreList: function(currentValue) {
     return currentValue === this.defaultIgnoreList;
+  },
+
+  setupPerlFilter: function() {
+    var filetypeInput = $('#search-filetype-input-results');
+    if (filetypeInput.length === 0) filetypeInput = $('#qft');
+
+    if (this.isPerlFilterList(filetypeInput.val())) {
+      filetypeInput.val("");
+    } else {
+      filetypeInput.val(this.perlFilterList);
+    }
+  },
+
+  updatePerlFilterCheckbox: function() {
+    var filetypeInput = $('#search-filetype-input-results');
+    if (filetypeInput.length === 0) filetypeInput = $('#qft');
+    var perlCheckbox = $('#ci-perl-filter');
+
+    if (perlCheckbox.length) {
+      perlCheckbox.prop('checked', this.isPerlFilterList(filetypeInput.val()));
+    }
+  },
+
+  isPerlFilterList: function(currentValue) {
+    return currentValue === this.perlFilterList;
   },
 
   // List of selectors (IDs or classes) for input fields
@@ -1209,10 +1235,16 @@ $(document).ready(function() {
 
   // Set up initial state
   MetaCPANGrep.updateIgnoreListCheckbox();
+  MetaCPANGrep.updatePerlFilterCheckbox();
 
   // Listen for changes on the ignore input
   $('#ignore-files-input').on('input change', function() {
     MetaCPANGrep.updateIgnoreListCheckbox();
+  });
+
+  // Listen for changes on the filetype input
+  $('#search-filetype-input-results, #qft').on('input change', function() {
+    MetaCPANGrep.updatePerlFilterCheckbox();
   });
 
   // Also connect the checkbox to update the text field
@@ -1221,6 +1253,18 @@ $(document).ready(function() {
       $('#ignore-files-input').val(MetaCPANGrep.defaultIgnoreList);
     } else {
       $('#ignore-files-input').val('');
+    }
+  });
+
+  // Connect the perl filter checkbox to update the filetype field
+  $('#ci-perl-filter').on('change', function() {
+    var filetypeInput = $('#search-filetype-input-results');
+    if (filetypeInput.length === 0) filetypeInput = $('#qft');
+
+    if ($(this).prop('checked')) {
+      filetypeInput.val(MetaCPANGrep.perlFilterList);
+    } else {
+      filetypeInput.val('');
     }
   });
 });

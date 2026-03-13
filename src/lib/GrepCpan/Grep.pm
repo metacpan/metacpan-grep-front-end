@@ -352,7 +352,6 @@ sub _do_search ( $self, %opts ) {
         $result->{distro}  //= $distro;
         $result->{matches} //= [];
 
-        #@diffblocks = scalar @diffblocks; # debugging clear the blocks
         push @{ $result->{matches} },
             { file => $shortpath, blocks => [@diffblocks] };
         return
@@ -416,34 +415,11 @@ sub _do_search ( $self, %opts ) {
     }
     $process_file->();    # process the last block
 
-    # update results...
-    #update_match_counter( $cache );
-
     return {
         cache             => $cache,
         output            => \@output,
         is_a_known_distro => $is_a_known_distro
     };
-}
-
-sub update_match_counter($cache) {    # dead
-
-    my ( $count_distro, $count_files ) = ( 0, 0 );
-    foreach my $distro ( sort keys %{ $cache->{distros} } ) {
-        my $c
-            = eval { scalar @{ $cache->{distros}->{$distro}->{matches} } }
-            // 0;
-        next unless $c;
-        ++$count_distro;
-        $count_files += $c;
-    }
-
-    $cache->{match} = {
-        files   => $count_files,
-        distros => $count_distro
-    };
-
-    return;
 }
 
 sub current_version($self) {
@@ -742,8 +718,6 @@ sub _get_match_cache(
     # remove the final marker if there
     my $search_in_progress = 1;
 
-    #say "LAST LINE .... " . $list_files->[-1];
-    #say " check  ? ", $list_files->[-1] eq END_OF_FILE_MARKER() ? 1 : 0;
     if ( scalar @$list_files && $list_files->[-1] eq END_OF_FILE_MARKER() ) {
         pop @$list_files;
         $search_in_progress = 0;
@@ -780,7 +754,6 @@ sub _get_match_cache(
 
     if ( !$search_in_progress ) {
 
-        #say "Search in progress..... done caching yaml file";
         $self->_save_cache( $request_cache_file, $cache );
         $self->_save_cache( $cache_file,         $cache );
         unlink $raw_cache_file if -e $raw_cache_file;
@@ -827,7 +800,6 @@ sub run_git_cmd_limit ( $self, %opts ) {
         }
         else {
             # return the content of our current cache from previous run
-            #say "use our cache from previous run";
             my @from_cache = File::Slurp::read_file($cache_file);
             chomp @from_cache;
             return \@from_cache;
@@ -862,7 +834,6 @@ sub run_git_cmd_limit ( $self, %opts ) {
                 push @lines, $line;
                 last if ++$c > $limit;
 
-                #say "GOT: $line ", $line eq END_OF_FILE_MARKER() ? 1 : 0;
                 last if $line eq END_OF_FILE_MARKER();
             }
             alarm(0);
@@ -879,8 +850,7 @@ sub run_git_cmd_limit ( $self, %opts ) {
         local $| = 1;
         my $current_pid       = $$;
         my $can_write_to_pipe = 1;
-        local $SIG{'USR1'} = sub {    # not really used anymore
-                                      #warn "SIGUSR1.... start";
+        local $SIG{'USR1'} = sub {
             $can_write_to_pipe = 0;
             close($CW);
             open STDIN,  '>', '/dev/null';
@@ -891,7 +861,6 @@ sub run_git_cmd_limit ( $self, %opts ) {
             return;
         };
 
-        #kill 'USR1' => $$; # >>>>
         my $run;
 
         local $SIG{'ALRM'} = sub {

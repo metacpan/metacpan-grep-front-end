@@ -22,8 +22,8 @@
   <p class="description">
 
     <p>
-    <a href="https://metacpan.org/release/<% item.distro | uri %>"><i class="fa fa-book"></i>&nbsp;<i>view release on metacpan</i></a>
-    or <a href="https://metacpan.org/search?q=<% item.distro | uri %>"><i class="fa fa-search"></i>&nbsp;<i>search on metacpan</i></a>
+    <a href="https://metacpan.org/release/<% item.distro | uri %>"><i class="fa-solid fa-book"></i>&nbsp;<i>view release on metacpan</i></a>
+    or <a href="https://metacpan.org/search?q=<% item.distro | uri %>"><i class="fa-solid fa-magnifying-glass"></i>&nbsp;<i>search on metacpan</i></a>
     </p>
 
   <% FOREACH match IN item.matches %>
@@ -35,7 +35,7 @@
 %>
   <p class="description">
     <a class="author" href="<% link_to_distro %>&amp;f=<% match.file | uri %>" title="grep on this file"><% match.file %></a>
-    <a class="author" href="https://metacpan.org/release/<% item.distro | uri %>/source/<% match.file | url %>#L<% line | uri %>" title="view on Meta::CPAN"><i class="fa fa-book"></i>&nbsp;view on Meta::CPAN</a>
+    <a class="author" href="https://metacpan.org/release/<% item.distro | uri %>/source/<% match.file | url %>#L<% line | uri %>" title="view on Meta::CPAN"><i class="fa-solid fa-book"></i>&nbsp;view on Meta::CPAN</a>
     <% FOREACH bl IN match.blocks %>
     <pre class="line-numbers" data-start="<% bl.start_at %>" data-line="<% bl.matchlines.join(',') %>"><code class="language-perl"><%= bl.code | html_entity -%></code></pre>
     <% END %>
@@ -43,10 +43,10 @@
   <% END %>
 
 <% IF qd != item.distro %>
-    <a href="<% link_to_distro %>"><i class="fa fa-list"></i>&nbsp;view all matches for this distribution</a><br>
+    <a href="<% link_to_distro %>"><i class="fa-solid fa-list"></i>&nbsp;view all matches for this distribution</a><br>
   <% IF qd && qd.length && item.matches.size %>
-    <a href="https://metacpan.org/release/<% item.distro | uri %>"><i class="fa fa-book"></i>&nbsp;<i>view release on metacpan</i></a>
-    - <a href="https://metacpan.org/search?q=<% item.distro | uri %>"><i class="fa fa-search"></i>&nbsp;<i>search on metacpan</i></a>
+    <a href="https://metacpan.org/release/<% item.distro | uri %>"><i class="fa-solid fa-book"></i>&nbsp;<i>view release on metacpan</i></a>
+    - <a href="https://metacpan.org/search?q=<% item.distro | uri %>"><i class="fa-solid fa-magnifying-glass"></i>&nbsp;<i>search on metacpan</i></a>
   <% END %>
 <% END %>
 

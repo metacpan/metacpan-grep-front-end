@@ -581,7 +581,7 @@ sub _parse_query_filetype ( $self, $query_filetype ) {
 
     my @filetypes = split( /\s*,\s*/, $query_filetype );
     @filetypes
-        = grep { length($_) && m{^ [a-zA-Z0-9_\-\.\*]+ $}x } @filetypes;
+        = grep { length($_) && m{^ [a-zA-Z0-9_\-\.\*\[\]]+ $}x } @filetypes;
 
     # ignore rules using '..'
     return if grep {m{\.\.}} @filetypes;
@@ -612,7 +612,7 @@ sub _parse_ignore_files ( $self, $ignore_files ) {
 
     return unless length $ignore_files;
 
-    my @ignorelist = grep { length($_) && m{^ [a-zA-Z0-9_\-\.\*/]+ $}x }
+    my @ignorelist = grep { length($_) && m{^ [a-zA-Z0-9_\-\.\*/\[\]]+ $}x }
         split( /\s*,\s*/, $ignore_files );
 
     # ignore rules using '..'
@@ -662,10 +662,13 @@ sub _get_match_cache(
 
     $search_distro =~ s{::+}{-}g if defined $search_distro;
 
+    # strip leading ^ anchor — the glob is already anchored by directory structure
+    $search_distro =~ s{^\^}{} if defined $search_distro;
+
     # the distro can either come from url or the query with some glob
     if (   defined $search_distro
         && length($search_distro)
-        && $search_distro =~ qr{^([0-9a-zA-Z_\*])[0-9a-zA-Z_\*\-]*$} )
+        && $search_distro =~ qr{^([0-9a-zA-Z_\*\.])[0-9a-zA-Z_\*\.\-]*$} )
     {
         # replace the disros search
         $git_cmd[-1]

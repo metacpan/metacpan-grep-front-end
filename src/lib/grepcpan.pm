@@ -9,6 +9,7 @@ use GrepCpan::Grep ();
 
 use GrepCpan::std;
 
+use URI::Escape qw(uri_escape_utf8 uri_unescape);
 use utf8;
 
 our $VERSION = '1.01';
@@ -106,7 +107,14 @@ get '/search' => sub {
         search_distro => $i{'qd'},
         query         => $query,
         page          => $page,
-        last_searches => _update_history_cookie($i{'q'}),
+        last_searches => _update_history_cookie({
+            q   => $i{'q'},
+            qft => $i{'qft'},
+            qd  => $i{'qd'},
+            qls => $i{'qls'},
+            qci => $qci,
+            qifl => $i{'qifl'},
+        }),
         nopagination  => $nopagination,
         show_sumup    => $show_sumup,
         qft           => $i{'qft'} // '',
@@ -145,7 +153,7 @@ get '/api/search' => sub {
 ### dummies helpers
 ###
 
-sub _update_history_cookie ($search)
+sub _update_history_cookie ($params)
 {    # and return the human version list in all cases...
 
     my $separator = q{||};
@@ -154,11 +162,22 @@ sub _update_history_cookie ($search)
 
     my @last_searches = split( qr{\Q$separator\E}, $value // '' );
 
+    my $search = ref $params eq 'HASH' ? $params->{q} : $params;
+
     if ( defined $search && length $search ) {
-        $value =~ s{\Q$separator\E}{.}g if defined $value;    # mmmm
-        @last_searches = grep { $_ ne $search }
-            @last_searches;    # remove it from history if there
-        unshift @last_searches, $search;    # move it first
+
+        # build a query string entry with all active filters
+        my $entry;
+        if ( ref $params eq 'HASH' ) {
+            $entry = _build_search_entry($params);
+        }
+        else {
+            $entry = $search;
+        }
+
+        # deduplicate by comparing the q param (core search term)
+        @last_searches = grep { _extract_q($_) ne $search } @last_searches;
+        unshift @last_searches, $entry;    # move it first
         @last_searches = splice( @last_searches, 0,
             $Config->{'cookie'}->{'history_size'} );
         cookie
@@ -167,7 +186,47 @@ sub _update_history_cookie ($search)
             expires => "21 days";
     }
 
-    return \@last_searches;
+    # return structured data for the template
+    return [ map { _parse_search_entry($_) } @last_searches ];
+}
+
+sub _build_search_entry ($params) {
+    my @parts;
+    for my $key (qw(q qd qft qci qls qifl)) {
+        my $val = $params->{$key};
+        push @parts, "$key=" . uri_escape_utf8($val)
+            if defined $val && length $val;
+    }
+    return join( '&', @parts );
+}
+
+sub _extract_q ($entry) {
+    # handle both old format (plain string) and new format (query string)
+    if ( $entry =~ m{(?:^|&)q=([^&]*)} ) {
+        return uri_unescape($1);
+    }
+    return $entry;    # legacy plain search term
+}
+
+sub _parse_search_entry ($entry) {
+    # new format: q=foo&qd=Bar&qci=1
+    if ( $entry =~ m{(?:^|&)q=} ) {
+        my %params;
+        for my $pair ( split /&/, $entry ) {
+            my ( $k, $v ) = split /=/, $pair, 2;
+            $params{$k} = $v if defined $k && defined $v;
+        }
+        return {
+            query_string => $entry,
+            display      => uri_unescape($params{q} // ''),
+        };
+    }
+
+    # legacy format: plain search term
+    return {
+        query_string => "q=$entry",
+        display      => $entry,
+    };
 }
 
 sub home {

@@ -232,6 +232,26 @@ sub _get_git_grep_flavor($s) {
     return q{-P};
 }
 
+# Validate a search string as a PCRE pattern.
+# Returns undef if valid, or the error message if invalid.
+sub _validate_pcre_pattern($s) {
+    return undef unless defined $s;
+    return undef if _get_git_grep_flavor($s) eq q{--fixed-string};
+
+    local $@;
+    eval {
+        no warnings 'regexp';    # user patterns may have unescaped braces
+        qr/$s/;
+    };
+    if ($@) {
+        my $err = $@;
+        $err =~ s{ at .+ line \d+.*}{}s;    # strip Perl location info
+        $err =~ s{^\s+|\s+$}{}g;
+        return $err;
+    }
+    return undef;
+}
+
 # idea use git rev-parse HEAD to include it in the cache name
 
 sub do_search ( $self, %opts ) {
@@ -249,6 +269,28 @@ sub do_search ( $self, %opts ) {
     my $gitdir = $self->git()->work_tree;
 
     $search = _sanitize_search($search);
+
+    # Validate regex before running git grep — invalid PCRE would silently
+    # return empty results, confusing users.
+    if ( my $regex_error = _validate_pcre_pattern($search) ) {
+        my $elapsed = sprintf( "%.3f",
+            Time::HiRes::tv_interval( $t0, [Time::HiRes::gettimeofday] ) );
+        return {
+            is_incomplete      => 0,
+            search_in_progress => 0,
+            match              => { files => 0, distros => 0 },
+            adjusted_request   => {
+                q => {
+                    error => "Invalid regular expression: $regex_error",
+                    value => $search,
+                },
+            },
+            results           => [],
+            time_elapsed      => $elapsed,
+            is_a_known_distro => 0,
+            version           => $self->current_version(),
+        };
+    }
 
     my $results = $self->_do_search(%opts);
 

@@ -266,9 +266,8 @@ sub do_search ( $self, %opts ) {
 
     my $t0 = [Time::HiRes::gettimeofday];
 
-    my $gitdir = $self->git()->work_tree;
-
     $search = _sanitize_search($search);
+    $opts{search} = $search;
 
     # Validate regex before running git grep — invalid PCRE would silently
     # return empty results, confusing users.
@@ -964,9 +963,11 @@ sub run_git_cmd_limit ( $self, %opts ) {
             last if ++$counter > $limit_bg_process;
         }
         $run->close;
-        print {$to_cache}
-            qq{\n};    # in case of the last line did not had a newline
-        print {$to_cache} END_OF_FILE_MARKER() . qq{\n} if $cache_file;
+        if ($cache_file) {
+            print {$to_cache}
+                qq{\n};    # in case of the last line did not had a newline
+            print {$to_cache} END_OF_FILE_MARKER() . qq{\n};
+        }
         print {$CW} END_OF_FILE_MARKER() . qq{\n}       if $can_write_to_pipe;
         say "-- Request finished by kid: $counter lines - "
             . join( ' ', 'git', @$cmd );

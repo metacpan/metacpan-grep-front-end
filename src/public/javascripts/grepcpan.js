@@ -5,23 +5,33 @@
  * the code that this application actually uses.
  */
 
-/* Loading overlay shown while search is in progress */
+/* Loading overlay shown while search is in progress.
+ * Safari stops rendering once form submission starts, so we must
+ * ensure the overlay is painted BEFORE navigation begins.
+ * Strategy: prevent default submit, show overlay, wait for paint
+ * via requestAnimationFrame, then submit programmatically.
+ */
 function doGrepping() {
   var container = document.getElementById('firstcontainer');
   var overlay = document.getElementById('overlay');
   if (container) container.style.display = 'none';
   if (overlay) {
     overlay.style.display = 'block';
-    overlay.style.opacity = '0';
-    /* Simple fade-in */
-    var opacity = 0;
-    var timer = setInterval(function() {
-      opacity += 0.05;
-      overlay.style.opacity = String(opacity);
-      if (opacity >= 1) clearInterval(timer);
-    }, 50);
+    overlay.style.opacity = '1';
   }
-  return true;
+
+  /* Find the form and defer submission so the browser can paint first */
+  var form = document.getElementById('search-form')
+    || document.querySelector('form[action="/search"]');
+  if (form) {
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        form.submit();
+      });
+    });
+    return false; /* prevent default submission; we submit after paint */
+  }
+  return true; /* fallback: submit normally if form not found */
 }
 
 /* Application namespace */

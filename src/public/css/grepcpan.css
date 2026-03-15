@@ -395,6 +395,13 @@ input#search-filetype-input-results {
   left: 0;
   text-align: center;
   font-size: 2.7em;
+  /* CSS animation is more reliable than JS setInterval across browsers */
+  animation: overlayFadeIn 0.3s ease-in;
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* ========================================================================

@@ -13,7 +13,7 @@
     </div>
     <div class="col-md-9">
 
-<form action="/search" id="search-form" class="search-form form-horizontal" onSubmit="doGrepping()">
+<form action="/search" id="search-form" class="search-form form-horizontal" onSubmit="return doGrepping()">
   <div class="form-group">
     <!-- First row of inputs -->
     <div class="row mb-3 no-gutters">

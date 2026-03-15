@@ -23,7 +23,6 @@ use Simple::Accessor qw{
 };
 
 use POSIX              qw{:sys_wait_h setsid};
-use Proc::ProcessTable ();
 use Time::HiRes        ();
 use File::Path         ();
 use File::Slurp        ();
@@ -897,7 +896,7 @@ sub run_git_cmd_limit ( $self, %opts ) {
         local $SIG{'USR1'} = sub {
             $can_write_to_pipe = 0;
             close($CW);
-            open STDIN,  '>', '/dev/null';
+            open STDIN,  '<', '/dev/null';
             open STDOUT, '>', '/dev/null';
             open STDERR, '>', '/dev/null';
             setsid();

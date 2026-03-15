@@ -128,6 +128,8 @@ get '/search' => sub {
 
 ### API routes
 get '/api/search' => sub {
+    _set_cache_headers_for('apisearch');
+
     my $q            = param('q');
     my $filetype     = param('qft');
     my $qdistro      = param('qd');

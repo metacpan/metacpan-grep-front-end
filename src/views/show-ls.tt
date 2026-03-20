@@ -2,12 +2,12 @@
 <!-- beginning of module -->
 
   <%
-    l2d_qci  = qci | html_entity;
-    l2d_q    = search | html_entity;
-    l2d_qd   = item.distro | html_entity;
-    l2d_qft  = qft | html_entity;
-    l2d_qls  = qls | html_entity;
-    l2d_qifl = qifl | html_entity;
+    l2d_qci  = qci | uri;
+    l2d_q    = search | uri;
+    l2d_qd   = item.distro | uri;
+    l2d_qft  = qft | uri;
+    l2d_qls  = qls | uri;
+    l2d_qifl = qifl | uri;
 
     SET link_to_distro = "/search?qci=${l2d_qci}&amp;q=${l2d_q}&amp;qft=${l2d_qft}&amp;qd=${l2d_qd}&amp;qls=${l2d_qls}&amp;qifl=${l2d_qifl}";
     SET link_withmatch = "/search?qci=${l2d_qci}&amp;q=${l2d_q}&amp;qft=${l2d_qft}&amp;qd=${l2d_qd}&amp;qls=0&amp;qifl=${l2d_qifl}";
@@ -28,7 +28,7 @@
 
   <% FOREACH match IN item.matches %>
   <p class="description">
-    <a class="author" href="<% link_withmatch %>&amp;f=<% match.file | html_entity %>" title="grep on this file"><% match.file %></a>
+    <a class="author" href="<% link_withmatch %>&amp;f=<% match.file | uri %>" title="grep on this file"><% match.file %></a>
   </p>
   <% END %>
 

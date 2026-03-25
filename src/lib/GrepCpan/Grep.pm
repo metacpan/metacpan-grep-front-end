@@ -215,10 +215,6 @@ sub _sanitize_search($s) {
 
     return undef unless defined $s;
     $s =~ s{\n}{}g;
-    $s =~ s{'}{\'}g;
-
-    # whitelist possible characters (including unicode letters and marks)
-    $s =~ s{[^\p{L}\p{M}\^0-9\-\.\?\\*\&_'"~!\$\%()\[\]\{\}:;<>,/\@| =]}{.}g;
 
     return $s;
 }

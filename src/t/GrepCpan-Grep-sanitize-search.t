@@ -8,12 +8,24 @@ use Test2::Plugin::NoWarnings;
 
 use GrepCpan::Grep;
 
+# _sanitize_search now only strips newlines — all other characters pass
+# through unchanged.  Regex validation is handled separately by
+# _validate_pcre_pattern.
+
 my @tests = (
-    [ qq{some\ttabs\t\t} => q{some.tabs..} ],
+    # Tabs are preserved (no longer replaced by '.')
+    [ qq{some\ttabs\t\t} => qq{some\ttabs\t\t} ],
+    # Unicode is preserved
     [
         q{somethïng diffêrènt with àccęnts} =>
             q{somethïng diffêrènt with àccęnts}
     ],
+    # Newlines are stripped
+    [ "line1\nline2\n" => "line1line2" ],
+    # Characters that were previously replaced (like +) are now preserved
+    [ q{\d+(,\d+)?}   => q{\d+(,\d+)?} ],
+    [ q{\bOff\s*\(}   => q{\bOff\s*\(} ],
+    [ q{foo#bar}      => q{foo#bar} ],
 );
 
 my @preserve = (
@@ -22,6 +34,7 @@ my @preserve = (
     q{and now some quotes '"' <--}, q{some\tescaped\ttabs\t\t},
     q[.*:;{}&-?()<>()@$|=],         q{()},
     q{日本語テスト},                  q{café résumé naïve},
+    q{+?^},
 );
 
 push @tests, map { [ $_, $_ ] } @preserve;

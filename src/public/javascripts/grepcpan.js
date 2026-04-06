@@ -38,12 +38,37 @@ function doGrepping() {
 var MetaCPANGrep = {
   defaultIgnoreList: "*.PL, /t/*, ppport.h, META.*, /inc/*, /local/*, *.md, *.json, *.ya?ml, *.conf, cpanfile*, LICENSE, MANIFEST*, INSTALL, Changes, Copying, *.SKIP, *.ini, README, *.xml, *.js, .git*",
   defaultFilterList: "*.pm, *.t",
+  perlFilterList: "*.pm, *.pl, *.t, *.pod, *.PL",
 
   homepageSetup: function() {
     var qft = document.getElementById('qft');
     var ignoreInput = document.getElementById('ignore-files-input');
     if (qft) qft.value = this.defaultFilterList;
     if (ignoreInput) ignoreInput.placeholder = this.defaultIgnoreList;
+  },
+
+  setupPerlFilter: function() {
+    var filetypeInput = document.getElementById('search-filetype-input-results')
+      || document.getElementById('qft');
+    if (!filetypeInput) return;
+    if (this.isPerlFilterList(filetypeInput.value)) {
+      filetypeInput.value = "";
+    } else {
+      filetypeInput.value = this.perlFilterList;
+    }
+  },
+
+  updatePerlFilterCheckbox: function() {
+    var filetypeInput = document.getElementById('search-filetype-input-results')
+      || document.getElementById('qft');
+    var checkbox = document.getElementById('ci-perl-filter');
+    if (filetypeInput && checkbox) {
+      checkbox.checked = this.isPerlFilterList(filetypeInput.value);
+    }
+  },
+
+  isPerlFilterList: function(currentValue) {
+    return currentValue === this.perlFilterList;
   },
 
   setupIgnoreList: function() {
@@ -109,11 +134,20 @@ document.addEventListener('keydown', function(e) {
 document.addEventListener('DOMContentLoaded', function() {
   MetaCPANGrep.globalSetup();
   MetaCPANGrep.updateIgnoreListCheckbox();
+  MetaCPANGrep.updatePerlFilterCheckbox();
 
   var ignoreInput = document.getElementById('ignore-files-input');
   if (ignoreInput) {
     ignoreInput.addEventListener('input', function() {
       MetaCPANGrep.updateIgnoreListCheckbox();
+    });
+  }
+
+  var filetypeInput = document.getElementById('search-filetype-input-results')
+    || document.getElementById('qft');
+  if (filetypeInput) {
+    filetypeInput.addEventListener('input', function() {
+      MetaCPANGrep.updatePerlFilterCheckbox();
     });
   }
 

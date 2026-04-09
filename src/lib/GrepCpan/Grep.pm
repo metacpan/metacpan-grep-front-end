@@ -536,7 +536,8 @@ sub get_list_of_files_to_search( $self, $cache, $search, $page, $distro,
 
             # check if there is a distro filter and apply it
             if ( defined $distro && length $distro ) {
-                $keep = $key =~ qr{$distro}i ? 1 : 0;
+                my $safe_distro = quotemeta($distro);
+                $keep = $key =~ qr{$safe_distro}i ? 1 : 0;
             }
             $keep;
             }
@@ -872,6 +873,7 @@ sub run_git_cmd_limit ( $self, %opts ) {
             while ( my $line = readline($from_kid) ) {
                 chomp $line;
                 if ( $c == 1 && $line eq TOO_BUSY_MARKER() ) {
+                    alarm(0);
                     return [];
                 }
                 push @lines, $line;
@@ -970,7 +972,7 @@ sub run_git_cmd_limit ( $self, %opts ) {
         print {$CW} END_OF_FILE_MARKER() . qq{\n}       if $can_write_to_pipe;
         say "-- Request finished by kid: $counter lines - "
             . join( ' ', 'git', @$cmd );
-        exit $?;
+        exit 0;
     }
 
     return \@lines;

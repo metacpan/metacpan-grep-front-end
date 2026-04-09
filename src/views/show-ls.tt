@@ -18,7 +18,7 @@
     </strong></big>
     <div class="logged_out" style="display: inline;">
       <a href="<% link_to_distro %>" class="favorite highlight">
-      <span><%= item.files.size %></span> <%= item.files.size <= 1 ? 'match' : 'match' %></a>
+      <span><%= item.files.size %></span> <%= item.files.size <= 1 ? 'match' : 'matches' %></a>
     </div>
 
   <br>
@@ -28,7 +28,7 @@
 
   <% FOREACH match IN item.matches %>
   <p class="description">
-    <a class="author" href="<% link_withmatch %>&amp;f=<% match.file | html_entity %>" title="grep on this file"><% match.file %></a>
+    <a class="author" href="<% link_withmatch %>&amp;f=<% match.file | uri %>" title="grep on this file"><% match.file | html %></a>
   </p>
   <% END %>
 

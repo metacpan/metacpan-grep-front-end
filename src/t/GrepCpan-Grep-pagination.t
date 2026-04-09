@@ -121,4 +121,33 @@ my $cache = {
     like $files->[0], qr{lib/Multi\.pm}, '.pm file preferred over others';
 }
 
+# Distro filter with regex metacharacters (must not crash or match unexpectedly)
+{
+    my $cache_regex = {
+        distros => {
+            'Foo-Bar'   => { prefix => 'distros/f/Foo-Bar',   files => ['lib/Foo/Bar.pm'] },
+            'Foo.Bar'   => { prefix => 'distros/f/Foo.Bar',   files => ['lib/FooDBar.pm'] },
+            'Baz-Quux'  => { prefix => 'distros/b/Baz-Quux',  files => ['lib/Baz.pm'] },
+        },
+    };
+
+    # Regex metacharacters in distro should be treated as literals
+    my $files = $grep->get_list_of_files_to_search(
+        $cache_regex, 'test', 0, 'Foo(.*)', undef, undef
+    );
+    is scalar @$files, 0, 'distro with regex metacharacters does not match anything';
+
+    # Parentheses should not crash
+    $files = $grep->get_list_of_files_to_search(
+        $cache_regex, 'test', 0, 'Foo(', undef, undef
+    );
+    is scalar @$files, 0, 'unbalanced paren in distro filter does not crash';
+
+    # Literal dot in distro name should match exactly
+    $files = $grep->get_list_of_files_to_search(
+        $cache_regex, 'test', 0, 'Foo.Bar', undef, undef
+    );
+    is scalar @$files, 1, 'literal dot matches distro with dot in name';
+}
+
 done_testing;

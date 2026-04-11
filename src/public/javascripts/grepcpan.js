@@ -70,8 +70,10 @@ var MetaCPANGrep = {
 
   inputSelectors: [
     'ignore-files-input',
-    'only-files-input',
     'search-input',
+    'search-input-results',
+    'search-filetype-input-results',
+    'search-distro-input-results',
     'qft',
     'qd',
     'qifl',
@@ -124,12 +126,5 @@ document.addEventListener('DOMContentLoaded', function() {
       if (!input) return;
       input.value = this.checked ? MetaCPANGrep.defaultIgnoreList : '';
     });
-  }
-
-  /* Persist search size preference */
-  var searchSize = document.getElementById('search-size');
-  if (searchSize) {
-    var savedSize = localStorage.getItem('search_size');
-    if (savedSize) searchSize.value = savedSize;
   }
 });

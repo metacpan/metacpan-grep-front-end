@@ -360,7 +360,17 @@ sub _do_search ( $self, %opts ) {
         $matches = \@out;
     }
 
-    # now format the output in order to be able to use it
+    my $output = _parse_git_grep_output( $matches, $cache );
+
+    return {
+        cache             => $cache,
+        output            => $output,
+        is_a_known_distro => $is_a_known_distro
+    };
+}
+
+sub _parse_git_grep_output ( $matches, $cache ) {
+
     my @output;
     my $current_file;
     my @diffblocks;
@@ -382,11 +392,10 @@ sub _do_search ( $self, %opts ) {
 
     my $process_file = sub {
         return unless defined $current_file;
-        $add_block->();    # push the last block
+        $add_block->();
 
         my ( $where, $distro, $shortpath ) = massage_filepath($current_file);
         return unless length $shortpath;
-        my $prefix = join '/', $where, $distro;
 
         my $result = $cache->{distros}->{$distro} // {};
         $result->{distro}  //= $distro;
@@ -396,70 +405,58 @@ sub _do_search ( $self, %opts ) {
             { file => $shortpath, blocks => [@diffblocks] };
         return
             if scalar @output
-            && $output[-1] eq
-            $result;    # same hash do not add it more than once
+            && $output[-1] eq $result;
         push @output, $result;
 
         return;
     };
 
-    my $previous_file;
     my $qr_match_line = qr{^([0-9]+)([-:])};
 
     foreach my $line (@$matches) {
-        if ( !defined $current_file ) {
 
-     # when more than one block match we are just going to have a -- separator
-            if ( $line =~ m{^distros/} ) {
-                $previous_file = $current_file = $line;
-                next;
-            }
-            $current_file //= $previous_file;
+        # new file header (--heading mode: appears once per file)
+        if ( $line =~ m{^distros/} ) {
+            $process_file->() if defined $current_file;
+            $current_file = $line;
+            @diffblocks       = ();
+            $diff             = '';
+            undef $start_line;
+            undef $line_number;
+            @matching_lines   = ();
+            next;
         }
 
         if ( $line eq '--' ) {
-
-        # we found a new block, it's either from the current file or a new one
-            $process_file->();
-            undef $current_file;    # reset: could use previous or next file
-            $diff       = '';
-            @diffblocks = ();
+            # block separator within the same file — save current block
+            $add_block->();
+            $diff           = '';
             undef $start_line;
             undef $line_number;
             @matching_lines = ();
             next;
         }
 
-        # matching the main part
         next unless $line =~ s/$qr_match_line//;
         my ( $new_line, $prefix ) = ( $1, $2 );
 
         $start_line //= $new_line;
-        if ( length($line) > 250 )
-        {    # max length autorized ( js minified & co )
+        if ( length($line) > 250 ) {
             $line = substr( $line, 0, 250 ) . '...';
         }
         if ( !defined $line_number || $new_line == $line_number + 1 ) {
-
-            # same block
             push @matching_lines, $new_line if $prefix eq ':';
             $diff .= $line . "\n";
         }
         else {
-            # new block
             $add_block->();
-            $diff = $line . "\n";    # reset the block
+            $diff = $line . "\n";
         }
         $line_number = $new_line;
-
     }
-    $process_file->();    # process the last block
+    $process_file->();
 
-    return {
-        cache             => $cache,
-        output            => \@output,
-        is_a_known_distro => $is_a_known_distro
-    };
+    return \@output;
 }
 
 sub current_version($self) {

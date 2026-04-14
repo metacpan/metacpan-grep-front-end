@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
+  <ShortName>grep metacpan</ShortName>
+  <Description>Search CPAN distributions with Perl-compatible regular expressions</Description>
+  <InputEncoding>UTF-8</InputEncoding>
+  <Url type="text/html" template="https://grep.metacpan.org/search?q={searchTerms}"/>
+  <Image width="16" height="16" type="image/x-icon">https://grep.metacpan.org/static/icons/favicon.ico</Image>
+</OpenSearchDescription>

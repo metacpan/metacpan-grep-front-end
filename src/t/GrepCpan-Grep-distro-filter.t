@@ -60,4 +60,62 @@ for my $t (@invalid) {
     is _normalize_distro($input), undef, "invalid: $desc";
 }
 
+# Test that get_list_of_files_to_search uses quotemeta on the distro filter.
+# This exercises the Perl-side regex filter at line ~539, which is separate
+# from the git pathspec validation above.
+
+use GrepCpan::Grep;
+
+{
+    my $grep = GrepCpan::Grep->new(
+        distros_per_page => 20,
+    );
+
+    # Build a fake cache with known distro keys
+    my $cache = {
+        distros => {
+            'App-Foo'   => { prefix => 'distros/A/App-Foo',   files => ['lib/App/Foo.pm'] },
+            'App-Bar'   => { prefix => 'distros/A/App-Bar',   files => ['lib/App/Bar.pm'] },
+            'Try-Tiny'  => { prefix => 'distros/T/Try-Tiny',  files => ['lib/Try/Tiny.pm'] },
+            'Foo.Bar'   => { prefix => 'distros/F/Foo.Bar',   files => ['lib/Foo/Bar.pm'] },
+        },
+    };
+
+    # Normal substring match
+    my $result = $grep->get_list_of_files_to_search(
+        $cache, 'test', 0, 'App', undef, undef
+    );
+    is scalar @$result, 2, 'distro filter "App" matches 2 distros';
+
+    # Regex metacharacters should be treated as literals, not regex
+    # Without quotemeta, ".*" would match everything
+    $result = $grep->get_list_of_files_to_search(
+        $cache, 'test', 0, '.*', undef, undef
+    );
+    is scalar @$result, 0,
+        'distro filter ".*" is literal (quotemeta), matches nothing';
+
+    # Dot should be literal, not regex "any char"
+    $result = $grep->get_list_of_files_to_search(
+        $cache, 'test', 0, 'Foo.Bar', undef, undef
+    );
+    is scalar @$result, 1,
+        'distro filter "Foo.Bar" matches literal dot only';
+
+    # Parentheses should not be treated as regex groups
+    $result = $grep->get_list_of_files_to_search(
+        $cache, 'test', 0, 'App(Foo|Bar)', undef, undef
+    );
+    is scalar @$result, 0,
+        'distro filter with regex alternation is literal, matches nothing';
+
+    # Verify no Perl error from unbalanced regex chars
+    for my $dangerous ( '(', '[', '{', '\\', '+', '?', '|', '$', '^' ) {
+        my $r = $grep->get_list_of_files_to_search(
+            $cache, 'test', 0, $dangerous, undef, undef
+        );
+        ok defined $r, "distro filter '$dangerous' does not crash";
+    }
+}
+
 done_testing;

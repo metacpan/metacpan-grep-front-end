@@ -55,9 +55,9 @@ my $config = {
 };
 
 # Initialize a git repo with one commit so Git::Repository doesn't die on HEAD
-system("git init $repodir >/dev/null 2>&1") == 0
+system("$git init $repodir >/dev/null 2>&1") == 0
     or die "Failed to init repo";
-system("cd $repodir && git commit --allow-empty -m 'init' >/dev/null 2>&1") == 0
+system("cd $repodir && $git -c user.email=test\@test.com -c user.name=Test commit --allow-empty -m init >/dev/null 2>&1") == 0
     or die "Failed to create initial commit";
 mkdir "$repodir/distros" unless -d "$repodir/distros";
 

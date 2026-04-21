@@ -16,6 +16,15 @@ our $VERSION = '1.01';
 
 my $Config = config()->{'grepcpan'};
 
+# Security headers on all responses
+hook after => sub {
+    response_header 'X-Frame-Options'           => 'SAMEORIGIN';
+    response_header 'X-Content-Type-Options'     => 'nosniff';
+    response_header 'Referrer-Policy'            => 'strict-origin-when-cross-origin';
+    response_header 'Permissions-Policy'         => 'geolocation=(), microphone=(), camera=()';
+    response_header 'X-Permitted-Cross-Domain-Policies' => 'none';
+};
+
 # patch the LD_LIBRARY_PATH to load libpcre
 if ( $Config->{'ENV'} && $Config->{'ENV'}{'LD_LIBRARY_PATH'} ) {
     $ENV{'LD_LIBRARY_PATH'} = $Config->{'ENV'}{'LD_LIBRARY_PATH'};
@@ -183,7 +192,9 @@ sub _update_history_cookie ($params)
         cookie
             $COOKIE_LAST_SEARCH =>
             Encode::encode( 'UTF-8', join( $separator, @last_searches ) ),
-            expires => "21 days";
+            expires   => "21 days",
+            http_only => 1,
+            same_site => 'Lax';
     }
 
     # return structured data for the template

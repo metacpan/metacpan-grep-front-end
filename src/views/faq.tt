@@ -3,34 +3,32 @@
 
 
 <p>
-	<b>Why grepcpan is slow ?</b>
+	<b>Why is grepcpan slow?</b>
 	<br>
-	short answer: this is a *young* experimental project using a 17Gb git repository with about a 1.5Gb index... this is pushing git to the limit...
+	Short answer: this project uses a very large git repository containing all of CPAN, which pushes git to the limit.
 	<br>
-	<i>read the <a href="/source-code">source code description page</a> to have a better idea of the internal implementation.</i>
+	<i>Read the <a href="/source-code">source code description page</a> to have a better idea of the internal implementation.</i>
 </p>
 
 <p>
-	<b>Can I user Regular Expression in my query ?</b>
+	<b>Can I use Regular Expressions in my query?</b>
 	<br>
-	yes you can ! we are using a 'git grep -P', which mean you can use the power of perl Regular Expression in your queries.
+	Yes you can! We use <code>git grep -P</code>, which means you can use the power of Perl Compatible Regular Expressions in your queries.
 </p>
 
 <p>
-	<b>What about UniCode characters ?</b>
+	<b>What about Unicode characters?</b>
 	<br>
-	no, you cannot use directly unicode as part of your query but you can use <b>code points</b>.
+	You cannot use Unicode characters directly as part of your query but you can use <b>code points</b>.
 	<br>
-	<i>more details from <a href="https://perldoc.perl.org/perlunicode.html">perlunicode manual</a></i>
+	<i>More details from the <a href="https://perldoc.perl.org/perlunicode">perlunicode manual</a>.</i>
 </p>
 
-
 <p>
-	<b>Any other questions ?</b>
+	<b>Any other questions?</b>
 	<br>
-	join us on IRC @irc.perl.org channel #metacpan
-	<br>
-	<i>new to IRC ? go to <a href="http://www.irc.perl.org">www.irc.perl.org</a></i>
+	Join us on <a href="https://web.libera.chat/#metacpan">IRC on Libera Chat, channel #metacpan</a>,
+	or open an issue on our <a href="https://github.com/metacpan/metacpan-grep-front-end">GitHub repository</a>.
 </p>
 
 

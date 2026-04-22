@@ -2,7 +2,7 @@
 <h1 id="aboutmetacpan"><a href="#aboutmetacpan" class="anchor"><span class="fa-solid fa-bookmark"></span></a>About grep::metacpan</h1>
 
 <p><b>grep::metacpan</b> is an open source search engine for the Comprehensive Perl Archive
-Network (<a href="http://www.cpan.org/">CPAN</a>), an ever growing archive of code and
+Network (<a href="https://www.cpan.org/">CPAN</a>), an ever growing archive of code and
 documentation for the Perl programming language.  This includes a
 comfortable web-based view and a first class mirror of the canonical
 CPAN content.</p>
@@ -10,8 +10,8 @@ CPAN content.</p>
 <p>This is <b>Y</b>et <b>A</b>nother project for searching the CPAN.</p>
 
 <p>This is not the first attempt to provide a grep through all CPAN distributions,
-	but we hope you'll find it helpful. You should also try the original
-	<a href="http://grep.cpan.me">grep.cpan.me</a> which uses a Redis database as backend.
+	but we hope you'll find it helpful. The original
+	<a href="http://grep.cpan.me">grep.cpan.me</a> (now defunct) used a Redis database as backend.
 </p>
 
 <p>This project is purely experimental. The goal is to see how 'git grep' can compete with a more
@@ -26,13 +26,13 @@ The more frequently a term is searched for, the faster the grep for that term ge
 <p>You can consume grep::metacpan in two different ways:</p>
 
 <ul>
-<li><a href="/">grep.metacpan.org</a>, by using the fronted...</li>
+<li><a href="/">grep.metacpan.org</a>, by using the frontend.</li>
 <li><a href="/api">grep.metacpan.org/api</a> or also our (slow) API.</li>
 </ul>
 
 <p>Read more about how the code is organized by reading our <a href="/source-code">GitHub repositories</a> introduction.
 
-<p>(grep::)?MetaCPAN is <a href="/about/contributors">a community effort</a>. The original idea came about when  <a href="https://metacpan.org/author/TODDR">Todd R.</a> was working on the 'dot removal from @INC' (and <a href="http://grep.cpan.me">grep.cpan.me</a> wasn't available at that particular time).</p>
+<p>(grep::)?MetaCPAN is <a href="/about/contributors">a community effort</a>. The original idea came about when <a href="https://metacpan.org/author/TODDR">Todd R.</a> was working on the 'dot removal from @INC' (and <a href="http://grep.cpan.me">grep.cpan.me</a> wasn't available at that particular time).</p>
 
 
 <h2 id="helpwanted"><a href="#helpwanted" class="anchor"><span class="fa-solid fa-bookmark"></span></a>Help wanted</h2>

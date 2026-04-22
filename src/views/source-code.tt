@@ -1,7 +1,7 @@
 <div class="content about anchors">
 <h1 id="aboutmetacpan"><a href="#aboutmetacpan" class="anchor"><span class="fa-solid fa-bookmark"></span></a>Where to find the source code of grep::metacpan ?</h1>
 
-<p><b>grep::metacpan</b> is an open source experimental project developped by the <a href="http://perl.org">Perl Community</a>.
+<p><b>grep::metacpan</b> is an open source experimental project developed by the <a href="https://perl.org">Perl Community</a>.
 
 <p>The source code is divided into three git repositories:</p>
 

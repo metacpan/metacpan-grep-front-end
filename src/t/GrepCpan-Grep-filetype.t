@@ -53,6 +53,11 @@ is $grep->_parse_query_filetype('.pm,..,.pl'), undef, 'double dots in list rejec
 is $grep->_parse_query_filetype('.pm, <script>, .pl'), ['.pm', '.pl'],
     'invalid chars filtered out';
 
+# glob ? character (single-character wildcard)
+is $grep->_parse_query_filetype('*.ya?ml'), ['*.ya?ml'], 'glob ? preserved';
+is $grep->_parse_query_filetype('*.ya?ml, *.conf'), ['*.ya?ml', '*.conf'],
+    'glob ? with other extensions';
+
 # --- _parse_and_check_query_filetype ---
 
 {
@@ -102,6 +107,19 @@ is $grep->_parse_ignore_files(''), undef, 'empty returns undef';
 {
     my $result = $grep->_parse_ignore_files('*.p[ml]');
     is $result, [':!*.p[ml]'], 'ignore with character class preserved';
+}
+
+# glob ? character in ignore patterns
+{
+    my $result = $grep->_parse_ignore_files('*.ya?ml');
+    is $result, [':!*.ya?ml'], 'ignore glob ? preserved (matches yaml/yml)';
+}
+
+{
+    # the default exclude list from grepcpan.js includes *.ya?ml
+    my $result = $grep->_parse_ignore_files('*.PL, /t/*, *.ya?ml, *.conf');
+    is scalar @$result, 4, 'default-like ignore list with glob ? accepted';
+    is $result->[2], ':!*.ya?ml', 'ya?ml pattern not silently dropped';
 }
 
 # directory traversal blocked

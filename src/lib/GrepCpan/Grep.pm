@@ -263,6 +263,21 @@ sub do_search ( $self, %opts ) {
         $opts{caseinsensitive}, $opts{ignore_files},
         );
 
+    # Return immediately for empty/missing search queries — avoids
+    # forking a child process to run git grep with an empty pattern,
+    # which would match every file in the repository.
+    unless ( defined $search && $search =~ m{\S} ) {
+        return {
+            is_incomplete      => 0,
+            search_in_progress => 0,
+            match              => { files => 0, distros => 0 },
+            adjusted_request   => {},
+            results            => [],
+            time_elapsed       => '0.000',
+            is_a_known_distro  => 0,
+        };
+    }
+
     my $t0 = [Time::HiRes::gettimeofday];
 
     $search = _sanitize_search($search);

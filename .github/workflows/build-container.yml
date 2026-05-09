@@ -1,0 +1,52 @@
+name: Build container
+on:
+  push:
+    branches:
+      - master
+      - staging
+      - prod
+  pull_request:
+    types: [opened, synchronize, labeled]
+    branches:
+      - master
+  workflow_dispatch:
+permissions: {}
+jobs:
+  docker-build:
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'build-container')
+    runs-on: ubuntu-latest
+    name: Docker Build and Push
+    permissions:
+      packages: write
+    steps:
+      - name: Generate Auth Token
+        uses: actions/create-github-app-token@v3
+        id: app-token
+        with:
+          client-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: metacpan
+          permission-contents: read
+          permission-actions: write
+      - uses: actions/checkout@v6
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+      - uses: metacpan/metacpan-actions/docker-build-push@master
+        id: build-push
+        with:
+          docker_hub_username: ${{ secrets.DOCKER_HUB_USER }}
+          docker_hub_password: ${{ secrets.DOCKER_HUB_TOKEN }}
+          ghcr_username: ${{ github.repository_owner }}
+          ghcr_password: ${{ secrets.GITHUB_TOKEN }}
+          build-args: |
+            APP_ENV=production
+            PLACKUP_ARGS=-E production -s Starman --workers=10
+      - name: Update deployed image
+        if: ${{ fromJSON(steps.build-push.outputs.tag-fq).latest }}
+        uses: metacpan/metacpan-actions/update-deployed-tag@master
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          app: grep
+          environment: prod
+          base-tag: ${{ fromJSON(steps.build-push.outputs.tag-fq).latest }}
+          tag: ${{ fromJSON(steps.build-push.outputs.tag-fq).sha }}

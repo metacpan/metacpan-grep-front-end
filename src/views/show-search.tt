@@ -5,7 +5,7 @@
     l2d_q   = search | uri;
     l2d_qd  = item.distro | uri;
     l2d_qft = qft | uri;
-    l2d_qifl = qifl | html_entity;
+    l2d_qifl = qifl | uri;
 
     SET link_to_distro = "/search?qci=${l2d_qci}&amp;q=${l2d_q}&amp;qft=${l2d_qft}&amp;qd=${l2d_qd}&amp;qifl=${l2d_qifl}";
   %>

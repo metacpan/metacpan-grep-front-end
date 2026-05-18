@@ -1,7 +1,0 @@
-#!/bin/sh
-
-export PATH=/opt/perl-5.22.2/bin:$PATH
-export LD_LIBRARY_PATH=/lib:/home/atoomic/lib
-export PATH=/home/atoomic/metacpan-grep-front-end/local/bin:$PATH
-
-plackup -p 5051 -R . bin/app.psgi

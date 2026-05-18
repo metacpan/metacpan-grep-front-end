@@ -1,7 +1,0 @@
-#!/bin/sh
-
-#killall plackup
-killall git
-plackup -p 5010 -R lib,bin  bin/app.psgi
-#carton plackup -p 5000 -R . bin/app.psgi
-#carton exec starman -p 5000 -R . bin/app.psgi

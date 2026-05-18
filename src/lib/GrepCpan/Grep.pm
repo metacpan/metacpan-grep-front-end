@@ -866,6 +866,8 @@ sub run_git_cmd_limit ( $self, %opts ) {
     local $SIG{'ALRM'} = sub { die "Alarm signal triggered - $$" };
 
     if ($child_pid) {    # parent process
+        close($CW);      # close write-end in parent — avoids blocking readline
+                          # if child crashes without sending END_OF_FILE_MARKER
         my $c = 1;
         alarm( $self->config->{timeout}->{user_search} );
         eval {
@@ -890,6 +892,7 @@ sub run_git_cmd_limit ( $self, %opts ) {
     }
     else {
         # in kid process
+        close($from_kid);    # close read-end in child — avoids fd leak
         local $| = 1;
         my $current_pid       = $$;
         my $can_write_to_pipe = 1;

@@ -536,7 +536,8 @@ sub get_list_of_files_to_search( $self, $cache, $search, $page, $distro,
 
             # check if there is a distro filter and apply it
             if ( defined $distro && length $distro ) {
-                $keep = $key =~ qr{$distro}i ? 1 : 0;
+                my $safe = quotemeta($distro);
+                $keep = $key =~ qr{$safe}i ? 1 : 0;
             }
             $keep;
             }

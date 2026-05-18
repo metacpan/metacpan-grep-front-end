@@ -140,6 +140,7 @@ get '/api/search' => sub {
         search          => $q,
         page            => $page - 1,
         search_distro   => $qdistro,        # filter on a distribution
+        search_file     => $file,
         filetype        => $filetype,
         caseinsensitive => $qci,
         ignore_files    => $ignore_files,

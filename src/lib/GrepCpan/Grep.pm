@@ -867,26 +867,29 @@ sub run_git_cmd_limit ( $self, %opts ) {
 
     if ($child_pid) {    # parent process
         my $c = 1;
+        my $too_busy = 0;
         alarm( $self->config->{timeout}->{user_search} );
         eval {
             while ( my $line = readline($from_kid) ) {
                 chomp $line;
                 if ( $c == 1 && $line eq TOO_BUSY_MARKER() ) {
-                    return [];
+                    $too_busy = 1;
+                    last;
                 }
                 push @lines, $line;
                 last if ++$c > $limit;
 
                 last if $line eq END_OF_FILE_MARKER();
             }
-            alarm(0);
             1;
-        };    # or warn $@;
+        };
+        alarm(0);    # cancel alarm in all cases: normal exit, timeout, or too-busy
         close($from_kid);
         kill 'USR1' => $child_pid;
         while ( waitpid( -1, WNOHANG ) > 0 ) {
             1;
         };    # catch what we can at this step... the process is running in bg
+        return [] if $too_busy;
     }
     else {
         # in kid process

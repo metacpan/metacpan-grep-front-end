@@ -18,7 +18,7 @@
     </strong></big>
     <div class="logged_out" style="display: inline;">
       <a href="<% link_to_distro %>" class="favorite highlight">
-      <span><%= item.files.size %></span> <%= item.files.size <= 1 ? 'match' : 'match' %></a>
+      <span><%= item.files.size %></span> <%= item.files.size <= 1 ? 'file' : 'files' %></a>
     </div>
 
   <br>

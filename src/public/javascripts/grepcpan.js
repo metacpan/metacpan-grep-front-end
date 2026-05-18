@@ -105,10 +105,32 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
+/* Auto-refresh when a background search is in progress */
+function setupAutoRefresh() {
+  var el = document.getElementById('search-in-progress');
+  if (!el) return;
+
+  var delay = parseInt(el.getAttribute('data-refresh-delay'), 10) || 5;
+  var remaining = delay;
+  var countdown = document.getElementById('refresh-countdown');
+
+  var timer = setInterval(function() {
+    remaining--;
+    if (countdown) {
+      countdown.innerHTML = 'Auto-refreshing in <b>' + remaining + '</b> second' + (remaining !== 1 ? 's' : '') + '...';
+    }
+    if (remaining <= 0) {
+      clearInterval(timer);
+      window.location.reload();
+    }
+  }, 1000);
+}
+
 /* Initialize on DOM ready */
 document.addEventListener('DOMContentLoaded', function() {
   MetaCPANGrep.globalSetup();
   MetaCPANGrep.updateIgnoreListCheckbox();
+  setupAutoRefresh();
 
   var ignoreInput = document.getElementById('ignore-files-input');
   if (ignoreInput) {

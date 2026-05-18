@@ -90,10 +90,12 @@
         <div style="display: inline;">
 
         <% IF query.search_in_progress %>
+          <div id="search-in-progress" data-refresh-delay="5">
           <i class="fa-solid fa-gear fa-spin fa-2x"></i>
           <span class="sr-only">Your query is still running in background...</span>Search in progress...
           at this time found <b><% query.match.distros %></b> distributions and <b><% query.match.files %></b> files matching your query.
-          <br>Next refresh should show more results.
+          <br><span id="refresh-countdown">Auto-refreshing in <b>5</b> seconds...</span>
+          </div>
         <% ELSE %>
         <% IF query.is_incomplete %>
           found more than <b><% query.match.distros %></b> distributions - <i>search limited to the first <b><% query.match.files %></b> files matching your query</i>

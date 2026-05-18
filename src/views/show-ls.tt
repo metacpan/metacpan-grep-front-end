@@ -28,7 +28,7 @@
 
   <% FOREACH match IN item.matches %>
   <p class="description">
-    <a class="author" href="<% link_withmatch %>&amp;f=<% match.file | html_entity %>" title="grep on this file"><% match.file %></a>
+    <a class="author" href="<% link_withmatch %>&amp;f=<% match.file | html_entity %>" title="grep on this file"><% match.file | html %></a>
   </p>
   <% END %>
 

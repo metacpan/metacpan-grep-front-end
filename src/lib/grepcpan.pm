@@ -68,7 +68,8 @@ get '/search' => sub {
     );
 
     my $qci          = param('qci');       # case insensitive
-    my $page         = param('p') || 1;
+    my $page         = int( param('p') || 1 );
+    $page = 1 if $page < 1;
     my $file         = param('f');
 
     my $query        = $grep->do_search(
@@ -132,7 +133,8 @@ get '/api/search' => sub {
     my $filetype     = param('qft');
     my $qdistro      = param('qd');
     my $qci          = param('qci');      # case insensitive
-    my $page         = param('p') || 1;
+    my $page         = int( param('p') || 1 );
+    $page = 1 if $page < 1;
     my $file         = param('f');
     my $ignore_files = param('qifl');
 

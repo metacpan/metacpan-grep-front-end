@@ -78,7 +78,7 @@ my $is_number = validator(
 
 my $is_boolean = validator(
     sub {
-        match(qr{^[0-]$});
+        match(qr{^[01]$});
     }
 );
 

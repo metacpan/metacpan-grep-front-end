@@ -19,12 +19,12 @@
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
 
 		<!-- Font Awesome 6 (CDN, replaces local FA4) -->
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css" crossorigin="anonymous">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css" integrity="sha384-nRgPTkuX86pH8yjPJUAFuASXQSSl2/bBUiNV47vSYpKFxHJhbcrGnmlYpYJMeD7a" crossorigin="anonymous">
 
 		<!-- Prism.js syntax highlighting (CDN, replaces SyntaxHighlighter) -->
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/themes/prism.min.css">
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/plugins/line-numbers/prism-line-numbers.min.css">
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/plugins/line-highlight/prism-line-highlight.min.css">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/themes/prism.min.css" integrity="sha384-rCCjoCPCsizaAAYVoz1Q0CmCTvnctK0JkfCSjx7IIxexTBg+uCKtFYycedUjMyA2" crossorigin="anonymous">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/plugins/line-numbers/prism-line-numbers.min.css" integrity="sha384-nUkTNLI8COlMCRJ0FHIdX76If83145OTCLUx4gQyfnO0gGeO/sD9czGEUBxtkcUv" crossorigin="anonymous">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/plugins/line-highlight/prism-line-highlight.min.css" integrity="sha384-bCq+nBO5hUxeJTxGcpLbGAP5hqUhRUl9xclGVWMifyWonUxPS1+fO1JzOplEJsLP" crossorigin="anonymous">
 
 		<!-- App styles -->
 		<link rel="stylesheet" href="/css/grepcpan.css">
@@ -33,10 +33,10 @@
 		<script src="/javascripts/grepcpan.js" defer></script>
 
 		<!-- Prism.js core + Perl language + plugins -->
-		<script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/prism.min.js" defer></script>
-		<script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-perl.min.js" defer></script>
-		<script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/plugins/line-numbers/prism-line-numbers.min.js" defer></script>
-		<script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/plugins/line-highlight/prism-line-highlight.min.js" defer></script>
+		<script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/prism.min.js" integrity="sha384-guvyurEPUUeAKyomgXWf/3v1dYx+etnMZ0CeHWsUXSqT1sRwh4iLpr9Z+Lw631fX" crossorigin="anonymous" defer></script>
+		<script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-perl.min.js" integrity="sha384-TBezSCOvSMb3onoz0oj0Yi0trDW0ZQIz7CaneDU5q4gsUSqaPKMD6DlepFFJj+qa" crossorigin="anonymous" defer></script>
+		<script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/plugins/line-numbers/prism-line-numbers.min.js" integrity="sha384-6QJu8apxMmB9TiPVWzYKF5pRgKcz7snO0/QU+MrWmgBLECQjoa6erxX2VQ5t41Jd" crossorigin="anonymous" defer></script>
+		<script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/plugins/line-highlight/prism-line-highlight.min.js" integrity="sha384-aA5pbfEm+kZPOE/CKuBywvgtAzs4ZrQPlTwexPyFEwQ96E9rTPN1B0ObNmCn9tgH" crossorigin="anonymous" defer></script>
 	</head>
 	<body>
 		<% INCLUDE main/_header.tt %>

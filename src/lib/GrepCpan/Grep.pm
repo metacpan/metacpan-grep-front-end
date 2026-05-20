@@ -592,7 +592,15 @@ sub _load_cache ( $self, $cache_file ) {
     return if $self->config()->{nocache};
 
     return unless defined $cache_file && -e $cache_file;
-    return Sereal::read_sereal($cache_file);
+
+    my $data;
+    eval { $data = Sereal::read_sereal($cache_file); 1 } or do {
+        warn "Corrupt cache file $cache_file: $@";
+        unlink $cache_file;
+        return;
+    };
+
+    return $data;
 }
 
 sub _parse_and_check_query_filetype ( $self, $query_filetype, $adjusted_request={} ) {
@@ -845,7 +853,26 @@ sub run_git_cmd_limit ( $self, %opts ) {
             # return the content of our current cache from previous run
             my @from_cache = File::Slurp::read_file($cache_file);
             chomp @from_cache;
-            return \@from_cache;
+
+            # Detect stale incomplete cache: if the file has no end marker
+            # and hasn't been modified in 20 minutes, the writing child
+            # likely crashed.  Delete the stale file so a fresh search runs.
+            if (   !scalar @from_cache
+                || $from_cache[-1] ne END_OF_FILE_MARKER() )
+            {
+                my $mtime = ( stat($cache_file) )[9] // 0;
+                if ( time() - $mtime > 60 * 20 ) {
+                    warn "Stale incomplete cache file $cache_file, removing";
+                    unlink $cache_file;
+                    # fall through to run a fresh search
+                }
+                else {
+                    return \@from_cache;
+                }
+            }
+            else {
+                return \@from_cache;
+            }
         }
     }
 
